@@ -149,6 +149,105 @@ files: [File1.pdf, File2.docx, File3.doc]
 }
 ```
 
+### POST /resumes/upload-from-urls
+
+**Purpose:** Upload resumes from external URLs
+**Request:**
+
+```json
+{
+  "urls": [
+    "https://example.com/resumes/john_doe.pdf",
+    "https://drive.google.com/file/d/abc123/resume.pdf",
+    "https://linkedin.com/in/johndoe/download/resume"
+  ],
+  "options": {
+    "max_file_size": "10MB",
+    "allowed_types": ["pdf", "doc", "docx", "txt"],
+    "timeout": 30000,
+    "follow_redirects": true
+  }
+}
+```
+
+**Success Response (201):**
+
+```json
+{
+  "success": true,
+  "message": "Resumes uploaded from URLs successfully",
+  "data": {
+    "uploaded_count": 2,
+    "failed_count": 1,
+    "resumes": [
+      {
+        "id": 3,
+        "filename": "john_doe_resume.pdf",
+        "original_name": "John Doe - Senior Developer.pdf",
+        "source_url": "https://example.com/resumes/john_doe.pdf",
+        "file_size": 1024000,
+        "content_extracted": true,
+        "upload_date": "2024-01-01T00:00:00Z",
+        "download_time_ms": 1200,
+        "status": "processed"
+      },
+      {
+        "id": 4,
+        "filename": "sarah_wilson_resume.pdf",
+        "original_name": "Sarah Wilson - Full Stack Engineer.pdf",
+        "source_url": "https://drive.google.com/file/d/abc123/resume.pdf",
+        "file_size": 856000,
+        "content_extracted": true,
+        "upload_date": "2024-01-01T00:00:00Z",
+        "download_time_ms": 2800,
+        "status": "processed"
+      }
+    ],
+    "failed_downloads": [
+      {
+        "url": "https://linkedin.com/in/johndoe/download/resume",
+        "error": "Access denied - authentication required",
+        "error_code": "DOWNLOAD_AUTH_REQUIRED"
+      }
+    ],
+    "processing_time_ms": 3500
+  }
+}
+```
+
+**Error Response (400) - Invalid URLs:**
+
+```json
+{
+  "success": false,
+  "message": "Some URLs are invalid or inaccessible",
+  "data": {
+    "uploaded_count": 1,
+    "failed_count": 2,
+    "resumes": [
+      {
+        "id": 5,
+        "filename": "valid_resume.pdf",
+        "source_url": "https://valid-site.com/resume.pdf",
+        "status": "processed"
+      }
+    ],
+    "failed_downloads": [
+      {
+        "url": "https://invalid-url.com/resume.pdf",
+        "error": "File not found",
+        "error_code": "DOWNLOAD_NOT_FOUND"
+      },
+      {
+        "url": "https://large-file.com/resume.pdf",
+        "error": "File size exceeds limit (15MB > 10MB)",
+        "error_code": "DOWNLOAD_SIZE_EXCEEDED"
+      }
+    ]
+  }
+}
+```
+
 ### GET /resumes
 
 **Purpose:** Get all uploaded resumes

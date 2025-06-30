@@ -303,9 +303,6 @@ const ResumeCard = ({
               </div>
             )}
           </div>
-          <button className="action-btn" title="More Actions">
-            <i className="fas fa-ellipsis-v"></i>
-          </button>
         </div>
       </div>
 

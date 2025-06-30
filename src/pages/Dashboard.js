@@ -3,6 +3,8 @@ import Header from "../components/Header";
 import ResumeCard from "../components/ResumeCard";
 import AIChat from "../components/AIChat";
 import { mockApiResponses } from "../utils/mockData";
+import ApiService from "../services/apiService";
+import JSZip from "jszip";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
@@ -18,7 +20,6 @@ const Dashboard = () => {
   const [showAIChat, setShowAIChat] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedResumes, setSelectedResumes] = useState(new Set());
-  const [showUrlUpload, setShowUrlUpload] = useState(false);
   const [urlList, setUrlList] = useState("");
   const fileInputRef = useRef(null);
   const jobFileInputRef = useRef(null);
@@ -54,11 +55,9 @@ const Dashboard = () => {
 
     setLoading(true);
     try {
-      // Simulate API call
-      await simulateApiDelay();
-
-      // Use mock response
       const response = mockApiResponses.uploadResumes;
+      // Use API service
+      // const response = await ApiService.uploadResumes(files);
       alert(`${response.data.uploaded_count} resume(s) uploaded successfully!`);
 
       // Load all resumes after upload
@@ -72,11 +71,9 @@ const Dashboard = () => {
 
   const loadAllResumes = async () => {
     try {
-      // Simulate API call
-      await simulateApiDelay(800);
-
-      // Use mock response and transform to component format
+      // Use API service
       const response = mockApiResponses.getResumes;
+      // const response = await ApiService.getResumes();
       const transformedResumes = response.data.resumes.map((resume) => ({
         id: resume.id,
         name: resume.original_name,
@@ -105,11 +102,11 @@ const Dashboard = () => {
 
     setLoading(true);
     try {
-      // Simulate API call
-      await simulateApiDelay(2000);
-
-      // Use mock response
+      // Use API service for matching
       const response = mockApiResponses.matchResumes;
+      // const response = await ApiService.matchResumes(
+      //   jobDescription.trim() || jobFile?.name
+      // );
 
       // Transform matched resumes to component format
       const transformedMatches = response.data.matched_resumes.map(
@@ -149,7 +146,10 @@ const Dashboard = () => {
       return;
     }
 
-    const urls = urlList.split("\n").map((url) => url.trim()).filter((url) => url.length > 0);
+    const urls = urlList
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
 
     if (urls.length === 0) {
       alert("Please enter valid URLs");
@@ -164,8 +164,13 @@ const Dashboard = () => {
 
       for (const url of urls) {
         try {
-          new URL(url); // This will throw if invalid
-          validUrls.push(url);
+          const urlObj = new URL(url);
+          // Check if it's a valid HTTP/HTTPS URL
+          if (urlObj.protocol === "http:" || urlObj.protocol === "https:") {
+            validUrls.push(url);
+          } else {
+            invalidUrls.push(url);
+          }
         } catch {
           invalidUrls.push(url);
         }
@@ -175,42 +180,101 @@ const Dashboard = () => {
         alert(
           `Invalid URLs found:\n${invalidUrls.join(
             "\n"
-          )}\n\nPlease correct them and try again.`
+          )}\n\nPlease ensure all URLs start with http:// or https://`
         );
         setLoading(false);
         return;
       }
 
       // Simulate API call to fetch resumes from URLs
-      await simulateApiDelay(2000);
+      await simulateApiDelay(1500);
 
-      // Mock successful upload from URLs
-      const mockUploadedResumes = validUrls.map((url, index) => ({
-        id: Date.now() + index,
-        name: `Resume from ${new URL(url).hostname}`,
-        description: `Resume downloaded from ${url}`,
-        avatar: url.charAt(8).toUpperCase(), // Use first char after protocol
-        uploadDate: new Date().toISOString(),
-        source: "url",
-        originalUrl: url,
-      }));
+      // Enhanced mock upload with more realistic data
+      const mockUploadedResumes = await Promise.all(
+        validUrls.map(async (url, index) => {
+          const urlObj = new URL(url);
+          const domain = urlObj.hostname;
+
+          // Generate more realistic resume data based on URL
+          const candidateNames = [
+            "John Smith",
+            "Sarah Johnson",
+            "Michael Brown",
+            "Emma Davis",
+            "David Wilson",
+            "Lisa Anderson",
+            "James Taylor",
+            "Jennifer Martinez",
+          ];
+
+          const candidateName = candidateNames[index % candidateNames.length];
+          const filename = urlObj.pathname.split("/").pop() || "resume";
+
+          // Simulate different file types
+          const fileExtensions = [".pdf", ".doc", ".docx", ".txt"];
+          const fileExt = fileExtensions[index % fileExtensions.length];
+
+          return {
+            id: Date.now() + index,
+            name: `${candidateName}_${filename}${fileExt}`,
+            description: `Professional ${
+              Math.random() > 0.5 ? "Software Engineer" : "Data Scientist"
+            } with ${
+              Math.floor(Math.random() * 8) + 2
+            } years of experience. Downloaded from ${domain}.`,
+            avatar: candidateName.charAt(0).toUpperCase(),
+            uploadDate: new Date().toISOString(),
+            source: "url",
+            originalUrl: url,
+            fileSize: `${Math.floor(Math.random() * 500) + 100}KB`,
+            downloadTime: new Date().toISOString(),
+            status: "success",
+          };
+        })
+      );
 
       // Add to allResumes
       setAllResumes((prev) => [...prev, ...mockUploadedResumes]);
 
-      alert(`Successfully uploaded ${validUrls.length} resume(s) from URLs!`);
+      alert(
+        `Successfully uploaded ${
+          validUrls.length
+        } resume(s) from URLs!\n\nFiles downloaded:\n${mockUploadedResumes
+          .map((r) => `• ${r.name}`)
+          .join("\n")}`
+      );
       setUrlList("");
-      setShowUrlUpload(false);
 
       // In a real application, you would call:
-      // const response = await fetch('/api/resumes/upload-from-urls', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ urls: validUrls })
-      // });
+      /*
+      const response = await fetch('/api/resumes/upload-from-urls', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userToken}`
+        },
+        body: JSON.stringify({ 
+          urls: validUrls,
+          options: {
+            maxFileSize: '10MB',
+            allowedTypes: ['pdf', 'doc', 'docx', 'txt'],
+            timeout: 30000
+          }
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      setAllResumes(prev => [...prev, ...result.uploadedResumes]);
+      */
     } catch (error) {
       console.error("URL upload error:", error);
-      alert("Failed to upload resumes from URLs. Please try again.");
+      alert(
+        "Failed to upload resumes from URLs. Please check the URLs and try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -287,9 +351,7 @@ const Dashboard = () => {
         ? `Matching Skills: ${resume.matchingSkills.join(", ")}\n`
         : ""
     }${
-      resume.experienceMatch
-        ? `Experience: ${resume.experienceMatch}\n`
-        : ""
+      resume.experienceMatch ? `Experience: ${resume.experienceMatch}\n` : ""
     }\nGenerated on: ${new Date().toLocaleString()}`;
 
     const blob = new Blob([content], { type: "text/plain" });
@@ -309,13 +371,13 @@ const Dashboard = () => {
 
   // Download multiple resumes as ZIP
   const downloadAsZip = async (resumes) => {
-    // For demo purposes, we'll create a simple ZIP-like download
-    // In a real application, you would use JSZip library or call backend API
-
     alert(`Preparing ZIP file with ${resumes.length} resume(s)...`);
 
     try {
-      // Simulate creating individual files
+      // Create JSZip instance
+      const zip = new JSZip();
+
+      // Create individual resume files
       const files = resumes.map((resume) => ({
         name: `${resume.name.replace(/[^a-z0-9]/gi, "_")}.txt`,
         content: `Resume: ${resume.name}\n\nScore: ${
@@ -328,48 +390,85 @@ const Dashboard = () => {
           resume.experienceMatch
             ? `Experience: ${resume.experienceMatch}\n`
             : ""
+        }${
+          resume.strengths
+            ? `\nStrengths:\n${resume.strengths
+                .map((s) => `• ${s}`)
+                .join("\n")}\n`
+            : ""
+        }${
+          resume.weaknesses
+            ? `\nAreas for Improvement:\n${resume.weaknesses
+                .map((w) => `• ${w}`)
+                .join("\n")}\n`
+            : ""
         }\nGenerated on: ${new Date().toLocaleString()}`,
       }));
 
-      // Create a manifest file
-      const manifest = `Resume Download Package\n\nDate: ${new Date().toLocaleString()}\nTotal Files: ${files.length}\n\nFiles Included:\n${files
-        .map((f, i) => `${i + 1}. ${f.name}`)
-        .join("\n")}`;
+      // Add files to ZIP
+      files.forEach((file) => {
+        zip.file(file.name, file.content);
+      });
 
-      // For demo, create a combined text file
-      const combinedContent = `${manifest}\n\n${"=".repeat(
-        50
-      )}\n\n${files
-        .map(
-          (f) => `${f.name}:\n${"-".repeat(20)}\n${f.content}\n\n`
-        )
-        .join("")}`;
+      // Create a manifest/summary file
+      const manifest = `Resume Download Package Summary
+===========================================
 
-      const blob = new Blob([combinedContent], { type: "text/plain" });
-      const url = window.URL.createObjectURL(blob);
+Date: ${new Date().toLocaleString()}
+Total Files: ${files.length}
 
+Files Included:
+${files.map((f, i) => `${i + 1}. ${f.name}`).join("\n")}
+
+Download Summary:
+${
+  showMatched
+    ? "These resumes were matched against the job description."
+    : "All uploaded resumes."
+}
+${
+  showMatched && topFilter !== "all"
+    ? `Filtered to show top ${topFilter} candidates.`
+    : ""
+}
+Sorted by: ${sortBy
+        .replace("-", " ")
+        .replace("desc", "descending")
+        .replace("asc", "ascending")}
+
+Generated by Resume Matcher Tool
+Visit: https://your-resume-matcher.com
+`;
+
+      zip.file("README.txt", manifest);
+
+      // Generate ZIP file
+      const zipBlob = await zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: {
+          level: 6,
+        },
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(zipBlob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `Selected_Resumes_${new Date()
-        .toISOString()
-        .split("T")[0]}.txt`;
+      link.download = `Resume_Package_${
+        new Date().toISOString().split("T")[0]
+      }_${resumes.length}files.zip`;
       document.body.appendChild(link);
       link.click();
 
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      alert(`ZIP file with ${resumes.length} resume(s) downloaded successfully!`);
-
-      // In a real application with JSZip:
-      // const JSZip = require('jszip');
-      // const zip = new JSZip();
-      // files.forEach(file => {
-      //   zip.file(file.name, file.content);
-      // });
-      // const zipBlob = await zip.generateAsync({type: "blob"});
-      // // Download zipBlob...
+      alert(
+        `ZIP file with ${resumes.length} resume(s) downloaded successfully!`
+      );
     } catch (error) {
+      console.error("ZIP creation error:", error);
       throw error;
     }
   };
@@ -477,52 +576,12 @@ const Dashboard = () => {
 
     try {
       setLoading(true);
-      
+
       // Use the same ZIP download functionality
       await downloadAsZip(resumesToDownload);
-
     } catch (error) {
       console.error("Bulk download error:", error);
       alert("Bulk download failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-        // Create demo content for each resume
-        const content = `Resume: ${resume.name}\n\nScore: ${
-          resume.score || "N/A"
-        }%\nDescription: ${resume.description}\n\n${
-          resume.matchingSkills
-            ? `Matching Skills: ${resume.matchingSkills.join(", ")}\n`
-            : ""
-        }${
-          resume.experienceMatch
-            ? `Experience: ${resume.experienceMatch}\n`
-            : ""
-        }\nGenerated on: ${new Date().toLocaleString()}`;
-
-        const blob = new Blob([content], { type: "text/plain" });
-        const url = window.URL.createObjectURL(blob);
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${resume.name.replace(/[^a-z0-9]/gi, "_")}_resume.txt`;
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
-        // Small delay between downloads to prevent browser blocking
-        if (i < resumesToDownload.length - 1) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        }
-      }
-
-      alert(`${resumesToDownload.length} resume(s) downloaded successfully!`);
-    } catch (error) {
-      alert("Bulk download failed: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -658,7 +717,13 @@ const Dashboard = () => {
                         onClick={() => {
                           setUploadType(option);
                           setShowUploadDropdown(false);
-                          setShowUrlUpload(option === "Upload from URL");
+                          // Clear URL list when switching away from URL upload
+                          if (
+                            uploadType === "Upload from URL" &&
+                            option !== "Upload from URL"
+                          ) {
+                            setUrlList("");
+                          }
                         }}
                       >
                         {option}
@@ -680,7 +745,7 @@ const Dashboard = () => {
                     />
                   </div>
                   <div className="url-upload-actions">
-                    <button 
+                    <button
                       className="upload-from-urls-btn"
                       onClick={handleUrlUpload}
                       disabled={loading || !urlList.trim()}
@@ -688,7 +753,7 @@ const Dashboard = () => {
                       <i className="fas fa-cloud-download-alt"></i>
                       {loading ? "Uploading..." : "Upload from URLs"}
                     </button>
-                    <button 
+                    <button
                       className="clear-urls-btn"
                       onClick={() => setUrlList("")}
                       disabled={!urlList.trim()}
@@ -700,7 +765,8 @@ const Dashboard = () => {
                   <div className="url-upload-info">
                     <small>
                       <i className="fas fa-info-circle"></i>
-                      Supported: Direct links to PDF, DOC, DOCX files or public resume URLs
+                      Supported: Direct links to PDF, DOC, DOCX files or public
+                      resume URLs
                     </small>
                   </div>
                 </div>
@@ -752,7 +818,7 @@ const Dashboard = () => {
                 {!showMatched && allResumes.length === 0 && (
                   <button className="load-btn" onClick={loadAllResumes}>
                     <i className="fas fa-refresh"></i>
-                    Load Resumes
+                    Load All Resumes
                   </button>
                 )}
                 <div className="arrow-indicator">
@@ -918,20 +984,6 @@ const Dashboard = () => {
                 )}
               </div>
             </div>
-
-            {/* Bulk Download Button (shown only when matched resumes are displayed) */}
-            {showMatched && matchedResumes.length > 0 && (
-              <div className="bulk-download-container">
-                <button
-                  className="bulk-download-btn"
-                  onClick={handleBulkDownload}
-                  disabled={loading}
-                >
-                  <i className="fas fa-download"></i>
-                  Download All ({getDisplayedResumes().length})
-                </button>
-              </div>
-            )}
           </section>
         </div>
       </main>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { authAPI } from "./api";
+import ApiService from "../services/apiService";
 
 const AuthContext = createContext();
 
@@ -46,24 +46,21 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
 
-      // Real API integration (uncomment when backend is ready)
-      /*
-      const response = await authAPI.login(email, password);
-      
+      // Use ApiService for authentication
+      const response = await ApiService.login({ email, password });
+
       if (response.success) {
         const { user, token } = response.data;
-        
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+
         setIsAuthenticated(true);
         setUser(user);
         return { success: true };
+      } else {
+        throw new Error("Invalid credentials");
       }
-      */
-
-      // If not demo credentials and no API, show error
-      throw new Error("Invalid credentials");
     } catch (error) {
       return { success: false, error: error.message || "Login failed" };
     }
@@ -71,35 +68,21 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (userData) => {
     try {
-      // Demo signup (for development)
-      const newUser = {
-        id: Date.now(),
-        name: userData.fullName,
-        email: userData.email,
-      };
+      // Use ApiService for registration
+      const response = await ApiService.register(userData);
 
-      localStorage.setItem("token", "demo-token");
-      localStorage.setItem("user", JSON.stringify(newUser));
-
-      setIsAuthenticated(true);
-      setUser(newUser);
-      return { success: true };
-
-      // Real API integration (uncomment when backend is ready)
-      /*
-      const response = await authAPI.register(userData);
-      
       if (response.success) {
         const { user, token } = response.data;
-        
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+
         setIsAuthenticated(true);
         setUser(user);
         return { success: true };
+      } else {
+        throw new Error("Registration failed");
       }
-      */
     } catch (error) {
       return { success: false, error: error.message || "Registration failed" };
     }
@@ -107,8 +90,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      // Call API to logout (uncomment when backend is ready)
-      // await authAPI.logout();
+      // API logout call could be added here if needed
+      // await ApiService.logout();
     } catch (error) {
       console.error("Logout API error:", error);
     } finally {
