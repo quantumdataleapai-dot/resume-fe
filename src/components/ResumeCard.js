@@ -270,38 +270,6 @@ const ResumeCard = ({
             >
               <i className="fas fa-download"></i>
             </button>
-            <button
-              className="download-options-btn"
-              onClick={toggleDropdown}
-              title="Download Options"
-            >
-              <i className="fas fa-chevron-down"></i>
-            </button>
-            {showDropdown && (
-              <div className="dropdown-menu" ref={dropdownRef}>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handleDownloadFormat("pdf")}
-                >
-                  <i className="fas fa-file-pdf"></i>
-                  Download as PDF
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handleDownloadFormat("txt")}
-                >
-                  <i className="fas fa-file-alt"></i>
-                  Download as TXT
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handleDownloadFormat("json")}
-                >
-                  <i className="fas fa-file-code"></i>
-                  Download as JSON
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
