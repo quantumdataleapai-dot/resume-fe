@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Logo from "../logo.png";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -35,7 +36,7 @@ const Header = () => {
     <header className="header">
       <div className="header-content">
         <div className="logo">
-          <i className="fas fa-file-alt"></i>
+          <img src={Logo} width={25} />
           <span>Resume Matcher</span>
         </div>
         <div className="header-actions">

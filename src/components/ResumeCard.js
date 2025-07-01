@@ -97,181 +97,105 @@ const ResumeCard = ({
     }
   };
 
-  const handleDownloadFormat = async (format) => {
-    setShowDropdown(false);
-
-    try {
-      let content, mimeType, extension;
-
-      switch (format) {
-        case "pdf":
-          content = `PDF Resume: ${resume.name}\n\nThis would be the original PDF file in a real application.`;
-          mimeType = "application/pdf";
-          extension = "pdf";
-          break;
-        case "txt":
-          content = `Resume: ${resume.name}\n\nScore: ${
-            resume.score || "N/A"
-          }%\nDescription: ${resume.description}\n\n${
-            resume.matchingSkills
-              ? `Matching Skills: ${resume.matchingSkills.join(", ")}\n`
-              : ""
-          }${
-            resume.experienceMatch
-              ? `Experience: ${resume.experienceMatch}\n`
-              : ""
-          }\nGenerated on: ${new Date().toLocaleString()}`;
-          mimeType = "text/plain";
-          extension = "txt";
-          break;
-        case "json":
-          content = JSON.stringify(
-            {
-              name: resume.name,
-              score: resume.score,
-              description: resume.description,
-              matchingSkills: resume.matchingSkills,
-              missingSkills: resume.missingSkills,
-              experienceMatch: resume.experienceMatch,
-              strengths: resume.strengths,
-              weaknesses: resume.weaknesses,
-              downloadedAt: new Date().toISOString(),
-            },
-            null,
-            2
-          );
-          mimeType = "application/json";
-          extension = "json";
-          break;
-        default:
-          return handleDownload();
-      }
-
-      const blob = new Blob([content], { type: mimeType });
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${resume.name.replace(/[^a-z0-9]/gi, "_")}.${extension}`;
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      alert(`Resume downloaded as ${format.toUpperCase()}! (Demo version)`);
-    } catch (error) {
-      console.error("Download error:", error);
-      alert("Download failed. Please try again.");
-    }
-  };
-
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
-
   return (
     <>
-      <div className={`resume-card ${showMatched ? "matched-layout" : ""}`}>
-        <div className="resume-checkbox">
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={(e) => onSelect && onSelect(e.target.checked)}
-            />
-            <span className="checkmark"></span>
-          </label>
+      {/* Checkbox column */}
+      <div style={{ display: "flex" }}>
+        <label className="checkbox-container">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={(e) => onSelect && onSelect(e.target.checked)}
+          />
+          <span className="checkmark"></span>
+        </label>
+      </div>
+
+      {/* Resume info column */}
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div className="resume-avatar">
+          <span style={{ fontSize: "1.5rem" }}>{resume.avatar || "📄"}</span>
         </div>
-
-        <div className="resume-info">
-          <div className="resume-avatar">
-            <span>{resume.avatar}</span>
+        <div className="resume-details">
+          <div
+            className="resume-name"
+            style={{ fontWeight: "500", marginBottom: "0.25rem" }}
+          >
+            {resume.filename || resume.name}
           </div>
-          <div className="resume-details">
-            <div className="resume-name">{resume.name}</div>
-            <div className="resume-description">{resume.description}</div>
+          <div
+            className="resume-description"
+            style={{ fontSize: "0.85rem", color: "rgba(255, 255, 255, 0.6)" }}
+          >
+            {resume.upload_date
+              ? `Upload date: ${resume.upload_date}`
+              : resume.description}
           </div>
         </div>
+      </div>
 
-        {showMatched && (
-          <div className="resume-score-column">
-            {resume.score > 0 ? (
-              <div className="score-container">
-                <span
-                  className="score-value prominent"
-                  style={{
-                    color: getScoreColor(resume.score),
-                    textShadow: `0 0 10px ${getScoreColor(resume.score)}40`,
-                  }}
-                >
-                  {resume.score}%
-                </span>
-                <div className="score-bar">
-                  <div
-                    className="score-fill"
-                    style={{
-                      width: `${resume.score}%`,
-                      backgroundColor: getScoreColor(resume.score),
-                      boxShadow: `0 0 8px ${getScoreColor(resume.score)}60`,
-                    }}
-                  ></div>
-                </div>
-                <span className="score-label">Match Score</span>
-              </div>
-            ) : (
-              <div className="score-container no-score">
-                <span className="score-value">N/A</span>
-                <span className="score-label">No Score</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="resume-status">
-          {showMatched ? (
-            <div className="match-summary">
-              {resume.experienceMatch && (
-                <div className="experience-info">
-                  <i className="fas fa-briefcase"></i>
-                  {resume.experienceMatch}
-                </div>
-              )}
-              {resume.matchingSkills?.length > 0 && (
-                <div className="skills-preview">
-                  <i className="fas fa-check-circle"></i>
-                  {resume.matchingSkills.slice(0, 3).join(", ")}
-                  {resume.matchingSkills.length > 3 && "..."}
-                </div>
-              )}
+      {/* Match score column (only when showMatched is true) */}
+      {showMatched && (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          {resume.score > 0 ? (
+            <div className="score-container" style={{ textAlign: "center" }}>
+              <span
+                className="score-value prominent"
+                style={{
+                  color: getScoreColor(resume.score),
+                  textShadow: `0 0 10px ${getScoreColor(resume.score)}40`,
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                }}
+              >
+                {resume.score}%
+              </span>
             </div>
           ) : (
-            <div className="status-info">
-              <span className="status-badge active">Active</span>
+            <div
+              className="score-container no-score"
+              style={{ textAlign: "center" }}
+            >
+              <span className="score-value">N/A</span>
             </div>
           )}
         </div>
+      )}
 
-        <div className="resume-actions">
-          {resume.matchingSkills && (
-            <button
-              className="details-btn"
-              onClick={openModal}
-              title="View Details"
-            >
-              <i className="fas fa-eye"></i>
-            </button>
-          )}
-          <div className="download-container" ref={dropdownRef}>
-            <button
-              className="download-btn"
-              onClick={handleDownload}
-              title="Quick Download"
-            >
-              <i className="fas fa-download"></i>
-            </button>
-          </div>
-        </div>
+      {/* Actions column */}
+      <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
+        {resume.matchingSkills && (
+          <button
+            className="details-btn"
+            onClick={openModal}
+            title="View Details"
+            style={{
+              padding: "0.5rem",
+              borderRadius: "4px",
+              border: "none",
+              background: "rgba(255, 255, 255, 0.1)",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            <i className="fas fa-eye"></i>
+          </button>
+        )}
+        <button
+          className="download-btn"
+          onClick={handleDownload}
+          title="Quick Download"
+          style={{
+            padding: "0.5rem",
+            borderRadius: "4px",
+            border: "none",
+            background: "rgba(255, 255, 255, 0.1)",
+            color: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          <i className="fas fa-download"></i>
+        </button>
       </div>
 
       {/* Resume Detail Modal */}

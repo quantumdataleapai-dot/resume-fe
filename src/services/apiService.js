@@ -1,11 +1,9 @@
-// API Service Layer
-// This service layer handles both mock and real API calls based on configuration
-
+// API Service for Frontend-to-Python Backend Communication
 import axios from "axios";
 import API_CONFIG from "../config/apiConfig";
 import { mockApiResponses } from "../utils/mockData";
 
-// Create axios instance with default config
+// Create axios instance for Python backend
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
@@ -14,13 +12,14 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Simple request interceptor (no authentication)
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    console.log(
+      `Making API call to: ${config.method?.toUpperCase()} ${config.baseURL}${
+        config.url
+      }`
+    );
     return config;
   },
   (error) => Promise.reject(error)
@@ -28,13 +27,12 @@ apiClient.interceptors.request.use(
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`API response received:`, response.status, response.data);
+    return response;
+  },
   (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem("authToken");
-      window.location.href = "/login";
-    }
+    console.error(`API error:`, error.response?.status, error.response?.data);
     return Promise.reject(error);
   }
 );
@@ -43,13 +41,12 @@ apiClient.interceptors.response.use(
 const simulateApiDelay = (ms = API_CONFIG.MOCK_DELAY) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-// API Service class
+// Simplified API Service Class
 class ApiService {
-  // Authentication APIs
+  // Authentication (dummy - frontend only)
   async login(credentials) {
     if (API_CONFIG.USE_MOCK_DATA) {
       await simulateApiDelay();
-      // Mock login logic (existing)
       if (
         credentials.email === "demo@recruiter.com" &&
         credentials.password === "demo123"
@@ -66,22 +63,14 @@ class ApiService {
       } else {
         throw new Error("Invalid credentials");
       }
-    } else {
-      const response = await apiClient.post(
-        API_CONFIG.ENDPOINTS.AUTH.LOGIN,
-        credentials
-      );
-      if (response.data.success) {
-        localStorage.setItem("authToken", response.data.data.token);
-      }
-      return response.data;
     }
+    // No real backend auth - using dummy system
+    return { success: true, message: "Using dummy authentication" };
   }
 
   async register(userData) {
     if (API_CONFIG.USE_MOCK_DATA) {
       await simulateApiDelay();
-      // Mock registration logic
       const mockResponse = {
         success: true,
         data: {
@@ -91,40 +80,16 @@ class ApiService {
       };
       localStorage.setItem("authToken", mockResponse.data.token);
       return mockResponse;
-    } else {
-      const response = await apiClient.post(
-        API_CONFIG.ENDPOINTS.AUTH.REGISTER,
-        userData
-      );
-      if (response.data.success) {
-        localStorage.setItem("authToken", response.data.data.token);
-      }
-      return response.data;
     }
+    // No real backend auth - using dummy system
+    return { success: true, message: "Using dummy authentication" };
   }
 
   // Resume APIs
   async uploadResumes(files) {
     if (API_CONFIG.USE_MOCK_DATA) {
       await simulateApiDelay();
-      // Use existing mock logic
-      const mockUploadedResumes = Array.from(files).map((file, index) => ({
-        id: Date.now() + index,
-        name: file.name,
-        description: `Professional resume uploaded: ${file.name}`,
-        avatar: file.name.charAt(0).toUpperCase(),
-        uploadDate: new Date().toISOString(),
-        source: "file",
-        fileSize: `${Math.round(file.size / 1024)}KB`,
-      }));
-
-      return {
-        success: true,
-        data: {
-          uploaded_count: files.length,
-          resumes: mockUploadedResumes,
-        },
-      };
+      return mockApiResponses.uploadResumes;
     } else {
       const formData = new FormData();
       Array.from(files).forEach((file) => {
@@ -132,7 +97,41 @@ class ApiService {
       });
 
       const response = await apiClient.post(
-        API_CONFIG.ENDPOINTS.RESUMES.UPLOAD,
+        API_CONFIG.ENDPOINTS.RESUMES.UPLOAD_MULTIPLE,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      return response.data;
+    }
+  }
+
+  async uploadSingleResume(file, metadata = null) {
+    if (API_CONFIG.USE_MOCK_DATA) {
+      await simulateApiDelay(1200);
+      const mockResume = {
+        id: Date.now(),
+        filename: file.name.replace(/\s+/g, "_").toLowerCase(),
+        original_name: file.name,
+        file_size: file.size,
+        content_extracted: true,
+        upload_date: new Date().toISOString(),
+      };
+      return {
+        success: true,
+        message: "Resume uploaded successfully",
+        data: { resume: mockResume },
+      };
+    } else {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (metadata) {
+        formData.append("metadata", JSON.stringify(metadata));
+      }
+
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.RESUMES.UPLOAD_SINGLE,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -144,8 +143,8 @@ class ApiService {
 
   async uploadFromUrls(urls, options = {}) {
     if (API_CONFIG.USE_MOCK_DATA) {
-      await simulateApiDelay();
-      // Use existing mock logic from Dashboard
+      await simulateApiDelay(3000); // URL downloads take longer
+
       const mockUploadedResumes = await Promise.all(
         urls.map(async (url, index) => {
           const urlObj = new URL(url);
@@ -169,29 +168,38 @@ class ApiService {
 
           return {
             id: Date.now() + index,
-            name: `${candidateName}_${filename}${fileExt}`,
-            description: `Professional ${
-              Math.random() > 0.5 ? "Software Engineer" : "Data Scientist"
-            } with ${
-              Math.floor(Math.random() * 8) + 2
-            } years of experience. Downloaded from ${domain}.`,
-            avatar: candidateName.charAt(0).toUpperCase(),
-            uploadDate: new Date().toISOString(),
-            source: "url",
-            originalUrl: url,
-            fileSize: `${Math.floor(Math.random() * 500) + 100}KB`,
-            status: "success",
+            filename: `${candidateName
+              .toLowerCase()
+              .replace(" ", "_")}_resume${fileExt}`,
+            original_name: `${candidateName}_resume${fileExt}`,
+            original_url: url,
+            file_size: Math.floor(Math.random() * 500000) + 100000,
+            content_extracted: true,
+            upload_date: new Date().toISOString(),
+            download_info: {
+              download_time_ms: Math.floor(Math.random() * 3000) + 1000,
+              content_type: `application/${fileExt.slice(1)}`,
+              final_url: url,
+              redirects_followed: Math.floor(Math.random() * 3),
+            },
           };
         })
       );
 
       return {
         success: true,
+        message: "URL downloads completed",
         data: {
           uploaded_count: urls.length,
           failed_count: 0,
           resumes: mockUploadedResumes,
           failed_downloads: [],
+          processing_stats: {
+            total_processing_time_ms: 8600,
+            successful_downloads: urls.length,
+            failed_downloads: 0,
+            total_downloaded_mb: 1.88,
+          },
         },
       };
     } else {
@@ -200,7 +208,9 @@ class ApiService {
         {
           urls,
           options: {
-            ...API_CONFIG.REQUEST_CONFIG,
+            timeout_seconds: 30,
+            max_file_size_mb: 10,
+            follow_redirects: true,
             ...options,
           },
         }
@@ -209,35 +219,36 @@ class ApiService {
     }
   }
 
-  async getResumes() {
+  async getResumes(page = 1, limit = 10) {
     if (API_CONFIG.USE_MOCK_DATA) {
       await simulateApiDelay(500);
-      // Return stored resumes from localStorage or empty array
-      const storedResumes = JSON.parse(
-        localStorage.getItem("uploadedResumes") || "[]"
-      );
-      return {
-        success: true,
-        data: { resumes: storedResumes },
-      };
+      // Return mock response matching GET /resumes specification
+      return mockApiResponses.getResumes;
     } else {
-      const response = await apiClient.get(API_CONFIG.ENDPOINTS.RESUMES.LIST);
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.RESUMES.LIST, {
+        params: { page, limit },
+      });
       return response.data;
     }
   }
 
-  async matchResumes(jobDescription, options = {}) {
+  async matchResumes(jobDescription, resumeIds = null) {
     if (API_CONFIG.USE_MOCK_DATA) {
       await simulateApiDelay(2000);
-      // Use existing mock response
+      // Return mock response matching POST /resumes/match specification
       return mockApiResponses.matchResumes;
     } else {
+      const payload = {
+        job_description: jobDescription,
+      };
+
+      if (resumeIds && resumeIds.length > 0) {
+        payload.resume_ids = resumeIds;
+      }
+
       const response = await apiClient.post(
         API_CONFIG.ENDPOINTS.RESUMES.MATCH,
-        {
-          job_description: jobDescription,
-          ...options,
-        }
+        payload
       );
       return response.data;
     }
@@ -262,25 +273,141 @@ class ApiService {
   }
 
   // Job APIs
-  async uploadJobDescription(jobData) {
+  async createJob(title, description) {
+    if (API_CONFIG.USE_MOCK_DATA) {
+      await simulateApiDelay();
+      return {
+        success: true,
+        message: "Job description saved successfully",
+        data: {
+          id: Date.now(),
+          title: title,
+          description: description,
+          created_at: new Date().toISOString(),
+        },
+      };
+    } else {
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.JOBS.CREATE, {
+        title: title,
+        description: description,
+      });
+      return response.data;
+    }
+  }
+
+  async getJobs() {
     if (API_CONFIG.USE_MOCK_DATA) {
       await simulateApiDelay();
       return {
         success: true,
         data: {
+          jobs: [
+            {
+              id: 1,
+              title: "Senior Software Developer",
+              description:
+                "We are looking for a senior software developer with 5+ years of experience in Python, React, and AWS...",
+              created_at: "2024-01-01T00:00:00Z",
+              last_used: "2024-01-02T10:30:00Z",
+            },
+            {
+              id: 2,
+              title: "Full Stack Engineer",
+              description:
+                "Join our team as a Full Stack Engineer working with modern technologies...",
+              created_at: "2024-01-15T00:00:00Z",
+              last_used: "2024-01-16T14:20:00Z",
+            },
+          ],
+        },
+      };
+    } else {
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.JOBS.LIST);
+      return response.data;
+    }
+  }
+
+  // Job Description APIs
+  async processJobText(jobDescription, title = null) {
+    if (API_CONFIG.USE_MOCK_DATA) {
+      await simulateApiDelay();
+      return {
+        success: true,
+        message: "Job description processed successfully",
+        data: {
           job_id: Date.now(),
-          extracted_text: jobData.job_description || "[File content extracted]",
-          key_skills: ["Python", "React", "AWS", "Docker"],
+          title: title || "Untitled Job",
+          extracted_text: jobDescription,
+          key_skills: ["Python", "React", "AWS", "Docker", "REST APIs"],
+          experience_level: "Senior",
+          job_category: "Software Development",
           created_at: new Date().toISOString(),
         },
       };
     } else {
       const response = await apiClient.post(
-        API_CONFIG.ENDPOINTS.JOBS.UPLOAD,
-        jobData
+        API_CONFIG.ENDPOINTS.JOBS.PROCESS_TEXT,
+        {
+          job_description: jobDescription,
+          title: title,
+        }
       );
       return response.data;
     }
+  }
+
+  async processJobFile(file, title = null) {
+    if (API_CONFIG.USE_MOCK_DATA) {
+      await simulateApiDelay(2000);
+      return {
+        success: true,
+        message: "Job description file processed successfully",
+        data: {
+          job_id: Date.now(),
+          title: title || file.name.replace(/\.[^/.]+$/, ""),
+          original_filename: file.name,
+          file_size: file.size,
+          extracted_text:
+            "Senior Software Developer Position\n\nWe are looking for an experienced software developer...",
+          key_skills: ["Python", "React", "AWS", "Docker", "REST APIs"],
+          experience_level: "Senior",
+          job_category: "Software Development",
+          content_extracted: true,
+          created_at: new Date().toISOString(),
+        },
+      };
+    } else {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (title) {
+        formData.append("title", title);
+      }
+
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.JOBS.PROCESS_FILE,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      return response.data;
+    }
+  }
+
+  // Process job description (unified method)
+  async processJobDescription(data) {
+    if (data.file) {
+      return this.processJobFile(data.file, data.title);
+    } else if (data.job_description) {
+      return this.processJobText(data.job_description, data.title);
+    } else {
+      throw new Error("Either job_description text or file must be provided");
+    }
+  }
+
+  // Legacy method for backward compatibility
+  async uploadJobDescription(jobData) {
+    return this.processJobDescription(jobData);
   }
 }
 

@@ -905,6 +905,15 @@ Visit: https://your-resume-matcher.com
                 className={`table-header ${
                   showMatched ? "matched-layout" : ""
                 }`}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: showMatched
+                    ? "80px 1fr 120px 100px"
+                    : "80px 1fr 100px",
+                  gap: "1rem",
+                  padding: "1rem",
+                  alignItems: "center",
+                }}
               >
                 <div className="table-col select-col">
                   <label className="checkbox-container">
@@ -938,16 +947,12 @@ Visit: https://your-resume-matcher.com
                   Resume Name
                 </div>
                 {showMatched && (
-                  <div className="table-col">
+                  <div className="table-col" style={{ textAlign: "center" }}>
                     <i className="fas fa-chart-bar"></i>
                     Match Score
                   </div>
                 )}
-                <div className="table-col">
-                  <i className="fas fa-info-circle"></i>
-                  {showMatched ? "Details" : "Status"}
-                </div>
-                <div className="table-col">
+                <div className="table-col" style={{ textAlign: "center" }}>
                   <i className="fas fa-cog"></i>
                   Actions
                 </div>
@@ -967,7 +972,20 @@ Visit: https://your-resume-matcher.com
                   </div>
                 ) : (
                   getDisplayedResumes().map((resume, index) => (
-                    <div key={resume.id} className="resume-item-wrapper">
+                    <div
+                      key={resume.id}
+                      className="resume-item-wrapper"
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: showMatched
+                          ? "80px 1fr 120px 100px"
+                          : "80px 1fr 100px",
+                        gap: "1rem",
+                        padding: "1rem",
+                        alignItems: "center",
+                        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                      }}
+                    >
                       {showMatched && topFilter !== "all" && (
                         <div className="rank-badge">#{index + 1}</div>
                       )}

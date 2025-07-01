@@ -112,8 +112,7 @@ This document provides complete API response formats with dummy data for the Res
         "original_name": "John Doe - Senior Developer.pdf",
         "file_size": 1024000,
         "upload_date": "2024-01-01T00:00:00Z",
-        "last_matched": "2024-01-02T10:30:00Z",
-        "status": "active"
+        "last_matched": "2024-01-02T10:30:00Z"
       },
       {
         "id": 2,
@@ -121,8 +120,7 @@ This document provides complete API response formats with dummy data for the Res
         "original_name": "Sarah Wilson - Full Stack Engineer.pdf",
         "file_size": 856000,
         "upload_date": "2024-01-01T00:00:00Z",
-        "last_matched": "2024-01-02T10:30:00Z",
-        "status": "active"
+        "last_matched": "2024-01-02T10:30:00Z"
       }
     ],
     "pagination": {
@@ -288,8 +286,7 @@ This document provides complete API response formats with dummy data for the Res
     "salary_range": "$120,000 - $180,000",
     "employment_type": "Full-time",
     "created_at": "2024-01-01T00:00:00Z",
-    "updated_at": "2024-01-01T00:00:00Z",
-    "status": "active"
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 }
 ```
@@ -311,8 +308,7 @@ This document provides complete API response formats with dummy data for the Res
         "location": "San Francisco, CA",
         "created_at": "2024-01-01T00:00:00Z",
         "last_used": "2024-01-02T10:30:00Z",
-        "match_count": 15,
-        "status": "active"
+        "match_count": 15
       }
     ],
     "pagination": {
@@ -430,7 +426,6 @@ This document provides complete API response formats with dummy data for the Res
   "event": "resume_processing",
   "data": {
     "resume_id": 1,
-    "status": "processing",
     "progress": 75,
     "message": "Extracting text from PDF..."
   }

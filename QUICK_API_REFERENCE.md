@@ -54,8 +54,7 @@ GET  /analytics/dashboard - Get dashboard stats
       {
         "id": 1,
         "original_name": "John Doe - Senior Developer.pdf",
-        "upload_date": "2024-01-01T00:00:00Z",
-        "status": "active"
+        "upload_date": "2024-01-01T00:00:00Z"
       }
     ]
   }
