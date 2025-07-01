@@ -1891,6 +1891,132 @@
   }
 }
 
+/* =================================
+   ALTERNATING ROW COLORS
+   ================================= */
+
+/* Basic alternating row colors for resume table */
+.resume-item-wrapper.row-even {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.06), rgba(102, 126, 234, 0.02));
+  border-left: 4px solid rgba(102, 126, 234, 0.4);
+  border-radius: 0 8px 8px 0;
+  transition: all 0.3s ease;
+  margin: 2px 0;
+}
+
+.resume-item-wrapper.row-odd {
+  background: linear-gradient(135deg, rgba(118, 75, 162, 0.06), rgba(118, 75, 162, 0.02));
+  border-left: 4px solid rgba(118, 75, 162, 0.4);
+  border-radius: 0 8px 8px 0;
+  transition: all 0.3s ease;
+  margin: 2px 0;
+}
+
+/* Hover effects for alternating rows */
+.resume-item-wrapper.row-even:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.08));
+  border-left: 4px solid rgba(102, 126, 234, 0.7);
+  transform: translateX(8px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+  border-radius: 0 12px 12px 0;
+}
+
+.resume-item-wrapper.row-odd:hover {
+  background: linear-gradient(135deg, rgba(118, 75, 162, 0.15), rgba(118, 75, 162, 0.08));
+  border-left: 4px solid rgba(118, 75, 162, 0.7);
+  transform: translateX(8px);
+  box-shadow: 0 6px 20px rgba(118, 75, 162, 0.2);
+  border-radius: 0 12px 12px 0;
+}
+
+/* Enhanced table styling */
+.resumes-table {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Table body spacing */
+.table-body {
+  padding: 0 8px 8px 8px;
+}
+
+/* Content styling within alternating rows */
+.resume-item-wrapper.row-even .resume-card h3,
+.resume-item-wrapper.row-even .resume-card .resume-name {
+  color: #8fa4f3;
+  text-shadow: 0 1px 2px rgba(102, 126, 234, 0.1);
+}
+
+.resume-item-wrapper.row-odd .resume-card h3,
+.resume-item-wrapper.row-odd .resume-card .resume-name {
+  color: #9b7cb8;
+  text-shadow: 0 1px 2px rgba(118, 75, 162, 0.1);
+}
+
+/* Score display colors for alternating rows */
+.resume-item-wrapper.row-even .score-circle,
+.resume-item-wrapper.row-even .score-display {
+  border-color: rgba(102, 126, 234, 0.3) !important;
+}
+
+.resume-item-wrapper.row-odd .score-circle,
+.resume-item-wrapper.row-odd .score-display {
+  border-color: rgba(118, 75, 162, 0.3) !important;
+}
+
+/* Checkbox styling for alternating rows */
+.resume-item-wrapper.row-even .checkbox-container .checkmark {
+  border: 2px solid rgba(102, 126, 234, 0.4);
+}
+
+.resume-item-wrapper.row-odd .checkbox-container .checkmark {
+  border: 2px solid rgba(118, 75, 162, 0.4);
+}
+
+.resume-item-wrapper.row-even .checkbox-container input:checked ~ .checkmark {
+  background-color: rgba(102, 126, 234, 0.8);
+  border-color: rgba(102, 126, 234, 1);
+}
+
+.resume-item-wrapper.row-odd .checkbox-container input:checked ~ .checkmark {
+  background-color: rgba(118, 75, 162, 0.8);
+  border-color: rgba(118, 75, 162, 1);
+}
+
+/* Responsive design for alternating row colors */
+@media (max-width: 768px) {
+  .resume-item-wrapper.row-even,
+  .resume-item-wrapper.row-odd {
+    margin: 4px 0;
+    border-radius: 0 6px 6px 0;
+    border-left-width: 3px;
+  }
+  
+  .resume-item-wrapper.row-even:hover,
+  .resume-item-wrapper.row-odd:hover {
+    transform: translateX(4px);
+    border-radius: 0 8px 8px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .resume-item-wrapper.row-even,
+  .resume-item-wrapper.row-odd {
+    border-left-width: 2px;
+    margin: 2px 0;
+  }
+  
+  .resume-item-wrapper.row-even:hover,
+  .resume-item-wrapper.row-odd:hover {
+    transform: translateX(2px);
+  }
+}
+
+
+
 /* Alternating row colors for resume table */
 .resume-item-wrapper.row-even {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.06), rgba(102, 126, 234, 0.02));
