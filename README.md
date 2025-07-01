@@ -48,6 +48,10 @@ For testing purposes, use these credentials:
 - **Email**: demo@fisecglobal.net
 - **Password**: password
 
+### Backend Integration
+
+This application is designed to work with a Python backend API. Make sure your backend server is running and accessible at the configured API URL (default: `http://localhost:8000/api`).
+
 ## Project Structure
 
 ```
@@ -55,11 +59,16 @@ src/
 ├── components/          # Reusable React components
 │   ├── Header.js       # Application header
 │   ├── ResumeCard.js   # Resume display card
+│   ├── ResumeDetailModal.js # Resume detail modal
 │   ├── SignupModal.js  # Registration modal
 │   └── AIChat.js       # AI chat interface
 ├── pages/              # Main application pages
 │   ├── Login.js        # Authentication page
 │   └── Dashboard.js    # Main application dashboard
+├── services/           # API integration
+│   └── apiService.js   # Backend API service
+├── config/             # Configuration files
+│   └── apiConfig.js    # API configuration
 ├── styles/             # CSS stylesheets
 │   ├── index.css       # Global styles
 │   ├── App.css         # App component styles
@@ -120,9 +129,26 @@ src/
 
 The application uses a purple gradient theme. You can customize colors by modifying the CSS variables in the respective style files.
 
-### API Integration
+## API Integration
 
-The authentication is currently simulated. To integrate with a real backend:
+### Backend Requirements
+
+This React application requires a Python backend API to be running. The application expects the following endpoints:
+
+- **Resume Management**: Upload, fetch, and match resumes
+- **Job Description Processing**: Process job descriptions from text or files
+- **File Operations**: Handle multiple file formats (PDF, DOC, DOCX)
+
+### Configuration
+
+Set up your environment variables in `.env.development` or `.env.production`:
+
+```bash
+REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_ENVIRONMENT=development
+```
+
+The authentication is currently simulated for frontend demonstration. To integrate with a real backend:
 
 1. Update `AuthContext.js` with actual API endpoints
 2. Replace localStorage with secure token management
@@ -130,7 +156,11 @@ The authentication is currently simulated. To integrate with a real backend:
 
 ### File Upload
 
-The file upload functionality is ready for backend integration. Update the `handleFileUpload` function in `Dashboard.js` to connect with your file processing API.
+The file upload functionality is integrated with the backend API through the `apiService.js`. It supports:
+
+- Single and multiple file uploads
+- URL-based resume uploads
+- Resume matching against job descriptions
 
 ## Contributing
 

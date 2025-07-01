@@ -62,83 +62,110 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
           )}
 
           <div className="details-grid">
-            {resume.experienceMatch && (
-              <div className="detail-section">
-                <h3>
-                  <i className="fas fa-briefcase"></i>
-                  Experience
-                </h3>
-                <p className="experience-text">{resume.experienceMatch}</p>
-              </div>
-            )}
-
-            {resume.matchingSkills?.length > 0 && (
-              <div className="detail-section">
-                <h3>
-                  <i className="fas fa-check-circle"></i>
-                  Matching Skills ({resume.matchingSkills.length})
-                </h3>
-                <div className="skills-grid">
-                  {resume.matchingSkills.map((skill, index) => (
-                    <span key={index} className="skill-tag matching">
-                      <i className="fas fa-check"></i>
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {resume.missingSkills?.length > 0 && (
-              <div className="detail-section">
-                <h3>
-                  <i className="fas fa-times-circle"></i>
-                  Missing Skills ({resume.missingSkills.length})
-                </h3>
-                <div className="skills-grid">
-                  {resume.missingSkills.map((skill, index) => (
-                    <span key={index} className="skill-tag missing">
-                      <i className="fas fa-times"></i>
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {resume.strengths?.length > 0 && (
-              <div className="detail-section">
-                <h3>
-                  <i className="fas fa-plus-circle"></i>
-                  Key Strengths
-                </h3>
-                <ul className="points-list">
-                  {resume.strengths.map((strength, index) => (
-                    <li key={index}>
+            {/* Track section index for alternating colors */}
+            {[
+              resume.experienceMatch && {
+                type: "experience",
+                content: (
+                  <div className="detail-section">
+                    <h3>
+                      <i className="fas fa-briefcase"></i>
+                      Experience
+                    </h3>
+                    <p className="experience-text">{resume.experienceMatch}</p>
+                  </div>
+                ),
+              },
+              resume.matchingSkills?.length > 0 && {
+                type: "matching-skills",
+                content: (
+                  <div className="detail-section">
+                    <h3>
                       <i className="fas fa-check-circle"></i>
-                      {strength}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {resume.weaknesses?.length > 0 && (
-              <div className="detail-section">
-                <h3>
-                  <i className="fas fa-minus-circle"></i>
-                  Areas for Improvement
-                </h3>
-                <ul className="points-list">
-                  {resume.weaknesses.map((weakness, index) => (
-                    <li key={index}>
-                      <i className="fas fa-exclamation-triangle"></i>
-                      {weakness}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                      Matching Skills ({resume.matchingSkills.length})
+                    </h3>
+                    <div className="skills-grid">
+                      {resume.matchingSkills.map((skill, index) => (
+                        <span key={index} className="skill-tag matching">
+                          <i className="fas fa-check"></i>
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ),
+              },
+              resume.missingSkills?.length > 0 && {
+                type: "missing-skills",
+                content: (
+                  <div className="detail-section">
+                    <h3>
+                      <i className="fas fa-times-circle"></i>
+                      Missing Skills ({resume.missingSkills.length})
+                    </h3>
+                    <div className="skills-grid">
+                      {resume.missingSkills.map((skill, index) => (
+                        <span key={index} className="skill-tag missing">
+                          <i className="fas fa-times"></i>
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ),
+              },
+              Array.isArray(resume.strengths) &&
+                resume.strengths.length > 0 && {
+                  type: "strengths",
+                  content: (
+                    <div className="detail-section">
+                      <h3>
+                        <i className="fas fa-plus-circle"></i>
+                        Key Strengths
+                      </h3>
+                      <ul className="points-list">
+                        {resume.strengths.map((strength, index) => (
+                          <li key={index}>
+                            <i className="fas fa-check-circle"></i>
+                            {strength}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ),
+                },
+              Array.isArray(resume.weaknesses) &&
+                resume.weaknesses.length > 0 && {
+                  type: "weaknesses",
+                  content: (
+                    <div className="detail-section">
+                      <h3>
+                        <i className="fas fa-minus-circle"></i>
+                        Areas for Improvement
+                      </h3>
+                      <ul className="points-list">
+                        {resume.weaknesses.map((weakness, index) => (
+                          <li key={index}>
+                            <i className="fas fa-exclamation-triangle"></i>
+                            {weakness}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ),
+                },
+            ]
+              .filter(Boolean) // Remove falsy values
+              .map((section, index) => (
+                <div
+                  key={section.type}
+                  className={`detail-section-wrapper ${
+                    index % 2 === 0 ? "section-even" : "section-odd"
+                  }`}
+                >
+                  {section.content}
+                </div>
+              ))}
           </div>
         </div>
 

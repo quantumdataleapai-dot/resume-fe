@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Logo from "../logo.png";
+import { USE_MOCK_DATA } from "../services/mockApiService";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -36,8 +37,9 @@ const Header = () => {
     <header className="header">
       <div className="header-content">
         <div className="logo">
-          <img src={Logo} width={25} />
+          <img src={Logo} alt="FISEC" width={25} />
           <span>Resume Matcher</span>
+          {USE_MOCK_DATA && <span> - Mock data</span>}
         </div>
         <div className="header-actions">
           <div className="user-profile-container" ref={dropdownRef}>

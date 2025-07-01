@@ -1,11 +1,7 @@
 // API Configuration for Frontend-to-Python Backend Communication
 const API_CONFIG = {
-  // Set to false when connecting to Python backend
-  USE_MOCK_DATA: process.env.REACT_APP_USE_MOCK_DATA === "true",
-
   // Python backend URL
   BASE_URL: process.env.REACT_APP_API_URL || "http://localhost:8000/api",
-  MOCK_DELAY: parseInt(process.env.REACT_APP_MOCK_API_DELAY) || 1500,
 
   // Clean API Endpoints for Python Backend
   ENDPOINTS: {
@@ -23,6 +19,8 @@ const API_CONFIG = {
     JOBS: {
       PROCESS_TEXT: "/jobs/process-text",
       PROCESS_FILE: "/jobs/process-file",
+      PROCESS_TEXT_AND_MATCH: "/jobs/process-text-and-match",
+      PROCESS_FILE_AND_MATCH: "/jobs/process-file-and-match",
       LIST: "/jobs",
     },
   },

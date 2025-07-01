@@ -1,7 +1,6 @@
 // API Service for Frontend-to-Python Backend Communication
 import axios from "axios";
 import API_CONFIG from "../config/apiConfig";
-import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
 // Create axios instance for Python backend
 const apiClient = axios.create({
@@ -52,10 +51,6 @@ class ApiService {
 
   // Resume APIs
   async uploadResumes(files) {
-    if (USE_MOCK_DATA) {
-      return mockApiService.uploadResumes(files);
-    }
-
     const formData = new FormData();
     Array.from(files).forEach((file) => {
       formData.append("files", file);
@@ -72,10 +67,6 @@ class ApiService {
   }
 
   async uploadSingleResume(file, metadata = null) {
-    if (USE_MOCK_DATA) {
-      return mockApiService.uploadResumes([file]);
-    }
-
     const formData = new FormData();
     formData.append("file", file);
     if (metadata) {
@@ -93,10 +84,6 @@ class ApiService {
   }
 
   async uploadFromUrls(urls, options = {}) {
-    if (USE_MOCK_DATA) {
-      return mockApiService.uploadFromUrls(urls, options);
-    }
-
     const response = await apiClient.post(
       API_CONFIG.ENDPOINTS.RESUMES.UPLOAD_FROM_URLS,
       {
@@ -113,13 +100,6 @@ class ApiService {
   }
 
   async getResumes(page = 1, limit = 10) {
-    console.log("ApiService.getResumes called. USE_MOCK_DATA:", USE_MOCK_DATA);
-    if (USE_MOCK_DATA) {
-      console.log("Using mock data for getResumes");
-      return mockApiService.getResumes(page, limit);
-    }
-
-    console.log("Using real API for getResumes");
     const response = await apiClient.get(API_CONFIG.ENDPOINTS.RESUMES.LIST, {
       params: { page, limit },
     });
@@ -127,10 +107,6 @@ class ApiService {
   }
 
   async matchResumes(jobDescription, resumeIds = null) {
-    if (USE_MOCK_DATA) {
-      return mockApiService.matchResumes(jobDescription, resumeIds);
-    }
-
     const payload = {
       job_description: jobDescription,
     };
@@ -146,54 +122,7 @@ class ApiService {
     return response.data;
   }
 
-  // New unified method: Process Job Description (text or file) and match resumes
-  async processJobAndMatch(jobData, resumeIds = null) {
-    if (USE_MOCK_DATA) {
-      return mockApiService.processJobAndMatch(jobData, resumeIds);
-    }
-
-    let formData;
-    let endpoint;
-
-    if (jobData.file) {
-      // Handle file-based job description
-      formData = new FormData();
-      formData.append("file", jobData.file);
-      if (jobData.title) {
-        formData.append("title", jobData.title);
-      }
-      if (resumeIds && resumeIds.length > 0) {
-        formData.append("resume_ids", JSON.stringify(resumeIds));
-      }
-      endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_FILE_AND_MATCH;
-    } else {
-      // Handle text-based job description
-      const payload = {
-        job_description: jobData.job_description,
-      };
-      if (jobData.title) {
-        payload.title = jobData.title;
-      }
-      if (resumeIds && resumeIds.length > 0) {
-        payload.resume_ids = resumeIds;
-      }
-      endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_TEXT_AND_MATCH;
-      formData = payload;
-    }
-
-    const response = await apiClient.post(
-      endpoint,
-      formData,
-      jobData.file ? { headers: { "Content-Type": "multipart/form-data" } } : {}
-    );
-    return response.data;
-  }
-
   async downloadResume(resumeId, format = "pdf") {
-    if (USE_MOCK_DATA) {
-      return mockApiService.downloadResume(resumeId, format);
-    }
-
     const response = await apiClient.get(
       API_CONFIG.ENDPOINTS.RESUMES.DOWNLOAD.replace("{id}", resumeId),
       { params: { format } }
@@ -203,23 +132,12 @@ class ApiService {
 
   // Job APIs
   async getJobs() {
-    if (USE_MOCK_DATA) {
-      return mockApiService.getJobs();
-    }
-
     const response = await apiClient.get(API_CONFIG.ENDPOINTS.JOBS.LIST);
     return response.data;
   }
 
   // Job Description APIs
   async processJobText(jobDescription, title = null) {
-    if (USE_MOCK_DATA) {
-      return mockApiService.processJobDescription({
-        job_description: jobDescription,
-        title,
-      });
-    }
-
     const response = await apiClient.post(
       API_CONFIG.ENDPOINTS.JOBS.PROCESS_TEXT,
       {
@@ -231,10 +149,6 @@ class ApiService {
   }
 
   async processJobFile(file, title = null) {
-    if (USE_MOCK_DATA) {
-      return mockApiService.processJobDescription({ file, title });
-    }
-
     const formData = new FormData();
     formData.append("file", file);
     if (title) {

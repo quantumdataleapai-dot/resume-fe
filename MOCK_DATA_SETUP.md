@@ -1,184 +1,84 @@
-# 🎯 Mock Data Configuration - Resume Matcher
+# Mock Data Setup for Development
 
-## ✅ Current Status: Ready for Mock Data Development
+## Overview
 
-Your Resume Matcher application is now **perfectly configured** to use mock data until backend integration. Here's what's currently set up:
+This setup allows the frontend to work with realistic mock data while waiting for backend integration.
 
-### 🔧 Configuration Status
+## How to Enable/Disable Mock Data
 
-#### Environment Configuration (`.env.development`)
+### Enable Mock Data (Development)
 
-```env
-REACT_APP_USE_MOCK_DATA=true          # ✅ Mock data enabled
-REACT_APP_API_URL=http://localhost:8000/api
-REACT_APP_ENABLE_URL_UPLOAD=true      # ✅ All features enabled
-REACT_APP_ENABLE_BULK_DOWNLOAD=true
-REACT_APP_ENABLE_ZIP_DOWNLOAD=true
-REACT_APP_ENABLE_AI_CHAT=true
-```
+Set in `.env.development`:
 
-#### API Service Configuration
-
-- ✅ **ApiService** automatically detects mock mode
-- ✅ **1.5 second delay** simulates real API calls
-- ✅ **Realistic mock data** generation
-- ✅ **Easy switching** to real API later
-
-### 🚀 Available Mock Features
-
-#### 1. Authentication (Mock)
-
-- **Demo Login:** `demo@recruiter.com` / `demo123`
-- **Registration:** Works with any email/password
-- **JWT Token:** Mock token stored in localStorage
-
-#### 2. Resume Upload (Mock)
-
-- **File Upload:** Simulates processing of PDF, DOC, DOCX files
-- **URL Upload:** Generates realistic resumes from URLs
-- **File Management:** Mock file storage and organization
-
-#### 3. Job Matching (Mock)
-
-- **AI Matching:** Returns predefined candidate matches
-- **Scoring System:** Realistic match scores (65-95%)
-- **Skills Analysis:** Matching/missing skills comparison
-- **Experience Matching:** Professional experience evaluation
-
-#### 4. Download Features (Mock)
-
-- **Individual Downloads:** Single resume files
-- **ZIP Downloads:** Real ZIP files with JSZip
-- **Bulk Operations:** Multiple file handling
-- **Format Options:** PDF, TXT, JSON formats
-
-### 📋 Mock Data Examples
-
-#### Sample Resume Matches
-
-```javascript
-// Mock data includes realistic candidates:
-{
-  name: "Sarah Wilson - Full Stack Engineer.pdf",
-  score: 87,
-  matchingSkills: ["React", "Node.js", "Python", "AWS"],
-  missingSkills: ["Docker", "Kubernetes"],
-  experience: "5+ years in full-stack development",
-  strengths: ["Strong React expertise", "Cloud architecture"]
-}
-```
-
-#### Sample Job Analysis
-
-```javascript
-// Mock job analysis:
-{
-  keySkills: ["Python", "React", "AWS", "Docker"],
-  experienceLevel: "Senior",
-  requiredYears: 5,
-  salaryRange: "$120,000 - $180,000"
-}
-```
-
-### 🎮 How to Use Mock Data
-
-#### 1. Login
-
-- Navigate to `http://localhost:3000`
-- Use demo credentials: `demo@recruiter.com` / `demo123`
-- Or register with any email/password
-
-#### 2. Upload Resumes
-
-- **File Upload:** Select multiple PDF/DOC files
-- **URL Upload:** Use sample URLs:
-  ```
-  https://example.com/resume1.pdf
-  https://drive.google.com/file/d/abc123/resume.pdf
-  https://linkedin.com/in/johndoe/resume
-  ```
-
-#### 3. Job Matching
-
-- Enter any job description text
-- Or upload a job description file
-- Get instant mock matching results
-
-#### 4. Download & Export
-
-- Download individual resumes
-- Select multiple and download as ZIP
-- Export in various formats
-
-### 🔄 Switching to Real API (When Ready)
-
-When your backend is ready, simply change one environment variable:
-
-```env
-# Development with mock data
+```bash
 REACT_APP_USE_MOCK_DATA=true
+```
 
-# Production with real API
+### Disable Mock Data (Production/Backend Ready)
+
+Set in `.env.development`:
+
+```bash
 REACT_APP_USE_MOCK_DATA=false
 ```
 
-**No code changes needed!** The ApiService automatically switches between mock and real API calls.
+## What's Included
 
-### 🛠 Development Benefits
+### Mock Resume Data
 
-#### For Frontend Development
+- 5 sample resumes with realistic candidate information
+- Skills, experience, education, and contact details
+- Matching scores and analysis results
 
-- ✅ **No backend dependency** - develop UI independently
-- ✅ **Realistic data** - test with meaningful content
-- ✅ **Error handling** - mock various response scenarios
-- ✅ **Performance testing** - simulated API delays
+### Mock API Responses
 
-#### For Demo/Presentation
+- File upload simulation with realistic delays
+- Resume matching with scoring algorithms
+- Job description processing
+- URL-based resume uploads
 
-- ✅ **Professional appearance** - realistic candidate data
-- ✅ **Reliable operation** - no network dependencies
-- ✅ **Feature showcase** - all functionality working
-- ✅ **Immediate feedback** - instant responses
+### Visual Indicators
 
-### 📝 Next Steps for Development
+- Orange development banner when using mock data
+- Console logs showing "Mock:" API calls
+- Simulated API delays for realistic testing
 
-#### 1. UI/UX Refinement
+## Files Created
 
-- Test all features with mock data
-- Refine user interactions
-- Improve visual design
-- Optimize responsive layouts
+1. **`src/utils/mockData.js`** - Sample resume and response data
+2. **`src/services/mockApiService.js`** - Mock API service with realistic delays
+3. **Updated `src/services/apiService.js`** - Conditional mock/real API usage
 
-#### 2. Feature Enhancement
+## Features Working with Mock Data
 
-- Add more mock scenarios
-- Improve error handling
-- Add loading animations
-- Enhance user feedback
+✅ **Resume Upload** - Simulates file uploads with success responses
+✅ **Resume List** - Shows paginated list of sample resumes  
+✅ **Unified Job Processing** - Process job description (text/file) and get matched resumes in one step
+✅ **Resume Matching** - Returns realistic match scores and analysis
+✅ **URL Upload** - Simulates downloading resumes from URLs
+✅ **Authentication** - Dummy login/signup for UI testing
 
-#### 3. Backend Preparation
+## Current Frontend Workflow
 
-- Finalize API specifications
-- Test API service layer
-- Prepare for real data integration
-- Plan deployment strategy
+1. **Upload Resumes** - Add resume files to the system
+2. **Enter Job Description** - Type or upload job description
+3. **Click "Process Job Description"** - Single button processes job and shows matched resumes
+4. **View Results** - Matched resumes displayed with scores and analysis
 
-### 🎯 Summary
+## Removing Mock Data
 
-Your application is **production-ready for mock data usage**:
+When backend is ready:
 
-- ✅ **Running successfully** at `http://localhost:3000`
-- ✅ **All features working** with realistic mock data
-- ✅ **Professional appearance** suitable for demos
-- ✅ **Easy transition** to real API when ready
-- ✅ **Zero backend dependency** for frontend development
+1. Set `REACT_APP_USE_MOCK_DATA=false` in environment files
+2. Optionally delete mock files:
+   - `src/utils/mockData.js`
+   - `src/services/mockApiService.js`
+3. Remove mock imports from `src/services/apiService.js`
 
-**Perfect for:**
+## Benefits
 
-- Frontend development and testing
-- Client demonstrations
-- UI/UX refinement
-- Feature validation
-- Performance optimization
-
-The mock data system provides a complete, realistic experience that mirrors what the final application will offer with a real backend!
+- **Frontend Development** - Continue UI development without backend
+- **Realistic Testing** - Test with realistic data and response delays
+- **Easy Toggle** - Switch between mock and real API with one setting
+- **Demo Ready** - Show working application to stakeholders
+- **Integration Ready** - Easy transition to real backend

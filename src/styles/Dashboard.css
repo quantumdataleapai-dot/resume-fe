@@ -1891,6 +1891,49 @@
   }
 }
 
-.job-section {
-  width: 65vw;
+/* Alternating row colors for resume table */
+.resume-item-wrapper.row-even {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.06), rgba(102, 126, 234, 0.02));
+  border-left: 4px solid rgba(102, 126, 234, 0.4);
+  border-radius: 0 8px 8px 0;
+  transition: all 0.3s ease;
+  margin: 2px 0;
+}
+
+.resume-item-wrapper.row-odd {
+  background: linear-gradient(135deg, rgba(118, 75, 162, 0.06), rgba(118, 75, 162, 0.02));
+  border-left: 4px solid rgba(118, 75, 162, 0.4);
+  border-radius: 0 8px 8px 0;
+  transition: all 0.3s ease;
+  margin: 2px 0;
+}
+
+.resume-item-wrapper.row-even:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.08));
+  border-left: 4px solid rgba(102, 126, 234, 0.7);
+  transform: translateX(8px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+  border-radius: 0 12px 12px 0;
+}
+
+.resume-item-wrapper.row-odd:hover {
+  background: linear-gradient(135deg, rgba(118, 75, 162, 0.15), rgba(118, 75, 162, 0.08));
+  border-left: 4px solid rgba(118, 75, 162, 0.7);
+  transform: translateX(8px);
+  box-shadow: 0 6px 20px rgba(118, 75, 162, 0.2);
+  border-radius: 0 12px 12px 0;
+}
+
+/* Enhanced table styling */
+.resumes-table {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Table body spacing */
+.table-body {
+  padding: 0 8px 8px 8px;
 }

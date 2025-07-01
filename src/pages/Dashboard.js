@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import Header from "../components/Header";
 import ResumeCard from "../components/ResumeCard";
 import AIChat from "../components/AIChat";
-import { mockApiResponses } from "../utils/mockData";
 import ApiService from "../services/apiService";
 import JSZip from "jszip";
 import "../styles/Dashboard.css";
+import { MdOutlineDocumentScanner } from "react-icons/md";
 
 const Dashboard = () => {
   const [jobDescription, setJobDescription] = useState("");
@@ -45,9 +45,10 @@ const Dashboard = () => {
     };
   }, [showUploadDropdown]);
 
-  // Simulate API delay
-  const simulateApiDelay = (ms = 1500) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+  // Load resumes on component mount
+  useEffect(() => {
+    loadAllResumes();
+  }, []);
 
   const handleFileUpload = async (event) => {
     const files = Array.from(event.target.files);
@@ -55,9 +56,7 @@ const Dashboard = () => {
 
     setLoading(true);
     try {
-      const response = mockApiResponses.uploadResumes;
-      // Use API service
-      // const response = await ApiService.uploadResumes(files);
+      const response = await ApiService.uploadResumes(files);
       alert(`${response.data.uploaded_count} resume(s) uploaded successfully!`);
 
       // Load all resumes after upload
@@ -71,21 +70,41 @@ const Dashboard = () => {
 
   const loadAllResumes = async () => {
     try {
-      // Use API service
-      const response = mockApiResponses.getResumes;
-      // const response = await ApiService.getResumes();
+      const response = await ApiService.getResumes();
+
       const transformedResumes = response.data.resumes.map((resume) => ({
         id: resume.id,
-        name: resume.original_name,
-        score: 0, // No score yet until matched
+        name:
+          resume.original_name || resume.parsed_data?.name || resume.filename,
+        filename: resume.filename,
+        upload_date: new Date(resume.upload_date).toLocaleDateString(),
+        score: resume.match_score || 0, // No score yet until matched
         maxScore: 100,
         description:
+          resume.parsed_data?.current_position ||
           "Upload date: " + new Date(resume.upload_date).toLocaleDateString(),
-        avatar: "📄",
+        avatar: <MdOutlineDocumentScanner />,
+        email: resume.parsed_data?.email,
+        phone: resume.parsed_data?.phone,
+        skills: resume.parsed_data?.skills || [],
+        experience: resume.parsed_data?.experience_years || 0,
+        education: resume.parsed_data?.education,
+        location: resume.parsed_data?.location,
+        // Ensure arrays for modal compatibility
+        strengths: Array.isArray(resume.strengths)
+          ? resume.strengths
+          : ["General experience in the field"],
+        weaknesses: Array.isArray(resume.weaknesses)
+          ? resume.weaknesses
+          : ["No specific weaknesses identified"],
+        matchingSkills: resume.matching_skills || [],
+        missingSkills: resume.missing_skills || [],
       }));
 
       setAllResumes(transformedResumes);
+      console.log("Loaded resumes:", transformedResumes);
     } catch (error) {
+      console.error("Failed to load resumes:", error);
       alert("Failed to load resumes: " + error.message);
     }
   };
@@ -102,26 +121,41 @@ const Dashboard = () => {
 
     setLoading(true);
     try {
-      // Use API service for matching
-      const response = mockApiResponses.matchResumes;
-      // const response = await ApiService.matchResumes(
-      //   jobDescription.trim() || jobFile?.name
-      // );
+      // Prepare job data for unified processing
+      const jobData = jobFile
+        ? { file: jobFile, title: jobDescription.trim() || null }
+        : { job_description: jobDescription.trim() };
+
+      // Use unified API service for job processing and matching
+      const response = await ApiService.processJobAndMatch(jobData);
 
       // Transform matched resumes to component format
       const transformedMatches = response.data.matched_resumes.map(
         (resume) => ({
           id: resume.id,
-          name: resume.original_name,
+          name: resume.parsed_data?.name || resume.filename,
           score: resume.match_score,
-          maxScore: resume.max_score,
-          description: resume.summary,
+          maxScore: 100,
+          description: resume.parsed_data?.current_position || "No description",
           avatar: "📄",
-          matchingSkills: resume.matching_skills,
-          missingSkills: resume.missing_skills,
-          experienceMatch: resume.experience_match,
-          strengths: resume.strengths,
-          weaknesses: resume.weaknesses,
+          matchingSkills: resume.matching_skills || [],
+          missingSkills: resume.missing_skills || [],
+          experienceMatch: resume.match_details?.experience_match || 0,
+          strengths: Array.isArray(resume.strengths)
+            ? resume.strengths
+            : [resume.match_details?.overall_fit || "Good fit"],
+          weaknesses: Array.isArray(resume.weaknesses)
+            ? resume.weaknesses
+            : Array.isArray(resume.missing_skills) &&
+              resume.missing_skills.length > 0
+            ? resume.missing_skills
+            : ["No specific areas identified"],
+          email: resume.parsed_data?.email,
+          phone: resume.parsed_data?.phone,
+          location: resume.parsed_data?.location,
+          skills: resume.parsed_data?.skills || [],
+          experience: resume.parsed_data?.experience_years || 0,
+          education: resume.parsed_data?.education,
         })
       );
 
@@ -130,10 +164,10 @@ const Dashboard = () => {
       setSortBy("score-desc"); // Default to score-based sorting for matched resumes
 
       alert(
-        `Resume matching completed! Found ${transformedMatches.length} resumes with match scores.`
+        `Job processing completed! Found ${transformedMatches.length} matching resumes.`
       );
     } catch (error) {
-      alert("Resume matching failed: " + error.message);
+      alert("Job processing failed: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -186,90 +220,28 @@ const Dashboard = () => {
         return;
       }
 
-      // Simulate API call to fetch resumes from URLs
-      await simulateApiDelay(1500);
+      // Use API service to upload from URLs
+      const response = await ApiService.uploadFromUrls(validUrls);
 
-      // Enhanced mock upload with more realistic data
-      const mockUploadedResumes = await Promise.all(
-        validUrls.map(async (url, index) => {
-          const urlObj = new URL(url);
-          const domain = urlObj.hostname;
-
-          // Generate more realistic resume data based on URL
-          const candidateNames = [
-            "John Smith",
-            "Sarah Johnson",
-            "Michael Brown",
-            "Emma Davis",
-            "David Wilson",
-            "Lisa Anderson",
-            "James Taylor",
-            "Jennifer Martinez",
-          ];
-
-          const candidateName = candidateNames[index % candidateNames.length];
-          const filename = urlObj.pathname.split("/").pop() || "resume";
-
-          // Simulate different file types
-          const fileExtensions = [".pdf", ".doc", ".docx", ".txt"];
-          const fileExt = fileExtensions[index % fileExtensions.length];
-
-          return {
-            id: Date.now() + index,
-            name: `${candidateName}_${filename}${fileExt}`,
-            description: `Professional ${
-              Math.random() > 0.5 ? "Software Engineer" : "Data Scientist"
-            } with ${
-              Math.floor(Math.random() * 8) + 2
-            } years of experience. Downloaded from ${domain}.`,
-            avatar: candidateName.charAt(0).toUpperCase(),
-            uploadDate: new Date().toISOString(),
-            source: "url",
-            originalUrl: url,
-            fileSize: `${Math.floor(Math.random() * 500) + 100}KB`,
-            downloadTime: new Date().toISOString(),
-            status: "success",
-          };
-        })
-      );
+      // Transform response to component format
+      const uploadedResumes = response.data.resumes.map((resume) => ({
+        id: resume.id,
+        name: resume.original_name || resume.filename,
+        filename: resume.filename,
+        upload_date: new Date(resume.upload_date).toLocaleDateString(),
+        description: `Downloaded from URL. Upload date: ${new Date(
+          resume.upload_date
+        ).toLocaleDateString()}`,
+        avatar: "📄",
+      }));
 
       // Add to allResumes
-      setAllResumes((prev) => [...prev, ...mockUploadedResumes]);
+      setAllResumes((prev) => [...prev, ...uploadedResumes]);
 
       alert(
-        `Successfully uploaded ${
-          validUrls.length
-        } resume(s) from URLs!\n\nFiles downloaded:\n${mockUploadedResumes
-          .map((r) => `• ${r.name}`)
-          .join("\n")}`
+        `Successfully uploaded ${response.data.uploaded_count} resume(s) from URLs!`
       );
       setUrlList("");
-
-      // In a real application, you would call:
-      /*
-      const response = await fetch('/api/resumes/upload-from-urls', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userToken}`
-        },
-        body: JSON.stringify({ 
-          urls: validUrls,
-          options: {
-            maxFileSize: '10MB',
-            allowedTypes: ['pdf', 'doc', 'docx', 'txt'],
-            timeout: 30000
-          }
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
-      setAllResumes(prev => [...prev, ...result.uploadedResumes]);
-      */
     } catch (error) {
       console.error("URL upload error:", error);
       alert(
@@ -974,7 +946,9 @@ Visit: https://your-resume-matcher.com
                   getDisplayedResumes().map((resume, index) => (
                     <div
                       key={resume.id}
-                      className="resume-item-wrapper"
+                      className={`resume-item-wrapper ${
+                        index % 2 === 0 ? "row-even" : "row-odd"
+                      }`}
                       style={{
                         display: "grid",
                         gridTemplateColumns: showMatched
