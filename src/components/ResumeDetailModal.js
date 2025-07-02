@@ -1,5 +1,9 @@
-import React from "react";
-import "../styles/Modal.css";
+import ModalPortal from "./ModalPortal";
+import { IoIosClose } from "react-icons/io";
+import { TbFocus2 } from "react-icons/tb";
+import { GrUserExpert } from "react-icons/gr";
+import { FaBullseye, FaTimesCircle } from "react-icons/fa";
+import { MdOutlineSummarize, MdOutlineHdrStrong } from "react-icons/md";
 
 const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
   if (!isOpen || !resume) return null;
@@ -17,181 +21,504 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
     }
   };
 
+  // Comprehensive inline styles to completely override any external CSS
+  const overlayStyles = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(0, 0, 0, 0.95)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 99999,
+    padding: "20px",
+    boxSizing: "border-box",
+    transform: "none",
+    transition: "none",
+    animation: "none",
+  };
+
+  const modalStyles = {
+    background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+    borderRadius: "16px",
+    width: "800px",
+    maxWidth: "90vw",
+    maxHeight: "90vh",
+    overflow: "hidden",
+    boxShadow: "0 25px 50px rgba(0, 0, 0, 0.8)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    position: "relative",
+    opacity: 1,
+    transform: "none",
+    transition: "none",
+    animation: "none",
+    boxSizing: "border-box",
+  };
+
+  const headerStyles = {
+    padding: "20px 30px",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "transparent",
+    transform: "none",
+    transition: "none",
+  };
+
+  const bodyStyles = {
+    padding: "30px",
+    maxHeight: "calc(90vh - 160px)",
+    overflowY: "auto",
+    background: "transparent",
+    transform: "none",
+    transition: "none",
+  };
+
+  const sectionStyles = {
+    background: "rgba(255, 255, 255, 0.03)",
+    borderRadius: "12px",
+    padding: "20px",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    margin: "15px 0",
+    transition: "none",
+    transform: "none",
+  };
+
+  const closeButtonStyles = {
+    position: "absolute",
+    top: "15px",
+    right: "20px",
+    background: "rgba(244, 67, 54, 0.2)",
+    border: "1px solid rgba(244, 67, 54, 0.3)",
+    borderRadius: "50%",
+    width: "40px",
+    height: "40px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: "16px",
+    transition: "none",
+    transform: "none",
+  };
+
+  const footerStyles = {
+    padding: "20px 30px",
+    borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+    background: "rgba(0, 0, 0, 0.2)",
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "10px",
+    transform: "none",
+    transition: "none",
+  };
+
+  const buttonStyles = {
+    padding: "10px 20px",
+    borderRadius: "8px",
+    border: "none",
+    fontSize: "14px",
+    fontWeight: "500",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    transition: "none",
+    transform: "none",
+  };
+
+  const primaryButtonStyles = {
+    ...buttonStyles,
+    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    color: "white",
+  };
+
+  const secondaryButtonStyles = {
+    ...buttonStyles,
+    background: "rgba(255, 255, 255, 0.1)",
+    color: "rgba(255, 255, 255, 0.8)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+  };
+
+  const successButtonStyles = {
+    ...buttonStyles,
+    background: "linear-gradient(135deg, #4CAF50, #2E7D32)",
+    color: "white",
+  };
+
+  const infoButtonStyles = {
+    ...buttonStyles,
+    background: "linear-gradient(135deg, #2196F3, #0D47A1)",
+    color: "white",
+  };
+
+  const skillTagStyles = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "6px 12px",
+    borderRadius: "20px",
+    fontSize: "13px",
+    fontWeight: "500",
+    margin: "4px",
+    transform: "none",
+    transition: "none",
+  };
+
+  const matchingSkillStyles = {
+    ...skillTagStyles,
+    background: "rgba(76, 175, 80, 0.2)",
+    color: "#4CAF50",
+    border: "1px solid rgba(76, 175, 80, 0.3)",
+  };
+
+  const missingSkillStyles = {
+    ...skillTagStyles,
+    background: "rgba(244, 67, 54, 0.2)",
+    color: "#F44336",
+    border: "1px solid rgba(244, 67, 54, 0.3)",
+  };
+
+  // Helper function to get section background color (alternating)
+  const getSectionBackground = (index) => {
+    const colors = [
+      "rgba(102, 126, 234, 0.08)", // Blue
+      "rgba(118, 75, 162, 0.08)", // Purple
+      "rgba(255, 152, 0, 0.08)", // Orange
+      "rgba(76, 175, 80, 0.08)", // Green
+      "rgba(244, 67, 54, 0.08)", // Red
+    ];
+    return colors[index % colors.length];
+  };
+
+  const getSectionBorderColor = (index) => {
+    const colors = [
+      "rgba(102, 126, 234, 0.15)", // Blue
+      "rgba(118, 75, 162, 0.15)", // Purple
+      "rgba(255, 152, 0, 0.15)", // Orange
+      "rgba(76, 175, 80, 0.15)", // Green
+      "rgba(244, 67, 54, 0.15)", // Red
+    ];
+    return colors[index % colors.length];
+  };
+
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content resume-detail-modal">
-        {/* Modal Header */}
-        <div className="modal-header">
-          <div className="modal-title">
-            <div className="resume-avatar-large">
-              <span>{resume.avatar}</span>
-            </div>
-            <div className="title-info">
-              <h2>{resume.name}</h2>
-              {resume.score > 0 && (
-                <div className="score-display">
-                  <span
-                    className="score-value-large"
+    <ModalPortal>
+      <div style={overlayStyles} onClick={handleOverlayClick}>
+        <div style={modalStyles}>
+          {/* Close Button */}
+          <button style={closeButtonStyles} onClick={onClose}>
+            <IoIosClose />
+          </button>
+
+          {/* Modal Header */}
+          <div style={headerStyles}>
+            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+              <div
+                style={{
+                  width: "60px",
+                  height: "60px",
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #667eea, #764ba2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "24px",
+                  color: "white",
+                }}
+              >
+                {resume.avatar}
+              </div>
+              <div>
+                <h2
+                  style={{
+                    color: "#fff",
+                    fontSize: "24px",
+                    fontWeight: "600",
+                    margin: "0 0 8px 0",
+                  }}
+                >
+                  {resume.name}
+                </h2>
+                {resume.score > 0 && (
+                  <div
                     style={{
-                      color: getScoreColor(resume.score),
-                      textShadow: `0 0 15px ${getScoreColor(resume.score)}40`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
                     }}
                   >
-                    {resume.score}%
-                  </span>
-                  <span className="score-label-large">Match Score</span>
+                    <span
+                      style={{
+                        color: getScoreColor(resume.score),
+                        fontSize: "20px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {resume.score}%
+                    </span>
+                    <span
+                      style={{
+                        color: "rgba(255, 255, 255, 0.6)",
+                        fontSize: "14px",
+                      }}
+                    >
+                      Match Score
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Modal Body */}
+          <div style={bodyStyles}>
+            {/* Summary Section */}
+            {resume.description && (
+              <div
+                style={{
+                  ...sectionStyles,
+                  background: getSectionBackground(0),
+                  border: `1px solid ${getSectionBorderColor(0)}`,
+                  marginTop: 0,
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#667eea",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    margin: "0 0 15px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <MdOutlineSummarize />
+                  Summary
+                </h3>
+                <p
+                  style={{
+                    color: "rgba(255, 255, 255, 0.9)",
+                    fontSize: "15px",
+                    lineHeight: "1.5",
+                    margin: 0,
+                  }}
+                >
+                  {resume.description}
+                </p>
+              </div>
+            )}
+
+            {/* Experience Section */}
+            {resume.experienceMatch && (
+              <div
+                style={{
+                  ...sectionStyles,
+                  background: "rgba(118, 75, 162, 0.15)",
+                  border: `1px solid rgba(118, 75, 162, 0.3)`,
+                  padding: "25px",
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#9575CD",
+                    fontSize: "20px",
+                    fontWeight: "600",
+                    margin: "0 0 15px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <GrUserExpert /> Experience
+                </h3>
+                <p
+                  style={{
+                    color: "rgba(255, 255, 255, 0.95)",
+                    fontSize: "16px",
+                    lineHeight: "1.6",
+                    margin: 0,
+                    whiteSpace: "pre-wrap",
+                    fontWeight: "500",
+                  }}
+                >
+                  {resume.experienceMatch}
+                </p>
+              </div>
+            )}
+
+            {/* Matching Skills Section */}
+            {resume.matchingSkills?.length > 0 && (
+              <div
+                style={{
+                  ...sectionStyles,
+                  background: getSectionBackground(2),
+                  border: `1px solid ${getSectionBorderColor(2)}`,
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#FF9800",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    margin: "0 0 15px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <FaBullseye /> Matching Skills ({resume.matchingSkills.length}
+                  )
+                </h3>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  {resume.matchingSkills.map((skill, index) => (
+                    <span key={index} style={matchingSkillStyles}>
+                      ✓ {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Missing Skills Section */}
+            {resume.missingSkills?.length > 0 && (
+              <div
+                style={{
+                  ...sectionStyles,
+                  background: getSectionBackground(3),
+                  border: `1px solid ${getSectionBorderColor(3)}`,
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#4CAF50",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    margin: "0 0 15px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <FaTimesCircle /> Missing Skills (
+                  {resume.missingSkills.length})
+                </h3>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  {resume.missingSkills.map((skill, index) => (
+                    <span key={index} style={missingSkillStyles}>
+                      ✗ {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Strengths Section */}
+            {Array.isArray(resume.strengths) && resume.strengths.length > 0 && (
+              <div
+                style={{
+                  ...sectionStyles,
+                  background: getSectionBackground(4),
+                  border: `1px solid ${getSectionBorderColor(4)}`,
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#F44336",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    margin: "0 0 15px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <MdOutlineHdrStrong />
+                  Key Strengths
+                </h3>
+                <ul
+                  style={{
+                    color: "rgba(255, 255, 255, 0.9)",
+                    fontSize: "15px",
+                    lineHeight: "1.6",
+                    margin: 0,
+                    paddingLeft: "20px",
+                  }}
+                >
+                  {resume.strengths.map((strength, index) => (
+                    <li key={index} style={{ marginBottom: "8px" }}>
+                      {strength}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Weaknesses Section */}
+            {Array.isArray(resume.weaknesses) &&
+              resume.weaknesses.length > 0 && (
+                <div
+                  style={{
+                    ...sectionStyles,
+                    background: getSectionBackground(0),
+                    border: `1px solid ${getSectionBorderColor(0)}`,
+                  }}
+                >
+                  <h3
+                    style={{
+                      color: "#667eea",
+                      fontSize: "18px",
+                      fontWeight: "600",
+                      margin: "0 0 15px 0",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <TbFocus2 /> Areas for Improvement
+                  </h3>
+                  <ul
+                    style={{
+                      color: "rgba(255, 255, 255, 0.9)",
+                      fontSize: "15px",
+                      lineHeight: "1.6",
+                      margin: 0,
+                      paddingLeft: "20px",
+                    }}
+                  >
+                    {resume.weaknesses.map((weakness, index) => (
+                      <li key={index} style={{ marginBottom: "8px" }}>
+                        {weakness}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
-            </div>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>
-            <i className="fas fa-times"></i>
-          </button>
-        </div>
 
-        {/* Modal Body */}
-        <div className="modal-body">
-          {resume.description && (
-            <div className="detail-section summary-section">
-              <h3>
-                <i className="fas fa-file-alt"></i>
-                Summary
-              </h3>
-              <p className="summary-text">{resume.description}</p>
-            </div>
-          )}
-
-          <div className="details-grid">
-            {/* Track section index for alternating colors */}
-            {[
-              resume.experienceMatch && {
-                type: "experience",
-                content: (
-                  <div className="detail-section">
-                    <h3>
-                      <i className="fas fa-briefcase"></i>
-                      Experience
-                    </h3>
-                    <p className="experience-text">{resume.experienceMatch}</p>
-                  </div>
-                ),
-              },
-              resume.matchingSkills?.length > 0 && {
-                type: "matching-skills",
-                content: (
-                  <div className="detail-section">
-                    <h3>
-                      <i className="fas fa-check-circle"></i>
-                      Matching Skills ({resume.matchingSkills.length})
-                    </h3>
-                    <div className="skills-grid">
-                      {resume.matchingSkills.map((skill, index) => (
-                        <span key={index} className="skill-tag matching">
-                          <i className="fas fa-check"></i>
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ),
-              },
-              resume.missingSkills?.length > 0 && {
-                type: "missing-skills",
-                content: (
-                  <div className="detail-section">
-                    <h3>
-                      <i className="fas fa-times-circle"></i>
-                      Missing Skills ({resume.missingSkills.length})
-                    </h3>
-                    <div className="skills-grid">
-                      {resume.missingSkills.map((skill, index) => (
-                        <span key={index} className="skill-tag missing">
-                          <i className="fas fa-times"></i>
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ),
-              },
-              Array.isArray(resume.strengths) &&
-                resume.strengths.length > 0 && {
-                  type: "strengths",
-                  content: (
-                    <div className="detail-section">
-                      <h3>
-                        <i className="fas fa-plus-circle"></i>
-                        Key Strengths
-                      </h3>
-                      <ul className="points-list">
-                        {resume.strengths.map((strength, index) => (
-                          <li key={index}>
-                            <i className="fas fa-check-circle"></i>
-                            {strength}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ),
-                },
-              Array.isArray(resume.weaknesses) &&
-                resume.weaknesses.length > 0 && {
-                  type: "weaknesses",
-                  content: (
-                    <div className="detail-section">
-                      <h3>
-                        <i className="fas fa-minus-circle"></i>
-                        Areas for Improvement
-                      </h3>
-                      <ul className="points-list">
-                        {resume.weaknesses.map((weakness, index) => (
-                          <li key={index}>
-                            <i className="fas fa-exclamation-triangle"></i>
-                            {weakness}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ),
-                },
-            ]
-              .filter(Boolean) // Remove falsy values
-              .map((section, index) => (
-                <div
-                  key={section.type}
-                  className={`detail-section-wrapper ${
-                    index % 2 === 0 ? "section-even" : "section-odd"
-                  }`}
-                >
-                  {section.content}
-                </div>
-              ))}
-          </div>
-        </div>
-
-        {/* Modal Footer */}
-        <div className="modal-footer">
-          <div className="action-buttons">
-            <button className="btn btn-secondary" onClick={onClose}>
-              <i className="fas fa-times"></i>
+          {/* Modal Footer */}
+          <div style={footerStyles}>
+            <button style={secondaryButtonStyles} onClick={onClose}>
               Close
             </button>
-            <button className="btn btn-primary">
-              <i className="fas fa-download"></i>
-              Download Resume
-            </button>
-            <button className="btn btn-success" disabled>
-              <i className="fas fa-calendar-plus"></i>
+            <button style={primaryButtonStyles}>Download Resume</button>
+            <button disabled style={successButtonStyles}>
               Schedule Interview
             </button>
-            <button className="btn btn-info" disabled>
-              <i className="fas fa-envelope"></i>
+            <button disabled style={infoButtonStyles}>
               Contact Candidate
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 };
 

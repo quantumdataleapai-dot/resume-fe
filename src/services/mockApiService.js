@@ -190,6 +190,25 @@ class MockApiService {
     };
   }
 
+  async downloadAllResumes(resumeIds = null, format = "zip") {
+    await simulateApiDelay(1000);
+    console.log("Mock: Downloading all resumes:", resumeIds || "all");
+
+    // Create a simple alert since we can't actually download files in mock mode
+    alert("MOCK API: In a real implementation, this would download a ZIP file with all selected resumes. IDs: " + 
+          (resumeIds ? resumeIds.join(", ") : "all resumes"));
+
+    // Return mock response
+    return {
+      success: true,
+      message: "All resumes would be downloaded as ZIP in real implementation",
+      mockDetails: {
+        resumeIds: resumeIds || "all resumes",
+        format: format
+      }
+    };
+  }
+
   async getJobs() {
     await simulateApiDelay(600);
     console.log("Mock: Getting jobs");

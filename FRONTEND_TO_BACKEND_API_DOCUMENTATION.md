@@ -23,7 +23,7 @@ Currently, the frontend uses dummy authentication (no real backend integration).
 
 ## Resume Management Endpoints
 
-### 1. Upload Multiple Resumes
+### 1. Upload Multiple/Single Resume(s)
 
 **Endpoint**: `POST /api/resumes/upload`
 **Content-Type**: `multipart/form-data`
@@ -31,7 +31,8 @@ Currently, the frontend uses dummy authentication (no real backend integration).
 **Request Body**:
 
 ```
-FormData with multiple files under 'files' key
+files: One or more resume files.
+FormData with one or multiple files under 'files' key
 ```
 
 **Frontend Implementation**:
@@ -42,6 +43,12 @@ const formData = new FormData();
 Array.from(files).forEach((file) => {
   formData.append("files", file);
 });
+await axios.post("/api/resumes/upload", formData);
+
+//single file upload
+const formData = new FormData();
+formData.append("files", file); // Note the plural key still used for consistency
+await axios.post("/api/resumes/upload", formData);
 ```
 
 **Expected Response**:
@@ -51,8 +58,8 @@ Array.from(files).forEach((file) => {
   "success": true,
   "message": "Files uploaded successfully",
   "data": {
-    "uploaded_count": 3,
-    "failed_count": 0,
+    "uploaded_count": 2,
+    "failed_count": 1,
     "resumes": [
       {
         "id": "resume_1",
@@ -61,64 +68,42 @@ Array.from(files).forEach((file) => {
         "parsed_data": {
           "name": "John Doe",
           "email": "john@example.com",
-          "skills": ["Python", "React", "SQL"]
+          "skills": ["Python", "React"]
         }
+      },
+      {
+        "filename": "corrupt_file.pdf",
+        "upload_status": "failed",
+        "error": "Unsupported file format"
       }
     ]
   }
 }
 ```
 
-### 2. Upload Single Resume
-
-**Endpoint**: `POST /api/resumes/upload-single`
-**Content-Type**: `multipart/form-data`
-
-**Request Body**:
-
-```
-FormData:
-- file: Resume file
-- metadata: JSON string (optional)
-```
-
-**Frontend Implementation**:
-
-```javascript
-const formData = new FormData();
-formData.append("file", file);
-if (metadata) {
-  formData.append("metadata", JSON.stringify(metadata));
-}
-```
-
-**Expected Response**:
+**Error Response**:
 
 ```json
 {
-  "success": true,
-  "message": "Resume uploaded successfully",
-  "data": {
-    "id": "resume_1",
-    "filename": "resume.pdf",
-    "parsed_data": {
-      "name": "John Doe",
-      "email": "john@example.com",
-      "phone": "+1234567890",
-      "skills": ["Python", "JavaScript"],
-      "experience": [
-        {
-          "title": "Software Engineer",
-          "company": "Tech Corp",
-          "duration": "2020-2023"
-        }
-      ]
-    }
+  "success": false,
+  "message": "Resume upload failed due to validation error",
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "details": [
+      {
+        "file": "resume1.pdf",
+        "reason": "Unsupported file type"
+      },
+      {
+        "file": "resume2.docx",
+        "reason": "File size exceeds 5MB"
+      }
+    ]
   }
 }
 ```
 
-### 3. Upload Resumes from URLs
+### 2. Upload Resumes from URLs
 
 **Endpoint**: `POST /api/resumes/upload-urls`
 **Content-Type**: `application/json`
@@ -164,7 +149,7 @@ if (metadata) {
 }
 ```
 
-### 4. Get Resumes List
+### 3. Get Resumes List
 
 **Endpoint**: `GET /api/resumes`
 
@@ -209,7 +194,7 @@ GET /api/resumes?page=1&limit=10
 }
 ```
 
-### 5. Download Resume
+### 4. Download Resume
 
 **Endpoint**: `GET /api/resumes/{id}/download`
 
@@ -236,6 +221,42 @@ Content-Disposition: attachment; filename="john_doe_resume.pdf"
 ```
 
 ---
+
+## Download all resumes in ZIP
+
+**Endpoint**: `POST /api/resumes/download-all`
+**Content-Type**: `application/json`
+
+**Request Body**:
+
+```json
+{
+  "resume_ids": ["resume_1", "resume_2", "resume_3"] // Optional: if null, all resumes will be downloaded
+}
+```
+
+**Query Parameters**:
+
+- `format`: Download format (default: "zip")
+
+**Expected Response**:
+Binary file data with appropriate headers:
+
+```
+Content-Type: application/zip
+Content-Disposition: attachment; filename="all_resumes.zip"
+```
+
+**Frontend Implementation**:
+
+```javascript
+// Download all resumes
+await ApiService.downloadAllResumes(); // Downloads all resumes
+
+// Download specific resumes
+const selectedIds = ["resume_1", "resume_2", "resume_3"];
+await ApiService.downloadAllResumes(selectedIds);
+```
 
 ## Job Description Processing & Resume Matching (Unified - Recommended)
 
@@ -281,6 +302,7 @@ These endpoints combine job description processing with resume matching in a sin
         "filename": "john_doe_resume.pdf",
         "match_score": 85.5,
         "match_details": {
+          //optional
           "skills_match": 90,
           "experience_match": 80,
           "overall_fit": "Excellent"
@@ -403,51 +425,26 @@ if (title) {
 ```json
 {
   "success": true,
-  "message": "Job description file processed successfully",
+  "message": "Job description processed successfully",
   "data": {
-    "id": "job_2",
-    "title": "Data Scientist",
-    "filename": "data_scientist_job.pdf",
-    "extracted_text": "We are seeking a Data Scientist...",
-    "processed_description": "We are seeking a Data Scientist...",
+    "id": "job_1",
+    "title": "Senior Python Developer",
+    "processed_description": "We are looking for a Senior Python Developer...",
     "extracted_requirements": {
-      "required_skills": ["Python", "Machine Learning", "Statistics"],
-      "preferred_skills": ["TensorFlow", "PyTorch"],
-      "experience_years": 3,
-      "education": "Master's degree in Data Science or related field"
-    }
+      "required_skills": ["Python", "Django", "SQL"],
+      "preferred_skills": ["Docker", "AWS"],
+      "experience_years": 5,
+      "education": "Bachelor's degree in Computer Science",
+      "responsibilities": [
+        "Develop backend services",
+        "Code review and mentoring"
+      ]
+    },
+    "job_category": "Software Development",
+    "seniority_level": "Senior"
   }
 }
 ```
-
-### 3. Get Jobs List
-
-**Endpoint**: `GET /api/jobs`
-
-**Expected Response**:
-
-```json
-{
-  "success": true,
-  "data": {
-    "jobs": [
-      {
-        "id": "job_1",
-        "title": "Senior Python Developer",
-        "created_date": "2025-07-01T10:00:00Z",
-        "processed": true,
-        "requirements_summary": {
-          "required_skills": ["Python", "Django"],
-          "experience_years": 5
-        }
-      }
-    ],
-    "total_count": 1
-  }
-}
-```
-
----
 
 ## Error Handling
 
@@ -615,7 +612,8 @@ const urlResults = await ApiService.uploadFromUrls([
 
 1. `POST /api/resumes/upload-single` - Single resume upload
 2. `GET /api/resumes/{id}/download` - Resume download
-3. `POST /api/resumes/upload-urls` - URL-based upload
+3. `POST /api/resumes/download-all` - Bulk resume download as ZIP
+4. `POST /api/resumes/upload-urls` - URL-based upload
 
 ### Phase 3 (Legacy/Optional Features)
 
