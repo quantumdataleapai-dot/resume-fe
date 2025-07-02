@@ -201,35 +201,6 @@ class ApiService {
     return response.data;
   }
 
-  async downloadAllResumes(resumeIds = null, format = "zip") {
-    if (USE_MOCK_DATA) {
-      return mockApiService.downloadAllResumes(resumeIds, format);
-    }
-
-    const response = await apiClient.post(
-      API_CONFIG.ENDPOINTS.RESUMES.DOWNLOAD_ALL,
-      { resume_ids: resumeIds },
-      {
-        params: { format },
-        responseType: "blob", // Important: This ensures we get binary data
-      }
-    );
-
-    // Create a download link for the ZIP file
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "all_resumes.zip");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    return {
-      success: true,
-      message: "All resumes downloaded successfully",
-    };
-  }
-
   // Job APIs
   async getJobs() {
     if (USE_MOCK_DATA) {

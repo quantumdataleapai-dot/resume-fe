@@ -222,41 +222,7 @@ Content-Disposition: attachment; filename="john_doe_resume.pdf"
 
 ---
 
-## Download all resumes in ZIP
-
-**Endpoint**: `POST /api/resumes/download-all`
-**Content-Type**: `application/json`
-
-**Request Body**:
-
-```json
-{
-  "resume_ids": ["resume_1", "resume_2", "resume_3"] // Optional: if null, all resumes will be downloaded
-}
-```
-
-**Query Parameters**:
-
-- `format`: Download format (default: "zip")
-
-**Expected Response**:
-Binary file data with appropriate headers:
-
-```
-Content-Type: application/zip
-Content-Disposition: attachment; filename="all_resumes.zip"
-```
-
-**Frontend Implementation**:
-
-```javascript
-// Download all resumes
-await ApiService.downloadAllResumes(); // Downloads all resumes
-
-// Download specific resumes
-const selectedIds = ["resume_1", "resume_2", "resume_3"];
-await ApiService.downloadAllResumes(selectedIds);
-```
+## Download all resumes in ZIP 
 
 ## Job Description Processing & Resume Matching (Unified - Recommended)
 
@@ -302,7 +268,6 @@ These endpoints combine job description processing with resume matching in a sin
         "filename": "john_doe_resume.pdf",
         "match_score": 85.5,
         "match_details": {
-          //optional
           "skills_match": 90,
           "experience_match": 80,
           "overall_fit": "Excellent"
@@ -425,26 +390,51 @@ if (title) {
 ```json
 {
   "success": true,
-  "message": "Job description processed successfully",
+  "message": "Job description file processed successfully",
   "data": {
-    "id": "job_1",
-    "title": "Senior Python Developer",
-    "processed_description": "We are looking for a Senior Python Developer...",
+    "id": "job_2",
+    "title": "Data Scientist",
+    "filename": "data_scientist_job.pdf",
+    "extracted_text": "We are seeking a Data Scientist...",
+    "processed_description": "We are seeking a Data Scientist...",
     "extracted_requirements": {
-      "required_skills": ["Python", "Django", "SQL"],
-      "preferred_skills": ["Docker", "AWS"],
-      "experience_years": 5,
-      "education": "Bachelor's degree in Computer Science",
-      "responsibilities": [
-        "Develop backend services",
-        "Code review and mentoring"
-      ]
-    },
-    "job_category": "Software Development",
-    "seniority_level": "Senior"
+      "required_skills": ["Python", "Machine Learning", "Statistics"],
+      "preferred_skills": ["TensorFlow", "PyTorch"],
+      "experience_years": 3,
+      "education": "Master's degree in Data Science or related field"
+    }
   }
 }
 ```
+
+### 3. Get Jobs List
+
+**Endpoint**: `GET /api/jobs`
+
+**Expected Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "jobs": [
+      {
+        "id": "job_1",
+        "title": "Senior Python Developer",
+        "created_date": "2025-07-01T10:00:00Z",
+        "processed": true,
+        "requirements_summary": {
+          "required_skills": ["Python", "Django"],
+          "experience_years": 5
+        }
+      }
+    ],
+    "total_count": 1
+  }
+}
+```
+
+---
 
 ## Error Handling
 
@@ -612,8 +602,7 @@ const urlResults = await ApiService.uploadFromUrls([
 
 1. `POST /api/resumes/upload-single` - Single resume upload
 2. `GET /api/resumes/{id}/download` - Resume download
-3. `POST /api/resumes/download-all` - Bulk resume download as ZIP
-4. `POST /api/resumes/upload-urls` - URL-based upload
+3. `POST /api/resumes/upload-urls` - URL-based upload
 
 ### Phase 3 (Legacy/Optional Features)
 
