@@ -60,23 +60,7 @@ await axios.post("/api/resumes/upload", formData);
   "data": {
     "uploaded_count": 2,
     "failed_count": 1,
-    "resumes": [
-      {
-        "id": "resume_1",
-        "filename": "john_doe_resume.pdf",
-        "upload_status": "success",
-        "parsed_data": {
-          "name": "John Doe",
-          "email": "john@example.com",
-          "skills": ["Python", "React"]
-        }
-      },
-      {
-        "filename": "corrupt_file.pdf",
-        "upload_status": "failed",
-        "error": "Unsupported file format"
-      }
-    ]
+    
   }
 }
 ```
