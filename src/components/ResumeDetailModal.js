@@ -57,6 +57,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
     transition: "none",
     animation: "none",
     boxSizing: "border-box",
+    display: "flex",
+    flexDirection: "colummn",
   };
 
   const headerStyles = {
@@ -72,11 +74,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
 
   const bodyStyles = {
     padding: "30px",
-    maxHeight: "calc(90vh - 160px)",
+    // maxHeight: "calc(90vh - 160px)",
     overflowY: "auto",
     background: "transparent",
     transform: "none",
     transition: "none",
+    flex: 1,
+    minHeight: 0,
   };
 
   const sectionStyles = {
@@ -117,6 +121,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
     gap: "10px",
     transform: "none",
     transition: "none",
+    flexShrink: 0,
   };
 
   const buttonStyles = {
