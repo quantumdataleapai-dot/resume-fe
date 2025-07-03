@@ -59,8 +59,7 @@ await axios.post("/api/resumes/upload", formData);
   "message": "Files uploaded successfully",
   "data": {
     "uploaded_count": 2,
-    "failed_count": 1,
-    
+    "failed_count": 1
   }
 }
 ```
@@ -206,7 +205,7 @@ Content-Disposition: attachment; filename="john_doe_resume.pdf"
 
 ---
 
-## Download all resumes in ZIP 
+## Download all resumes in ZIP
 
 ## Job Description Processing & Resume Matching (Unified - Recommended)
 
@@ -584,7 +583,7 @@ const urlResults = await ApiService.uploadFromUrls([
 
 ### Phase 2 (Extended Features)
 
-1. `POST /api/resumes/upload-single` - Single resume upload
+1. `POST /api/resumes/upload` - Single/multiple resume upload (unified endpoint)
 2. `GET /api/resumes/{id}/download` - Resume download
 3. `POST /api/resumes/upload-urls` - URL-based upload
 

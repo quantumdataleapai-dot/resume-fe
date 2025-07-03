@@ -9,7 +9,8 @@ import {
   simulateApiDelay,
 } from "../utils/mockData";
 
-const USE_MOCK_DATA = process.env.REACT_APP_USE_MOCK_DATA === "true" || true; // Default to true for development
+// Force disable mock mode to use real API
+const USE_MOCK_DATA = false;
 
 console.log("Mock API Service loaded. USE_MOCK_DATA:", USE_MOCK_DATA);
 console.log(
@@ -195,8 +196,10 @@ class MockApiService {
     console.log("Mock: Downloading all resumes:", resumeIds || "all");
 
     // Create a simple alert since we can't actually download files in mock mode
-    alert("MOCK API: In a real implementation, this would download a ZIP file with all selected resumes. IDs: " + 
-          (resumeIds ? resumeIds.join(", ") : "all resumes"));
+    alert(
+      "MOCK API: In a real implementation, this would download a ZIP file with all selected resumes. IDs: " +
+        (resumeIds ? resumeIds.join(", ") : "all resumes")
+    );
 
     // Return mock response
     return {
@@ -204,8 +207,8 @@ class MockApiService {
       message: "All resumes would be downloaded as ZIP in real implementation",
       mockDetails: {
         resumeIds: resumeIds || "all resumes",
-        format: format
-      }
+        format: format,
+      },
     };
   }
 

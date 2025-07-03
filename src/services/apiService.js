@@ -4,12 +4,16 @@ import API_CONFIG from "../config/apiConfig";
 import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
 // Create axios instance for Python backend
+console.log("Initializing API client with BASE_URL:", API_CONFIG.BASE_URL);
+
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
   headers: {
     "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
   },
+  withCredentials: false,
 });
 
 // Simple request interceptor (no authentication)
@@ -20,6 +24,8 @@ apiClient.interceptors.request.use(
         config.url
       }`
     );
+    console.log("Full URL:", `${config.baseURL}${config.url}`);
+    console.log("API Config BASE_URL:", API_CONFIG.BASE_URL);
     return config;
   },
   (error) => Promise.reject(error)
@@ -32,7 +38,24 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error(`API error:`, error.response?.status, error.response?.data);
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error(`API error response:`, {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers,
+      });
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error(`API error (no response):`, error.request);
+      console.error(
+        `API connection error. Please check if the backend server is running at ${API_CONFIG.BASE_URL}`
+      );
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error(`API error (setup):`, error.message);
+    }
     return Promise.reject(error);
   }
 );
@@ -62,7 +85,7 @@ class ApiService {
     });
 
     const response = await apiClient.post(
-      API_CONFIG.ENDPOINTS.RESUMES.UPLOAD_MULTIPLE,
+      API_CONFIG.ENDPOINTS.RESUMES.UPLOAD,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -76,14 +99,15 @@ class ApiService {
       return mockApiService.uploadResumes([file]);
     }
 
+    // Use the same endpoint as uploadResumes, just with a single file
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("files", file); // Using the same key name 'files' for consistency
     if (metadata) {
       formData.append("metadata", JSON.stringify(metadata));
     }
 
     const response = await apiClient.post(
-      API_CONFIG.ENDPOINTS.RESUMES.UPLOAD_SINGLE,
+      API_CONFIG.ENDPOINTS.RESUMES.UPLOAD,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },

@@ -1,18 +1,18 @@
 // API Configuration for Frontend-to-Python Backend Communication
 const API_CONFIG = {
   // Python backend URL
-  BASE_URL: process.env.REACT_APP_API_URL || "http://localhost:8000/api",
+  BASE_URL: process.env.REACT_APP_API_URL || "http://192.168.1.36:8000/api",
 
   // Clean API Endpoints for Python Backend
   ENDPOINTS: {
     // Resume endpoints
     RESUMES: {
-      UPLOAD_MULTIPLE: "/resumes/upload",
-      UPLOAD_SINGLE: "/resumes/upload-single",
+      UPLOAD: "/resumes/upload", // Combined endpoint for both single and multiple uploads
       UPLOAD_FROM_URLS: "/resumes/upload-urls",
       LIST: "/resumes",
       MATCH: "/resumes/match",
       DOWNLOAD: "/resumes/{id}/download",
+      DOWNLOAD_ALL: "/resumes/download-all",
     },
 
     // Job description endpoints
