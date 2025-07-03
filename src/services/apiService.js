@@ -4,10 +4,13 @@ import API_CONFIG from "../config/apiConfig";
 import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
 // Create axios instance for Python backend
+console.log("ENV API URL:", process.env.REACT_APP_API_URL);
+console.log("API_CONFIG BASE_URL:", API_CONFIG.BASE_URL);
 console.log("Initializing API client with BASE_URL:", API_CONFIG.BASE_URL);
 
+// Force axios to use the hardcoded URL
 const apiClient = axios.create({
-  baseURL: API_CONFIG.BASE_URL,
+  baseURL: "http://192.168.1.36:8000/api", // Explicitly set to avoid any confusion
   timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
   headers: {
     "Content-Type": "application/json",
@@ -176,41 +179,55 @@ class ApiService {
       return mockApiService.processJobAndMatch(jobData, resumeIds);
     }
 
-    let formData;
-    let endpoint;
+    try {
+      let formData;
+      let endpoint;
+      console.log("Processing job and matching with resumeIds:", resumeIds);
 
-    if (jobData.file) {
-      // Handle file-based job description
-      formData = new FormData();
-      formData.append("file", jobData.file);
-      if (jobData.title) {
-        formData.append("title", jobData.title);
+      if (jobData.file) {
+        // Handle file-based job description
+        formData = new FormData();
+        formData.append("file", jobData.file);
+        if (jobData.title) {
+          formData.append("title", jobData.title);
+        }
+        if (resumeIds && resumeIds.length > 0) {
+          formData.append("resume_ids", JSON.stringify(resumeIds));
+        }
+        endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_FILE_AND_MATCH;
+
+        console.log(`Making API call to ${endpoint} with file upload`);
+        const response = await apiClient.post(endpoint, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        console.log("Process job and match response:", response.data);
+        return response.data;
+      } else {
+        // Handle text-based job description
+        const payload = {
+          job_description: jobData.job_description,
+        };
+        if (jobData.title) {
+          payload.title = jobData.title;
+        }
+        if (resumeIds && resumeIds.length > 0) {
+          payload.resume_ids = resumeIds;
+        }
+        endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_TEXT_AND_MATCH;
+
+        console.log(`Making API call to ${endpoint} with text data:`, payload);
+        const response = await apiClient.post(endpoint, payload);
+        console.log("Process job and match response:", response.data);
+        return response.data;
       }
-      if (resumeIds && resumeIds.length > 0) {
-        formData.append("resume_ids", JSON.stringify(resumeIds));
-      }
-      endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_FILE_AND_MATCH;
-    } else {
-      // Handle text-based job description
-      const payload = {
-        job_description: jobData.job_description,
+    } catch (error) {
+      console.error("Error processing job and matching resumes:", error);
+      return {
+        success: false,
+        message: "Failed to process job description and match resumes",
+        error: error.message,
       };
-      if (jobData.title) {
-        payload.title = jobData.title;
-      }
-      if (resumeIds && resumeIds.length > 0) {
-        payload.resume_ids = resumeIds;
-      }
-      endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_TEXT_AND_MATCH;
-      formData = payload;
     }
-
-    const response = await apiClient.post(
-      endpoint,
-      formData,
-      jobData.file ? { headers: { "Content-Type": "multipart/form-data" } } : {}
-    );
-    return response.data;
   }
 
   async downloadResume(resumeId, format = "pdf") {
@@ -218,11 +235,65 @@ class ApiService {
       return mockApiService.downloadResume(resumeId, format);
     }
 
-    const response = await apiClient.get(
-      API_CONFIG.ENDPOINTS.RESUMES.DOWNLOAD.replace("{id}", resumeId),
-      { params: { format } }
-    );
-    return response.data;
+    try {
+      // Using response type blob to handle binary file data
+      const response = await apiClient.get(
+        API_CONFIG.ENDPOINTS.RESUMES.DOWNLOAD.replace("{id}", resumeId),
+        {
+          params: { format },
+          responseType: "blob", // Important for file downloads
+        }
+      );
+
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `resume_${resumeId}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      return { success: true, message: "Resume downloaded successfully" };
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async downloadAllResumes(resumeIds = null, format = "zip") {
+    if (USE_MOCK_DATA) {
+      return mockApiService.downloadAllResumes(resumeIds, format);
+    }
+
+    try {
+      // Create request payload
+      const payload = resumeIds ? { resume_ids: resumeIds } : {};
+
+      // Make API call with blob response type for binary data
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.RESUMES.DOWNLOAD_ALL,
+        payload,
+        {
+          params: { format },
+          responseType: "blob", // Important for file downloads
+        }
+      );
+
+      // Create a download link for the ZIP file
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `all_resumes.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      return { success: true, message: "All resumes downloaded successfully" };
+    } catch (error) {
+      console.error("Error downloading all resumes:", error);
+      return { success: false, error: error.message };
+    }
   }
 
   // Job APIs

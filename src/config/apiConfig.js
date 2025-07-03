@@ -1,7 +1,7 @@
 // API Configuration for Frontend-to-Python Backend Communication
 const API_CONFIG = {
   // Python backend URL
-  BASE_URL: process.env.REACT_APP_API_URL || "http://192.168.1.36:8000/api",
+  BASE_URL: "http://192.168.1.36:8000/api", // Force to use the new URL
 
   // Clean API Endpoints for Python Backend
   ENDPOINTS: {

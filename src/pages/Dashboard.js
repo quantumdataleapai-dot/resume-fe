@@ -3,9 +3,9 @@ import Header from "../components/Header";
 import ResumeCard from "../components/ResumeCard";
 import AIChat from "../components/AIChat";
 import ApiService from "../services/apiService";
-import JSZip from "jszip";
+
 import "../styles/Dashboard.css";
-import { MdOutlineDocumentScanner } from "react-icons/md";
+import { MdOutlineDocumentScanner, MdInsertDriveFile } from "react-icons/md";
 
 const Dashboard = () => {
   const [jobDescription, setJobDescription] = useState("");
@@ -137,7 +137,7 @@ const Dashboard = () => {
           score: resume.match_score,
           maxScore: 100,
           description: resume.parsed_data?.current_position || "No description",
-          avatar: "📄",
+          avatar: <MdInsertDriveFile />,
           matchingSkills: resume.matching_skills || [],
           missingSkills: resume.missing_skills || [],
           experienceMatch: resume.match_details?.experience_match || 0,
@@ -162,6 +162,8 @@ const Dashboard = () => {
       setMatchedResumes(transformedMatches);
       setShowMatched(true);
       setSortBy("score-desc"); // Default to score-based sorting for matched resumes
+      setJobDescription("");
+      clearJobFile();
 
       alert(
         `Job processing completed! Found ${transformedMatches.length} matching resumes.`
@@ -232,7 +234,7 @@ const Dashboard = () => {
         description: `Downloaded from URL. Upload date: ${new Date(
           resume.upload_date
         ).toLocaleDateString()}`,
-        avatar: "📄",
+        avatar: <MdInsertDriveFile />,
       }));
 
       // Add to allResumes
@@ -314,134 +316,59 @@ const Dashboard = () => {
     }
   };
 
-  // Download single resume
-  const downloadSingleResume = async (resume) => {
-    const content = `Resume: ${resume.name}\n\nScore: ${
-      resume.score || "N/A"
-    }%\nDescription: ${resume.description}\n\n${
-      resume.matchingSkills
-        ? `Matching Skills: ${resume.matchingSkills.join(", ")}\n`
-        : ""
-    }${
-      resume.experienceMatch ? `Experience: ${resume.experienceMatch}\n` : ""
-    }\nGenerated on: ${new Date().toLocaleString()}`;
+  // Download single resume (common function to be used by both table and modal)
+  const handleDownloadResume = async (resumeId, format = "pdf") => {
+    try {
+      setLoading(true);
+      // Use the API service to download the resume
+      const result = await ApiService.downloadResume(resumeId, format);
 
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = window.URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${resume.name.replace(/[^a-z0-9]/gi, "_")}.txt`;
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-
-    alert("Resume downloaded successfully!");
+      if (result.success) {
+        console.log(`Resume ${resumeId} downloaded successfully`);
+      } else {
+        console.error("Failed to download resume:", result.error);
+        alert("Download failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Download failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Download multiple resumes as ZIP
+  // Download single resume
+  const downloadSingleResume = async (resume) => {
+    return handleDownloadResume(resume.id);
+  };
+
+  // Download multiple resumes as ZIP using the API
   const downloadAsZip = async (resumes) => {
-    alert(`Preparing ZIP file with ${resumes.length} resume(s)...`);
-
     try {
-      // Create JSZip instance
-      const zip = new JSZip();
+      setLoading(true);
 
-      // Create individual resume files
-      const files = resumes.map((resume) => ({
-        name: `${resume.name.replace(/[^a-z0-9]/gi, "_")}.txt`,
-        content: `Resume: ${resume.name}\n\nScore: ${
-          resume.score || "N/A"
-        }%\nDescription: ${resume.description}\n\n${
-          resume.matchingSkills
-            ? `Matching Skills: ${resume.matchingSkills.join(", ")}\n`
-            : ""
-        }${
-          resume.experienceMatch
-            ? `Experience: ${resume.experienceMatch}\n`
-            : ""
-        }${
-          resume.strengths
-            ? `\nStrengths:\n${resume.strengths
-                .map((s) => `• ${s}`)
-                .join("\n")}\n`
-            : ""
-        }${
-          resume.weaknesses
-            ? `\nAreas for Improvement:\n${resume.weaknesses
-                .map((w) => `• ${w}`)
-                .join("\n")}\n`
-            : ""
-        }\nGenerated on: ${new Date().toLocaleString()}`,
-      }));
+      // Extract IDs from the resume objects
+      const resumeIds = resumes.map((resume) => resume.id);
 
-      // Add files to ZIP
-      files.forEach((file) => {
-        zip.file(file.name, file.content);
-      });
+      console.log(`Downloading ${resumeIds.length} resumes as ZIP...`);
+      alert(`Preparing ZIP file with ${resumes.length} resume(s)...`);
 
-      // Create a manifest/summary file
-      const manifest = `Resume Download Package Summary
-===========================================
+      // Call the API service to download all selected resumes
+      const result = await ApiService.downloadAllResumes(resumeIds, "zip");
 
-Date: ${new Date().toLocaleString()}
-Total Files: ${files.length}
-
-Files Included:
-${files.map((f, i) => `${i + 1}. ${f.name}`).join("\n")}
-
-Download Summary:
-${
-  showMatched
-    ? "These resumes were matched against the job description."
-    : "All uploaded resumes."
-}
-${
-  showMatched && topFilter !== "all"
-    ? `Filtered to show top ${topFilter} candidates.`
-    : ""
-}
-Sorted by: ${sortBy
-        .replace("-", " ")
-        .replace("desc", "descending")
-        .replace("asc", "ascending")}
-
-Generated by Resume Matcher Tool
-Visit: https://your-resume-matcher.com
-`;
-
-      zip.file("README.txt", manifest);
-
-      // Generate ZIP file
-      const zipBlob = await zip.generateAsync({
-        type: "blob",
-        compression: "DEFLATE",
-        compressionOptions: {
-          level: 6,
-        },
-      });
-
-      // Create download link
-      const url = window.URL.createObjectURL(zipBlob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `Resume_Package_${
-        new Date().toISOString().split("T")[0]
-      }_${resumes.length}files.zip`;
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      alert(
-        `ZIP file with ${resumes.length} resume(s) downloaded successfully!`
-      );
+      if (result.success) {
+        console.log(
+          `ZIP file with ${resumes.length} resume(s) downloaded successfully!`
+        );
+      } else {
+        console.error("Failed to download ZIP file:", result.error);
+        alert("Download failed. Please try again.");
+      }
     } catch (error) {
-      console.error("ZIP creation error:", error);
-      throw error;
+      console.error("Download ZIP error:", error);
+      alert("Failed to download ZIP file. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -969,6 +896,9 @@ Visit: https://your-resume-matcher.com
                         isSelected={selectedResumes.has(resume.id)}
                         onSelect={(checked) =>
                           handleSelectResume(resume.id, checked)
+                        }
+                        handleDownload={() =>
+                          handleDownloadResume(resume.id, "pdf")
                         }
                       />
                     </div>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import ResumeDetailModal from "./ResumeDetailModal";
+import { MdOutlineInsertDriveFile } from "react-icons/md";
 
 const ResumeCard = ({
   resume,
   showMatched = false,
   isSelected = false,
   onSelect,
+  handleDownload,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -42,58 +44,64 @@ const ResumeCard = ({
     setShowModal(false);
   };
 
-  const handleDownload = async () => {
-    try {
-      // In a real application, this would make an API call to get the file
-      // For demo purposes, we'll simulate a download
+  const handleDownloadClick = async () => {
+    if (handleDownload) {
+      // Use the common download handler passed from the parent
+      handleDownload();
+    } else {
+      try {
+        // Fallback to the old implementation if no handler is provided
+        // In a real application, this would make an API call to get the file
+        // For demo purposes, we'll simulate a download
 
-      // Simulate API call to get resume file
-      const response = await fetch(`/api/resumes/${resume.id}/download`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+        // Simulate API call to get resume file
+        const response = await fetch(`/api/resumes/${resume.id}/download`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
-      if (response.ok) {
-        // Get the blob from response
-        const blob = await response.blob();
+        if (response.ok) {
+          // Get the blob from response
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+
+          // Create a temporary link to trigger download
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = resume.name || `resume_${resume.id}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+
+          // Cleanup
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        } else {
+          throw new Error("Download failed");
+        }
+      } catch (error) {
+        console.error("Download error:", error);
+
+        // Fallback: Create a dummy file for demo purposes
+        const dummyContent = `Resume: ${
+          resume.name
+        }\n\nThis is a demo download.\nIn a real application, this would be the actual resume file.\n\nGenerated on: ${new Date().toLocaleString()}`;
+        const blob = new Blob([dummyContent], { type: "text/plain" });
         const url = window.URL.createObjectURL(blob);
 
-        // Create a temporary link to trigger download
         const link = document.createElement("a");
         link.href = url;
-        link.download = resume.name || `resume_${resume.id}.pdf`;
+        link.download = `${resume.name.replace(/[^a-z0-9]/gi, "_")}.txt`;
         document.body.appendChild(link);
         link.click();
 
-        // Cleanup
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-      } else {
-        throw new Error("Download failed");
+
+        // Show user feedback
+        alert("Resume downloaded successfully! (Demo version)");
       }
-    } catch (error) {
-      console.error("Download error:", error);
-
-      // Fallback: Create a dummy file for demo purposes
-      const dummyContent = `Resume: ${
-        resume.name
-      }\n\nThis is a demo download.\nIn a real application, this would be the actual resume file.\n\nGenerated on: ${new Date().toLocaleString()}`;
-      const blob = new Blob([dummyContent], { type: "text/plain" });
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${resume.name.replace(/[^a-z0-9]/gi, "_")}.txt`;
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      // Show user feedback
-      alert("Resume downloaded successfully! (Demo version)");
     }
   };
 
@@ -114,7 +122,9 @@ const ResumeCard = ({
       {/* Resume info column */}
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         <div className="resume-avatar">
-          <span style={{ fontSize: "1.5rem" }}>{resume.avatar || "📄"}</span>
+          <span style={{ fontSize: "1.5rem" }}>
+            {resume.avatar || <MdOutlineInsertDriveFile />}
+          </span>
         </div>
         <div className="resume-details">
           <div
@@ -183,7 +193,7 @@ const ResumeCard = ({
         )}
         <button
           className="download-btn"
-          onClick={handleDownload}
+          onClick={handleDownloadClick}
           title="Quick Download"
           style={{
             padding: "0.5rem",
@@ -203,6 +213,7 @@ const ResumeCard = ({
         resume={resume}
         isOpen={showModal}
         onClose={closeModal}
+        handleDownload={handleDownload}
       />
     </>
   );

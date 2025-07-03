@@ -2,10 +2,25 @@ import ModalPortal from "./ModalPortal";
 import { IoIosClose } from "react-icons/io";
 import { TbFocus2 } from "react-icons/tb";
 import { GrUserExpert } from "react-icons/gr";
-import { FaBullseye, FaTimesCircle } from "react-icons/fa";
-import { MdOutlineSummarize, MdOutlineHdrStrong } from "react-icons/md";
+import {
+  FaBullseye,
+  FaTimesCircle,
+  FaStar,
+  FaExclamationTriangle,
+} from "react-icons/fa";
+import {
+  MdOutlineSummarize,
+  MdOutlineHdrStrong,
+  MdSchool,
+  MdOutlineInsertDriveFile,
+  MdDateRange,
+  MdOutlineEmail,
+  MdCheck,
+  MdOutlineClose,
+} from "react-icons/md";
+import { GiSkills } from "react-icons/gi";
 
-const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
+const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
   if (!isOpen || !resume) return null;
 
   const getScoreColor = (score) => {
@@ -58,7 +73,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
     animation: "none",
     boxSizing: "border-box",
     display: "flex",
-    flexDirection: "colummn",
+    flexDirection: "column",
   };
 
   const headerStyles = {
@@ -74,13 +89,15 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
 
   const bodyStyles = {
     padding: "30px",
-    // maxHeight: "calc(90vh - 160px)",
+    maxHeight: "calc(90vh - 200px)",
     overflowY: "auto",
     background: "transparent",
     transform: "none",
     transition: "none",
     flex: 1,
-    minHeight: 0,
+    minHeight: "200px", // Ensure minimum height for content
+    display: "flex",
+    flexDirection: "column",
   };
 
   const sectionStyles = {
@@ -251,6 +268,34 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
                 >
                   {resume.name}
                 </h2>
+                {resume.email && (
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      color: "rgba(255, 255, 255, 0.7)",
+                      margin: "0 0 6px 0",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                    }}
+                  >
+                    <span style={{ opacity: 0.8 }}>
+                      <MdOutlineEmail />{" "}
+                    </span>{" "}
+                    {resume.email}
+                  </div>
+                )}
+                {resume.upload_date && (
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      color: "rgba(255, 255, 255, 0.6)",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    <MdDateRange /> Uploaded: {resume.upload_date}
+                  </div>
+                )}
                 {resume.score > 0 && (
                   <div
                     style={{
@@ -321,8 +366,195 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
               </div>
             )}
 
+            {/* Contact Information & Details */}
+            <div
+              style={{
+                ...sectionStyles,
+                background: getSectionBackground(1),
+                border: `1px solid ${getSectionBorderColor(1)}`,
+              }}
+            >
+              <h3
+                style={{
+                  color: "#764ba2",
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  margin: "0 0 15px 0",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <MdOutlineInsertDriveFile />
+                Resume Details
+              </h3>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                  gap: "15px",
+                }}
+              >
+                {resume.filename && (
+                  <div>
+                    <div
+                      style={{
+                        color: "#9575CD",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Filename
+                    </div>
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.9)",
+                        fontSize: "15px",
+                      }}
+                    >
+                      {resume.filename}
+                    </div>
+                  </div>
+                )}
+
+                {resume.phone && (
+                  <div>
+                    <div
+                      style={{
+                        color: "#9575CD",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Phone
+                    </div>
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.9)",
+                        fontSize: "15px",
+                      }}
+                    >
+                      {resume.phone}
+                    </div>
+                  </div>
+                )}
+
+                {resume.location && (
+                  <div>
+                    <div
+                      style={{
+                        color: "#9575CD",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Location
+                    </div>
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.9)",
+                        fontSize: "15px",
+                      }}
+                    >
+                      {resume.location}
+                    </div>
+                  </div>
+                )}
+
+                {resume.education && (
+                  <div>
+                    <div
+                      style={{
+                        color: "#9575CD",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Education
+                    </div>
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.9)",
+                        fontSize: "15px",
+                      }}
+                    >
+                      {resume.education}
+                    </div>
+                  </div>
+                )}
+
+                {resume.id && (
+                  <div>
+                    <div
+                      style={{
+                        color: "#9575CD",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Resume ID
+                    </div>
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.9)",
+                        fontSize: "15px",
+                      }}
+                    >
+                      {resume.id}
+                    </div>
+                  </div>
+                )}
+
+                {/* Skills Section */}
+                {resume.skills && resume.skills.length > 0 && (
+                  <div>
+                    <div
+                      style={{
+                        color: "#64B5F6",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
+                      }}
+                    >
+                      <GiSkills /> Skills
+                    </div>
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.9)",
+                        fontSize: "15px",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "6px",
+                      }}
+                    >
+                      {Array.isArray(resume.skills) ? (
+                        resume.skills.map((skill, index) => (
+                          <span
+                            key={index}
+                            style={{
+                              background: "rgba(100, 181, 246, 0.2)",
+                              border: "1px solid rgba(100, 181, 246, 0.4)",
+                              borderRadius: "12px",
+                              padding: "3px 10px",
+                              fontSize: "13px",
+                            }}
+                          >
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <span>{resume.skills}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Experience Section */}
-            {resume.experienceMatch && (
+            {(resume.experienceMatch || resume.experience) && (
               <div
                 style={{
                   ...sectionStyles,
@@ -354,13 +586,15 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
                     fontWeight: "500",
                   }}
                 >
-                  {resume.experienceMatch}
+                  {resume.experienceMatch ||
+                    resume.experience ||
+                    "No experience information available"}
                 </p>
               </div>
             )}
 
-            {/* Matching Skills Section */}
-            {resume.matchingSkills?.length > 0 && (
+            {/* Skills Section */}
+            {resume.skills?.length > 0 && (
               <div
                 style={{
                   ...sectionStyles,
@@ -379,13 +613,53 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
                     gap: "10px",
                   }}
                 >
+                  <FaBullseye /> Skills ({resume.skills.length})
+                </h3>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                  {resume.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      style={{
+                        ...skillTagStyles,
+                        background: "rgba(255, 152, 0, 0.2)",
+                        color: "#FF9800",
+                        border: "1px solid rgba(255, 152, 0, 0.3)",
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Matching Skills Section */}
+            {resume.matchingSkills?.length > 0 && (
+              <div
+                style={{
+                  ...sectionStyles,
+                  background: getSectionBackground(3),
+                  border: `1px solid ${getSectionBorderColor(3)}`,
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#4CAF50",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    margin: "0 0 15px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
                   <FaBullseye /> Matching Skills ({resume.matchingSkills.length}
                   )
                 </h3>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                   {resume.matchingSkills.map((skill, index) => (
                     <span key={index} style={matchingSkillStyles}>
-                      ✓ {skill}
+                      <MdCheck /> {skill}
                     </span>
                   ))}
                 </div>
@@ -418,94 +692,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
                   {resume.missingSkills.map((skill, index) => (
                     <span key={index} style={missingSkillStyles}>
-                      ✗ {skill}
+                      <MdOutlineClose />
+                      {skill}
                     </span>
                   ))}
                 </div>
               </div>
             )}
-
-            {/* Strengths Section */}
-            {Array.isArray(resume.strengths) && resume.strengths.length > 0 && (
-              <div
-                style={{
-                  ...sectionStyles,
-                  background: getSectionBackground(4),
-                  border: `1px solid ${getSectionBorderColor(4)}`,
-                }}
-              >
-                <h3
-                  style={{
-                    color: "#F44336",
-                    fontSize: "18px",
-                    fontWeight: "600",
-                    margin: "0 0 15px 0",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                  }}
-                >
-                  <MdOutlineHdrStrong />
-                  Key Strengths
-                </h3>
-                <ul
-                  style={{
-                    color: "rgba(255, 255, 255, 0.9)",
-                    fontSize: "15px",
-                    lineHeight: "1.6",
-                    margin: 0,
-                    paddingLeft: "20px",
-                  }}
-                >
-                  {resume.strengths.map((strength, index) => (
-                    <li key={index} style={{ marginBottom: "8px" }}>
-                      {strength}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Weaknesses Section */}
-            {Array.isArray(resume.weaknesses) &&
-              resume.weaknesses.length > 0 && (
-                <div
-                  style={{
-                    ...sectionStyles,
-                    background: getSectionBackground(0),
-                    border: `1px solid ${getSectionBorderColor(0)}`,
-                  }}
-                >
-                  <h3
-                    style={{
-                      color: "#667eea",
-                      fontSize: "18px",
-                      fontWeight: "600",
-                      margin: "0 0 15px 0",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <TbFocus2 /> Areas for Improvement
-                  </h3>
-                  <ul
-                    style={{
-                      color: "rgba(255, 255, 255, 0.9)",
-                      fontSize: "15px",
-                      lineHeight: "1.6",
-                      margin: 0,
-                      paddingLeft: "20px",
-                    }}
-                  >
-                    {resume.weaknesses.map((weakness, index) => (
-                      <li key={index} style={{ marginBottom: "8px" }}>
-                        {weakness}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
           </div>
 
           {/* Modal Footer */}
@@ -513,13 +706,23 @@ const ResumeDetailModal = ({ resume, isOpen, onClose }) => {
             <button style={secondaryButtonStyles} onClick={onClose}>
               Close
             </button>
-            <button style={primaryButtonStyles}>Download Resume</button>
-            <button disabled style={successButtonStyles}>
-              Schedule Interview
+            <button
+              style={primaryButtonStyles}
+              onClick={handleDownload} //handleDownload common from
+            >
+              Download Resume
             </button>
-            <button disabled style={infoButtonStyles}>
-              Contact Candidate
-            </button>
+            {resume.email && (
+              <button
+                style={infoButtonStyles}
+                onClick={() =>
+                  (window.location.href = `mailto:${resume.email}`)
+                }
+              >
+                Contact Candidate
+              </button>
+            )}
+            <button style={successButtonStyles}>Schedule Interview</button>
           </div>
         </div>
       </div>
