@@ -12,12 +12,6 @@ import {
 // Force disable mock mode to use real API
 const USE_MOCK_DATA = false;
 
-console.log("Mock API Service loaded. USE_MOCK_DATA:", USE_MOCK_DATA);
-console.log(
-  "Environment REACT_APP_USE_MOCK_DATA:",
-  process.env.REACT_APP_USE_MOCK_DATA
-);
-
 class MockApiService {
   async uploadResumes(files) {
     await simulateApiDelay(1500);

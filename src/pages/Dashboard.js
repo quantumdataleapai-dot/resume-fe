@@ -428,12 +428,13 @@ const Dashboard = () => {
         const startIndex = (currentPage - 1) * itemsPerPage; // should i add +1
         const endIndex = startIndex + itemsPerPage;
 
+        console.log(sortedResumes.slice(startIndex, endIndex));
         return {
           paginatedResumes: sortedResumes.slice(startIndex, endIndex),
           totalResumes: totalFilteredResumes,
         };
       }
-
+      console.log(sortedResumes);
       return {
         paginatedResumes: sortedResumes,
         totalResumes: totalFilteredResumes,
@@ -743,18 +744,18 @@ const Dashboard = () => {
                 )}
               </div>
               <div className="header-controls">
-                {getDisplayedResumes().paginatedResumes.length > 0 && (
+                {getDisplayedResumes()?.paginatedResumes?.length > 0 && (
                   <button
                     className="download-all-btn"
                     onClick={handleBulkDownload}
                     disabled={loading}
                     title={`Download ${
-                      getDisplayedResumes(false).paginatedResumes.length
+                      getDisplayedResumes(false)?.paginatedResumes?.length
                     } resume(s)`}
                   >
                     <i className="fas fa-download"></i>
                     Download All (
-                    {getDisplayedResumes(false).paginatedResumes.length})
+                    {getDisplayedResumes(false)?.paginatedResumes?.length})
                   </button>
                 )}
                 {showMatched && (
@@ -822,18 +823,18 @@ const Dashboard = () => {
                 >
                   <span className="stat">
                     <i className="fas fa-users"></i>
-                    {getDisplayedResumes().paginatedResumes.length} of{" "}
-                    {getDisplayedResumes().totalResumes}
+                    {getDisplayedResumes()?.paginatedResumes?.length} of{" "}
+                    {getDisplayedResumes()?.totalResumes}
                     shown
                   </span>
                   <span className="stat">
                     <i className="fas fa-chart-line"></i>
                     Avg Score:{" "}
                     {Math.round(
-                      getDisplayedResumes().paginatedResumes.reduce(
+                      getDisplayedResumes()?.paginatedResumes?.reduce(
                         (sum, r) => sum + (r.score || 0),
                         0
-                      ) / getDisplayedResumes().paginatedResumes.length || 0
+                      ) / getDisplayedResumes()?.paginatedResumes?.length || 0
                     )}
                     %
                   </span>
@@ -841,7 +842,7 @@ const Dashboard = () => {
                     <i className="fas fa-trophy"></i>
                     Best Score:{" "}
                     {Math.max(
-                      ...getDisplayedResumes().paginatedResumes.map(
+                      ...getDisplayedResumes()?.paginatedResumes?.map(
                         (r) => r.score || 0
                       )
                     )}
@@ -922,7 +923,7 @@ const Dashboard = () => {
                       : "No resumes found. Upload some resumes to get started."}
                   </div>
                 ) : (
-                  getDisplayedResumes().paginatedResumes.map(
+                  getDisplayedResumes()?.paginatedResumes?.map(
                     (resume, index) => (
                       <div
                         key={resume.id}
@@ -967,7 +968,7 @@ const Dashboard = () => {
                     showing{" "}
                     {Math.min(
                       itemsPerPage,
-                      getDisplayedResumes().paginatedResumes.length
+                      getDisplayedResumes()?.paginatedResumes?.length
                     )}{" "}
                     of {getDisplayedResumes().totalResumes} resumes
                   </div>
