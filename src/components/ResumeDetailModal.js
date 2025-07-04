@@ -1,24 +1,15 @@
 import ModalPortal from "./ModalPortal";
 import { IoIosClose } from "react-icons/io";
-import { TbFocus2 } from "react-icons/tb";
 import { GrUserExpert } from "react-icons/gr";
-import {
-  FaBullseye,
-  FaTimesCircle,
-  FaStar,
-  FaExclamationTriangle,
-} from "react-icons/fa";
+import { FaBullseye, FaTimesCircle } from "react-icons/fa";
 import {
   MdOutlineSummarize,
-  MdOutlineHdrStrong,
-  MdSchool,
   MdOutlineInsertDriveFile,
   MdDateRange,
   MdOutlineEmail,
   MdCheck,
   MdOutlineClose,
 } from "react-icons/md";
-import { GiSkills } from "react-icons/gi";
 
 const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
   if (!isOpen || !resume) return null;

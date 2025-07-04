@@ -358,26 +358,30 @@ const Dashboard = () => {
     if (!window.confirm("Are you sure you want to delete this resume?")) {
       return;
     }
-    
+
     try {
       setLoading(true);
       await ApiService.deleteResume(resumeId);
-      
+
       // Remove the resume from state
       if (showMatched) {
-        setMatchedResumes(prevResumes => prevResumes.filter(resume => resume.id !== resumeId));
+        setMatchedResumes((prevResumes) =>
+          prevResumes.filter((resume) => resume.id !== resumeId)
+        );
       }
-      
+
       // Always remove from allResumes
-      setAllResumes(prevResumes => prevResumes.filter(resume => resume.id !== resumeId));
-      
+      setAllResumes((prevResumes) =>
+        prevResumes.filter((resume) => resume.id !== resumeId)
+      );
+
       // Clear from selected resumes if needed
       if (selectedResumes.has(resumeId)) {
         const newSelected = new Set(selectedResumes);
         newSelected.delete(resumeId);
         setSelectedResumes(newSelected);
       }
-      
+
       alert("Resume deleted successfully!");
     } catch (error) {
       console.error("Delete error:", error);

@@ -205,6 +205,45 @@ Content-Disposition: attachment; filename="john_doe_resume.pdf"
 
 ---
 
+### 5. Delete Resume
+
+**Endpoint**: `DELETE /api/resumes/{id}/delete`
+
+**Path Parameters**:
+
+- `id`: Resume ID
+
+**Example Request**:
+
+```
+DELETE /api/resumes/resume_1/delete
+```
+
+**Expected Response**:
+
+```json
+{
+  "success": true,
+  "message": "Resume deleted successfully",
+  "data": {
+    "deleted_resume_id": "resume_1"
+  }
+}
+```
+
+**Error Response**:
+
+```json
+{
+  "success": false,
+  "message": "Failed to Delete Resume",
+  "error": {
+    "code": "DB_ERROR",
+    "details": "Unable to delete resume from database"
+  }
+}
+```
+
 ## Download all resumes in ZIP
 
 ## Job Description Processing & Resume Matching (Unified - Recommended)
@@ -561,6 +600,9 @@ const matchResults = await ApiService.matchResumes(
 const urlResults = await ApiService.uploadFromUrls([
   "http://example.com/resume.pdf",
 ]);
+
+//Delete Resume
+await ApiService.deleteResume(resumeId);
 ```
 
 ### Expected Frontend Behavior
@@ -580,6 +622,7 @@ const urlResults = await ApiService.uploadFromUrls([
 2. `GET /api/resumes` - List resumes
 3. `POST /api/jobs/process-text-and-match` - **Unified job processing & matching (MAIN FEATURE)**
 4. `POST /api/jobs/process-file-and-match` - **Unified file job processing & matching**
+5. `DELETE  /api/resumes/{id}/delete` Delete Resume with id
 
 ### Phase 2 (Extended Features)
 

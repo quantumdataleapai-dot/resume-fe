@@ -348,7 +348,10 @@ class ApiService {
       return mockApiService.deleteResume(resumeId);
     }
 
-    const endpoint = API_CONFIG.ENDPOINTS.RESUMES.DELETE.replace('{id}', resumeId);
+    const endpoint = API_CONFIG.ENDPOINTS.RESUMES.DELETE.replace(
+      "{id}",
+      resumeId
+    );
     const response = await apiClient.delete(endpoint);
     return response.data;
   }
