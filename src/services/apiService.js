@@ -3,11 +3,6 @@ import axios from "axios";
 import API_CONFIG from "../config/apiConfig";
 import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
-// Create axios instance for Python backend
-console.log("ENV API URL:", process.env.REACT_APP_API_URL);
-console.log("API_CONFIG BASE_URL:", API_CONFIG.BASE_URL);
-console.log("Initializing API client with BASE_URL:", API_CONFIG.BASE_URL);
-
 // Force axios to use the hardcoded URL
 const apiClient = axios.create({
   baseURL: "http://192.168.1.36:8000/api", // Explicitly set to avoid any confusion
@@ -22,13 +17,6 @@ const apiClient = axios.create({
 // Simple request interceptor (no authentication)
 apiClient.interceptors.request.use(
   (config) => {
-    console.log(
-      `Making API call to: ${config.method?.toUpperCase()} ${config.baseURL}${
-        config.url
-      }`
-    );
-    console.log("Full URL:", `${config.baseURL}${config.url}`);
-    console.log("API Config BASE_URL:", API_CONFIG.BASE_URL);
     return config;
   },
   (error) => Promise.reject(error)
@@ -140,13 +128,10 @@ class ApiService {
   }
 
   async getResumes(page = 1, limit = 10) {
-    console.log("ApiService.getResumes called. USE_MOCK_DATA:", USE_MOCK_DATA);
     if (USE_MOCK_DATA) {
-      console.log("Using mock data for getResumes");
       return mockApiService.getResumes(page, limit);
     }
 
-    console.log("Using real API for getResumes");
     const response = await apiClient.get(API_CONFIG.ENDPOINTS.RESUMES.LIST, {
       params: { page, limit },
     });
@@ -182,7 +167,6 @@ class ApiService {
     try {
       let formData;
       let endpoint;
-      console.log("Processing job and matching with resumeIds:", resumeIds);
 
       if (jobData.file) {
         // Handle file-based job description
@@ -196,11 +180,10 @@ class ApiService {
         }
         endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_FILE_AND_MATCH;
 
-        console.log(`Making API call to ${endpoint} with file upload`);
         const response = await apiClient.post(endpoint, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        console.log("Process job and match response:", response.data);
+
         return response.data;
       } else {
         // Handle text-based job description
@@ -215,9 +198,7 @@ class ApiService {
         }
         endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_TEXT_AND_MATCH;
 
-        console.log(`Making API call to ${endpoint} with text data:`, payload);
         const response = await apiClient.post(endpoint, payload);
-        console.log("Process job and match response:", response.data);
         return response.data;
       }
     } catch (error) {

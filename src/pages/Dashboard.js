@@ -5,6 +5,7 @@ import AIChat from "../components/AIChat";
 import ApiService from "../services/apiService";
 
 import "../styles/Dashboard.css";
+import "../styles/Pagination.css";
 import { MdOutlineDocumentScanner, MdInsertDriveFile } from "react-icons/md";
 
 const Dashboard = () => {
@@ -21,6 +22,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [selectedResumes, setSelectedResumes] = useState(new Set());
   const [urlList, setUrlList] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const fileInputRef = useRef(null);
   const jobFileInputRef = useRef(null);
   const uploadDropdownRef = useRef(null);
@@ -49,6 +52,22 @@ const Dashboard = () => {
   useEffect(() => {
     loadAllResumes();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortBy, topFilter, showMatched]);
+
+  useEffect(() => {
+    const totalPages = Math.max(
+      1,
+      Math.ceil(
+        (showMatched ? matchedResumes.length : allResumes.length) / itemsPerPage
+      )
+    );
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [matchedResumes, showMatched, allResumes, itemsPerPage, currentPage]);
 
   const handleFileUpload = async (event) => {
     const files = Array.from(event.target.files);
@@ -373,7 +392,7 @@ const Dashboard = () => {
   };
 
   // Get filtered and sorted resumes based on top N filter and sort criteria
-  const getDisplayedResumes = () => {
+  const getDisplayedResumes = (paginated = true) => {
     const resumesToShow = showMatched ? matchedResumes : allResumes;
 
     // Apply sorting
@@ -400,8 +419,25 @@ const Dashboard = () => {
     }
 
     // Apply top N filter
-    if (topFilter === "all") {
-      return sortedResumes;
+    if (topFilter !== "all") {
+      const topN = parseInt(topFilter);
+      sortedResumes = sortedResumes.slice(0, topN);
+
+      const totalFilteredResumes = sortedResumes.length;
+      if (paginated) {
+        const startIndex = (currentPage - 1) * itemsPerPage; // should i add +1
+        const endIndex = startIndex + itemsPerPage;
+
+        return {
+          paginatedResumes: sortedResumes.slice(startIndex, endIndex),
+          totalResumes: totalFilteredResumes,
+        };
+      }
+
+      return {
+        paginatedResumes: sortedResumes,
+        totalResumes: totalFilteredResumes,
+      };
     }
 
     const topN = parseInt(topFilter);
@@ -416,6 +452,7 @@ const Dashboard = () => {
     setShowMatched(false);
     setTopFilter("all");
     setSortBy("name-asc"); // Reset to name sorting for all resumes
+    setCurrentPage(1);
     if (allResumes.length === 0) {
       loadAllResumes();
     }
@@ -466,7 +503,7 @@ const Dashboard = () => {
   };
 
   const handleBulkDownload = async () => {
-    const resumesToDownload = getDisplayedResumes();
+    const resumesToDownload = getDisplayedResumes(false).paginatedResumes;
 
     if (resumesToDownload.length === 0) {
       alert("No resumes to download");
@@ -483,6 +520,15 @@ const Dashboard = () => {
       alert("Bulk download failed. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+
+    const tableElement = document.querySelector(".resumes-table");
+    if (tableElement) {
+      tableElement.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -697,15 +743,18 @@ const Dashboard = () => {
                 )}
               </div>
               <div className="header-controls">
-                {getDisplayedResumes().length > 0 && (
+                {getDisplayedResumes().paginatedResumes.length > 0 && (
                   <button
                     className="download-all-btn"
                     onClick={handleBulkDownload}
                     disabled={loading}
-                    title={`Download ${getDisplayedResumes().length} resume(s)`}
+                    title={`Download ${
+                      getDisplayedResumes(false).paginatedResumes.length
+                    } resume(s)`}
                   >
                     <i className="fas fa-download"></i>
-                    Download All ({getDisplayedResumes().length})
+                    Download All (
+                    {getDisplayedResumes(false).paginatedResumes.length})
                   </button>
                 )}
                 {showMatched && (
@@ -773,17 +822,18 @@ const Dashboard = () => {
                 >
                   <span className="stat">
                     <i className="fas fa-users"></i>
-                    {getDisplayedResumes().length} of {matchedResumes.length}{" "}
+                    {getDisplayedResumes().paginatedResumes.length} of{" "}
+                    {getDisplayedResumes().totalResumes}
                     shown
                   </span>
                   <span className="stat">
                     <i className="fas fa-chart-line"></i>
                     Avg Score:{" "}
                     {Math.round(
-                      getDisplayedResumes().reduce(
+                      getDisplayedResumes().paginatedResumes.reduce(
                         (sum, r) => sum + (r.score || 0),
                         0
-                      ) / getDisplayedResumes().length || 0
+                      ) / getDisplayedResumes().paginatedResumes.length || 0
                     )}
                     %
                   </span>
@@ -791,7 +841,9 @@ const Dashboard = () => {
                     <i className="fas fa-trophy"></i>
                     Best Score:{" "}
                     {Math.max(
-                      ...getDisplayedResumes().map((r) => r.score || 0)
+                      ...getDisplayedResumes().paginatedResumes.map(
+                        (r) => r.score || 0
+                      )
                     )}
                     %
                   </span>
@@ -863,48 +915,182 @@ const Dashboard = () => {
                     <i className="fas fa-spinner fa-spin"></i>
                     Processing...
                   </div>
-                ) : getDisplayedResumes().length === 0 ? (
+                ) : getDisplayedResumes().totalResumes === 0 ? (
                   <div className="empty-message">
                     {showMatched
                       ? "No matched resumes. Try uploading a job description."
                       : "No resumes found. Upload some resumes to get started."}
                   </div>
                 ) : (
-                  getDisplayedResumes().map((resume, index) => (
-                    <div
-                      key={resume.id}
-                      className={`resume-item-wrapper ${
-                        index % 2 === 0 ? "row-even" : "row-odd"
-                      }`}
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: showMatched
-                          ? "80px 1fr 120px 100px"
-                          : "80px 1fr 100px",
-                        gap: "1rem",
-                        padding: "1rem",
-                        alignItems: "center",
-                        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                      }}
-                    >
-                      {showMatched && topFilter !== "all" && (
-                        <div className="rank-badge">#{index + 1}</div>
-                      )}
-                      <ResumeCard
-                        resume={resume}
-                        showMatched={showMatched}
-                        isSelected={selectedResumes.has(resume.id)}
-                        onSelect={(checked) =>
-                          handleSelectResume(resume.id, checked)
-                        }
-                        handleDownload={() =>
-                          handleDownloadResume(resume.id, "pdf")
-                        }
-                      />
-                    </div>
-                  ))
+                  getDisplayedResumes().paginatedResumes.map(
+                    (resume, index) => (
+                      <div
+                        key={resume.id}
+                        className={`resume-item-wrapper ${
+                          index % 2 === 0 ? "row-even" : "row-odd"
+                        }`}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: showMatched
+                            ? "80px 1fr 120px 100px"
+                            : "80px 1fr 100px",
+                          gap: "1rem",
+                          padding: "1rem",
+                          alignItems: "center",
+                          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                        }}
+                      >
+                        {showMatched && topFilter !== "all" && (
+                          <div className="rank-badge">
+                            #{(currentPage - 1) * itemsPerPage + index + 1}
+                          </div>
+                        )}
+                        <ResumeCard
+                          resume={resume}
+                          showMatched={showMatched}
+                          isSelected={selectedResumes.has(resume.id)}
+                          onSelect={(checked) =>
+                            handleSelectResume(resume.id, checked)
+                          }
+                          handleDownload={() =>
+                            handleDownloadResume(resume.id, "pdf")
+                          }
+                        />
+                      </div>
+                    )
+                  )
                 )}
               </div>
+              {getDisplayedResumes().totalResumes > itemsPerPage && (
+                <div className="pagination-controls">
+                  <div className="pagination-info">
+                    showing{" "}
+                    {Math.min(
+                      itemsPerPage,
+                      getDisplayedResumes().paginatedResumes.length
+                    )}{" "}
+                    of {getDisplayedResumes().totalResumes} resumes
+                  </div>
+                  <div className="pagination-buttons">
+                    <button
+                      className="pagination-btn"
+                      onClick={() => handlePageChange(1)}
+                      disabled={currentPage === 1}
+                      title="First Page"
+                    >
+                      <i className="fas fa-angle-double-left"></i>
+                    </button>
+                    <button
+                      className="pagination-btn"
+                      onClick={() =>
+                        handlePageChange(Math.max(currentPage - 1, 1))
+                      }
+                      disabled={currentPage === 1}
+                      title="Previous Page"
+                    >
+                      <i className="fas fa-angle-left"></i>
+                    </button>
+
+                    <div className="pagination-pages">
+                      {Array.from(
+                        {
+                          length: Math.min(
+                            5,
+                            Math.ceil(
+                              getDisplayedResumes().totalResumes / itemsPerPage
+                            )
+                          ),
+                        },
+                        (_, i) => {
+                          let pageNum;
+                          const totalPages = Math.ceil(
+                            getDisplayedResumes().totalResumes / itemsPerPage
+                          );
+
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageNum}
+                              className={`pagination-btn page-num ${
+                                pageNum === currentPage ? "active" : ""
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    <button
+                      className="pagination-btn"
+                      onClick={() =>
+                        handlePageChange(
+                          Math.min(
+                            currentPage + 1,
+                            Math.ceil(
+                              getDisplayedResumes().totalResumes / itemsPerPage
+                            )
+                          )
+                        )
+                      }
+                      disabled={
+                        currentPage ===
+                        Math.ceil(
+                          getDisplayedResumes().totalResumes / itemsPerPage
+                        )
+                      }
+                      title="Next Page"
+                    >
+                      <i className="fas fa-angle-right"></i>
+                    </button>
+                    <button
+                      className="pagination-btn"
+                      onClick={() =>
+                        handlePageChange(
+                          Math.ceil(
+                            getDisplayedResumes().totalResumes / itemsPerPage
+                          )
+                        )
+                      }
+                      disabled={
+                        currentPage ===
+                        Math.ceil(
+                          getDisplayedResumes().totalResumes / itemsPerPage
+                        )
+                      }
+                      title="last Page"
+                    >
+                      <i className="fas fa-angle-double-right"></i>
+                    </button>
+                  </div>
+                  <div className="items-per-page">
+                    <label htmlFor="itemsPerPage">Items per page:</label>
+                    <select
+                      id="itemsPerPage"
+                      value={itemsPerPage}
+                      onChange={(e) => {
+                        setItemsPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         </div>
