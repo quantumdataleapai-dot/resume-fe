@@ -173,7 +173,7 @@ const Dashboard = () => {
           phone: resume.parsed_data?.phone,
           location: resume.parsed_data?.location,
           skills: resume.parsed_data?.skills || [],
-          experience: resume.parsed_data?.experience_years || 0,
+          experience: "Fresher",
           education: resume.parsed_data?.education,
         })
       );

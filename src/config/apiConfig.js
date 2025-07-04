@@ -28,7 +28,7 @@ const API_CONFIG = {
 
   // Request configuration
   REQUEST_CONFIG: {
-    TIMEOUT: 30000,
+    TIMEOUT: 5 * 60 * 1000,
     MAX_FILE_SIZE: 10485760, // 10MB
     ALLOWED_FILE_TYPES: ["pdf", "doc", "docx", "txt"],
   },

@@ -474,27 +474,6 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   </div>
                 )}
 
-                {resume.id && (
-                  <div>
-                    <div
-                      style={{
-                        color: "#9575CD",
-                        fontSize: "14px",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Resume ID
-                    </div>
-                    <div
-                      style={{
-                        color: "rgba(255,255,255,0.9)",
-                        fontSize: "15px",
-                      }}
-                    >
-                      {resume.id}
-                    </div>
-                  </div>
-                )}
                 {resume.email && (
                   <div>
                     <div
