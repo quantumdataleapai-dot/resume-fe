@@ -100,13 +100,13 @@ const Dashboard = () => {
         score: resume.match_score || 0, // No score yet until matched
         maxScore: 100,
         description:
-          resume.parsed_data?.current_position ||
+          resume.parsed_data?.description ||
           "Upload date: " + new Date(resume.upload_date).toLocaleDateString(),
         avatar: <MdOutlineDocumentScanner />,
         email: resume.parsed_data?.email,
         phone: resume.parsed_data?.phone,
         skills: resume.parsed_data?.skills || [],
-        experience: resume.parsed_data?.experience_years || 0,
+        experience: "Fresher",
         education: resume.parsed_data?.education,
         location: resume.parsed_data?.location,
         // Ensure arrays for modal compatibility
@@ -279,7 +279,7 @@ const Dashboard = () => {
   const handleSelectAll = (checked) => {
     if (checked) {
       const resumeIds = new Set(
-        getDisplayedResumes().map((resume) => resume.id)
+        getDisplayedResumes().paginatedResumes.map((resume) => resume.id)
       );
       setSelectedResumes(resumeIds);
     } else {
@@ -298,7 +298,7 @@ const Dashboard = () => {
   };
 
   const isAllSelected = () => {
-    const filtered = getDisplayedResumes();
+    const filtered = getDisplayedResumes().paginatedResumes;
     return (
       filtered.length > 0 &&
       filtered.every((resume) => selectedResumes.has(resume.id))
@@ -317,9 +317,9 @@ const Dashboard = () => {
     }
 
     try {
-      const resumesToDownload = getDisplayedResumes().filter((resume) =>
-        selectedResumes.has(resume.id)
-      );
+      const resumesToDownload = getDisplayedResumes(
+        false
+      ).paginatedResumes.filter((resume) => selectedResumes.has(resume.id));
 
       if (resumesToDownload.length === 1) {
         // Single file - download directly
@@ -422,27 +422,26 @@ const Dashboard = () => {
     if (topFilter !== "all") {
       const topN = parseInt(topFilter);
       sortedResumes = sortedResumes.slice(0, topN);
+    }
 
-      const totalFilteredResumes = sortedResumes.length;
-      if (paginated) {
-        const startIndex = (currentPage - 1) * itemsPerPage; // should i add +1
-        const endIndex = startIndex + itemsPerPage;
+    // Get total number of filtered resumes for pagination calculation
+    const totalFilteredResumes = sortedResumes.length;
 
-        console.log(sortedResumes.slice(startIndex, endIndex));
-        return {
-          paginatedResumes: sortedResumes.slice(startIndex, endIndex),
-          totalResumes: totalFilteredResumes,
-        };
-      }
-      console.log(sortedResumes);
+    // Apply pagination if requested
+    if (paginated) {
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
       return {
-        paginatedResumes: sortedResumes,
+        paginatedResumes: sortedResumes.slice(startIndex, endIndex),
         totalResumes: totalFilteredResumes,
       };
     }
 
-    const topN = parseInt(topFilter);
-    return sortedResumes.slice(0, topN);
+    // Return all filtered resumes if pagination is not requested
+    return {
+      paginatedResumes: sortedResumes,
+      totalResumes: totalFilteredResumes,
+    };
   };
 
   const toggleAIChat = () => {

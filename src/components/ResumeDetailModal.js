@@ -504,49 +504,24 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                     </div>
                   </div>
                 )}
-
-                {/* Skills Section */}
-                {resume.skills && resume.skills.length > 0 && (
+                {resume.email && (
                   <div>
                     <div
                       style={{
-                        color: "#64B5F6",
+                        color: "#9575CD",
                         fontSize: "14px",
                         marginBottom: "4px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "5px",
                       }}
                     >
-                      <GiSkills /> Skills
+                      Email ID
                     </div>
                     <div
                       style={{
                         color: "rgba(255,255,255,0.9)",
                         fontSize: "15px",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: "6px",
                       }}
                     >
-                      {Array.isArray(resume.skills) ? (
-                        resume.skills.map((skill, index) => (
-                          <span
-                            key={index}
-                            style={{
-                              background: "rgba(100, 181, 246, 0.2)",
-                              border: "1px solid rgba(100, 181, 246, 0.4)",
-                              borderRadius: "12px",
-                              padding: "3px 10px",
-                              fontSize: "13px",
-                            }}
-                          >
-                            {skill}
-                          </span>
-                        ))
-                      ) : (
-                        <span>{resume.skills}</span>
-                      )}
+                      {resume.email}
                     </div>
                   </div>
                 )}
