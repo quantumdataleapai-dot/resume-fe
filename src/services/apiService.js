@@ -342,6 +342,16 @@ class ApiService {
   async uploadJobDescription(jobData) {
     return this.processJobDescription(jobData);
   }
+
+  async deleteResume(resumeId) {
+    if (USE_MOCK_DATA) {
+      return mockApiService.deleteResume(resumeId);
+    }
+
+    const endpoint = API_CONFIG.ENDPOINTS.RESUMES.DELETE.replace('{id}', resumeId);
+    const response = await apiClient.delete(endpoint);
+    return response.data;
+  }
 }
 
 const apiService = new ApiService();

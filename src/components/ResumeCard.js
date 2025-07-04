@@ -8,6 +8,7 @@ const ResumeCard = ({
   isSelected = false,
   onSelect,
   handleDownload,
+  handleDeleteClick,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -205,6 +206,21 @@ const ResumeCard = ({
           }}
         >
           <i className="fas fa-download"></i>
+        </button>
+        <button
+          className="download-btn"
+          onClick={handleDeleteClick}
+          title="Delete Resume"
+          style={{
+            padding: "0.5rem",
+            borderRadius: "4px",
+            border: "none",
+            background: "rgba(255, 255, 255, 0.1)",
+            color: "#f44336",
+            cursor: "pointer",
+          }}
+        >
+          <i className="fas fa-trash"></i>
         </button>
       </div>
 

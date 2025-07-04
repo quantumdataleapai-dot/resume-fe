@@ -274,8 +274,6 @@ const Dashboard = () => {
   };
 
   // Helper functions for selection
-
-  // Selection functions
   const handleSelectAll = (checked) => {
     if (checked) {
       const resumeIds = new Set(
@@ -351,6 +349,39 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Download error:", error);
       alert("Download failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteClick = async (resumeId) => {
+    if (!window.confirm("Are you sure you want to delete this resume?")) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      await ApiService.deleteResume(resumeId);
+      
+      // Remove the resume from state
+      if (showMatched) {
+        setMatchedResumes(prevResumes => prevResumes.filter(resume => resume.id !== resumeId));
+      }
+      
+      // Always remove from allResumes
+      setAllResumes(prevResumes => prevResumes.filter(resume => resume.id !== resumeId));
+      
+      // Clear from selected resumes if needed
+      if (selectedResumes.has(resumeId)) {
+        const newSelected = new Set(selectedResumes);
+        newSelected.delete(resumeId);
+        setSelectedResumes(newSelected);
+      }
+      
+      alert("Resume deleted successfully!");
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete resume: " + (error.message || "Unknown error"));
     } finally {
       setLoading(false);
     }
@@ -955,6 +986,7 @@ const Dashboard = () => {
                           handleDownload={() =>
                             handleDownloadResume(resume.id, "pdf")
                           }
+                          handleDeleteClick={() => handleDeleteClick(resume.id)}
                         />
                       </div>
                     )

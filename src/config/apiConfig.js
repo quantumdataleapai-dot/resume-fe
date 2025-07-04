@@ -13,6 +13,7 @@ const API_CONFIG = {
       MATCH: "/resumes/match",
       DOWNLOAD: "/resumes/{id}/download",
       DOWNLOAD_ALL: "/resumes/download-all",
+      DELETE: "/resumes/{id}/delete",
     },
 
     // Job description endpoints
