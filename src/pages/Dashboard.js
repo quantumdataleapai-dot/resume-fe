@@ -99,9 +99,7 @@ const Dashboard = () => {
         upload_date: new Date(resume.upload_date).toLocaleDateString(),
         score: resume.match_score || 0, // No score yet until matched
         maxScore: 100,
-        description:
-          resume.parsed_data?.description ||
-          "Upload date: " + new Date(resume.upload_date).toLocaleDateString(),
+        description: resume.parsed_data?.description || "No Description ",
         avatar: <MdOutlineDocumentScanner />,
         email: resume.parsed_data?.email,
         phone: resume.parsed_data?.phone,
@@ -155,7 +153,7 @@ const Dashboard = () => {
           name: resume.parsed_data?.name || resume.filename,
           score: resume.match_score,
           maxScore: 100,
-          description: resume.parsed_data?.current_position || "No description",
+          description: resume.parsed_data?.description || "No description",
           avatar: <MdInsertDriveFile />,
           matchingSkills: resume.matching_skills || [],
           missingSkills: resume.missing_skills || [],
@@ -643,7 +641,9 @@ const Dashboard = () => {
                   ) : (
                     <div className="job-upload-area" onClick={chooseJobFile}>
                       <i className="fas fa-cloud-upload-alt"></i>
-                      <span>Click to upload job description</span>
+                      <span style={{ fontSize: "0.9em" }}>
+                        Click to upload Job Description
+                      </span>
                       <small>PDF, DOC, DOCX, or TXT files</small>
                     </div>
                   )}

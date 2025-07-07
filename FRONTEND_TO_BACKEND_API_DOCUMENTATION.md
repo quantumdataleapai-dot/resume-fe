@@ -6,7 +6,7 @@ This document describes all API endpoints that the React frontend application ex
 
 ## Base Configuration
 
-- **Base URL**: `http://localhost:8000/api` (configurable via `REACT_APP_API_URL`)
+- **Base URL**: `http://localhost:8001/api` (configurable via `REACT_APP_API_URL`)
 - **Request Timeout**: 30 seconds
 - **Content-Type**: `application/json` (except for file uploads)
 - **Max File Size**: 10MB
@@ -551,7 +551,7 @@ The frontend expects consistent error response format and will display appropria
 
 ```bash
 # .env.development
-REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_API_URL=http://localhost:8001/api
 REACT_APP_ENVIRONMENT=development
 
 # .env.production

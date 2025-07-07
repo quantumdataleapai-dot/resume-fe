@@ -50,7 +50,7 @@ For testing purposes, use these credentials:
 
 ### Backend Integration
 
-This application is designed to work with a Python backend API. Make sure your backend server is running and accessible at the configured API URL (default: `http://localhost:8000/api`).
+This application is designed to work with a Python backend API. Make sure your backend server is running and accessible at the configured API URL (default: `http://localhost:8001/api`).
 
 ## Project Structure
 
@@ -144,7 +144,7 @@ This React application requires a Python backend API to be running. The applicat
 Set up your environment variables in `.env.development` or `.env.production`:
 
 ```bash
-REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_API_URL=http://localhost:8001/api
 REACT_APP_ENVIRONMENT=development
 ```
 
