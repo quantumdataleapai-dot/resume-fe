@@ -670,6 +670,7 @@ const Dashboard = () => {
                 disabled={!jobDescription.trim() && !jobFile}
               >
                 <i className="fas fa-search"></i>
+                <span style={{ marginLeft: "8px" }}></span>
                 Process Job Description
               </button>
             </div>

@@ -131,7 +131,12 @@ const ResumeCard = ({
         <div className="resume-details">
           <div
             className="resume-name"
-            style={{ fontWeight: "500", marginBottom: "0.25rem" }}
+            style={{
+              fontWeight: "500",
+              marginBottom: "0.25rem",
+              display: "flex",
+              justifyContent: "start",
+            }}
           >
             {resume.filename || resume.name}
           </div>
