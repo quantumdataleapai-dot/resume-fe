@@ -1,7 +1,12 @@
 import ModalPortal from "./ModalPortal";
 import { IoIosClose } from "react-icons/io";
 import { GrUserExpert } from "react-icons/gr";
-import { FaBullseye, FaTimesCircle } from "react-icons/fa";
+import {
+  FaBullseye,
+  FaTimesCircle,
+  FaLinkedin,
+  FaGithub,
+} from "react-icons/fa";
 import {
   MdOutlineSummarize,
   MdOutlineInsertDriveFile,
@@ -258,6 +263,37 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   }}
                 >
                   {resume.name}
+                  {/* Social icons */}
+                  {resume.linkedin && (
+                    <a
+                      href={resume.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        marginLeft: 12,
+                        color: "#0A66C2",
+                        verticalAlign: "middle",
+                      }}
+                      title="LinkedIn Profile"
+                    >
+                      <FaLinkedin size={22} />
+                    </a>
+                  )}
+                  {resume.github && (
+                    <a
+                      href={resume.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        marginLeft: 8,
+                        color: "#fff",
+                        verticalAlign: "middle",
+                      }}
+                      title="GitHub Profile"
+                    >
+                      <FaGithub size={22} />
+                    </a>
+                  )}
                 </h2>
                 {resume.email && (
                   <div

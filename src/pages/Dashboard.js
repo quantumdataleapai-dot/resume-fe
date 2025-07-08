@@ -565,6 +565,11 @@ const Dashboard = () => {
     }
   };
 
+  const [showTooltip, setShowTooltip] = useState(false); // ✅ Define state
+  const toggleTooltip = () => {
+    setShowTooltip(!showTooltip);
+  };
+
   return (
     <div className="dashboard-container">
       <Header />
@@ -576,8 +581,16 @@ const Dashboard = () => {
             <div className="section-header">
               <h2>Job Description</h2>
               <p className="section-subtitle">
-                <i className="fas fa-info-circle"></i>
-                Enter job description text OR upload a document file
+                <i
+                  className="fas fa-info-circle"
+                  style={{ cursor: "pointer" }}
+                  onClick={toggleTooltip}
+                ></i>
+                {showTooltip && (
+                  <span className="tooltip-text">
+                    Enter job description text OR upload a document file
+                  </span>
+                )}
               </p>
             </div>
 
@@ -781,15 +794,26 @@ const Dashboard = () => {
                 {getDisplayedResumes()?.paginatedResumes?.length > 0 && (
                   <button
                     className="download-all-btn"
-                    onClick={handleBulkDownload}
+                    onClick={
+                      selectedResumes.size > 0
+                        ? handleDownloadSelected
+                        : handleBulkDownload
+                    }
                     disabled={loading}
-                    title={`Download ${
-                      getDisplayedResumes(false)?.paginatedResumes?.length
-                    } resume(s)`}
+                    title={
+                      selectedResumes.size > 0
+                        ? `Download ${selectedResumes.size} selected resume(s)`
+                        : `Download ${
+                            getDisplayedResumes(false)?.paginatedResumes?.length
+                          } resume(s)`
+                    }
                   >
                     <i className="fas fa-download"></i>
-                    Download All (
-                    {getDisplayedResumes(false)?.paginatedResumes?.length})
+                    {selectedResumes.size > 0
+                      ? `Download Selected (${selectedResumes.size})`
+                      : `Download All (${
+                          getDisplayedResumes(false)?.paginatedResumes?.length
+                        })`}
                   </button>
                 )}
                 {showMatched && (
@@ -915,7 +939,7 @@ const Dashboard = () => {
                     />
                     <span className="checkmark"></span>
                   </label>
-                  {selectedResumes.size > 0 && (
+                  {/* {selectedResumes.size > 0 && (
                     <button
                       className="download-selected-btn"
                       onClick={handleDownloadSelected}
@@ -926,7 +950,7 @@ const Dashboard = () => {
                         Download ({selectedResumes.size})
                       </span>
                     </button>
-                  )}
+                  )} */}
                 </div>
                 <div className="table-col">
                   <i className="fas fa-user"></i>
@@ -991,6 +1015,7 @@ const Dashboard = () => {
                             handleDownloadResume(resume.id, "pdf")
                           }
                           handleDeleteClick={() => handleDeleteClick(resume.id)}
+                          anySelected={selectedResumes.size > 0}
                         />
                       </div>
                     )

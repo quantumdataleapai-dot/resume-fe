@@ -5,7 +5,7 @@
 The Resume UI is now configured to connect to the backend API at:
 
 ```
-http://192.168.41.225:8001/api/
+http://10.30.0.21:8000/api/
 ```
 
 ## Setup Details
@@ -51,7 +51,7 @@ If you're experiencing API connection issues:
 
 1. **Check Backend Server Status**:
 
-   - Ensure the backend server is running at http://192.168.41.225:8001/
+   - Ensure the backend server is running at http://10.30.0.21:8000/
    - Verify that the API is responding to requests
 
 2. **Check Network Access**:

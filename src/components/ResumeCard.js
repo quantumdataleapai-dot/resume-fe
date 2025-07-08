@@ -9,6 +9,7 @@ const ResumeCard = ({
   onSelect,
   handleDownload,
   handleDeleteClick,
+  anySelected = false, // NEW PROP
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -136,7 +137,16 @@ const ResumeCard = ({
           </div>
           <div
             className="resume-description"
-            style={{ fontSize: "0.85rem", color: "rgba(255, 255, 255, 0.6)" }}
+            style={{
+              fontSize: "0.85rem",
+              color: "rgba(255, 255, 255, 0.6)",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "400px",
+              display: "flex",
+              justifyContent: "start",
+            }}
           >
             {resume.upload_date
               ? `Upload date: ${resume.upload_date}`
@@ -192,21 +202,6 @@ const ResumeCard = ({
             <i className="fas fa-eye"></i>
           </button>
         )}
-        <button
-          className="download-btn"
-          onClick={handleDownloadClick}
-          title="Quick Download"
-          style={{
-            padding: "0.5rem",
-            borderRadius: "4px",
-            border: "none",
-            background: "rgba(255, 255, 255, 0.1)",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          <i className="fas fa-download"></i>
-        </button>
         <button
           className="download-btn"
           onClick={handleDeleteClick}
