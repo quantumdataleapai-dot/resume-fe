@@ -11,8 +11,6 @@ import { MdOutlineDocumentScanner, MdInsertDriveFile } from "react-icons/md";
 const Dashboard = () => {
   const [jobDescription, setJobDescription] = useState("");
   const [jobFile, setJobFile] = useState(null);
-  const [uploadType, setUploadType] = useState("Upload multiples");
-  const [showUploadDropdown, setShowUploadDropdown] = useState(false);
   const [allResumes, setAllResumes] = useState([]);
   const [matchedResumes, setMatchedResumes] = useState([]);
   const [showMatched, setShowMatched] = useState(false);
@@ -21,32 +19,10 @@ const Dashboard = () => {
   const [showAIChat, setShowAIChat] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedResumes, setSelectedResumes] = useState(new Set());
-  const [urlList, setUrlList] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const fileInputRef = useRef(null);
   const jobFileInputRef = useRef(null);
-  const uploadDropdownRef = useRef(null);
-
-  // Handle click outside to close upload dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        uploadDropdownRef.current &&
-        !uploadDropdownRef.current.contains(event.target)
-      ) {
-        setShowUploadDropdown(false);
-      }
-    };
-
-    if (showUploadDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showUploadDropdown]);
 
   // Load resumes on component mount
   useEffect(() => {
@@ -102,11 +78,13 @@ const Dashboard = () => {
         description: resume.parsed_data?.description || "No Description ",
         avatar: <MdOutlineDocumentScanner />,
         email: resume.parsed_data?.email,
-        phone: resume.parsed_data?.phone,
+        contact_number: resume.parsed_data?.contact_number,
         skills: resume.parsed_data?.skills || [],
-        experience: "Fresher",
+        experience_years: resume.parsed_data?.experience_years,
         education: resume.parsed_data?.education,
         location: resume.parsed_data?.location,
+        linkedin: resume.parsed_data?.linkedin,
+
         // Ensure arrays for modal compatibility
         strengths: Array.isArray(resume.strengths)
           ? resume.strengths
@@ -157,7 +135,6 @@ const Dashboard = () => {
           avatar: <MdInsertDriveFile />,
           matchingSkills: resume.matching_skills || [],
           missingSkills: resume.missing_skills || [],
-          experienceMatch: resume.match_details?.experience_match || 0,
           strengths: Array.isArray(resume.strengths)
             ? resume.strengths
             : [resume.match_details?.overall_fit || "Good fit"],
@@ -168,11 +145,12 @@ const Dashboard = () => {
             ? resume.missing_skills
             : ["No specific areas identified"],
           email: resume.parsed_data?.email,
-          phone: resume.parsed_data?.phone,
+          contact_number: resume.parsed_data?.contact_number,
           location: resume.parsed_data?.location,
           skills: resume.parsed_data?.skills || [],
-          experience: "Fresher",
+          experience_years: resume.parsed_data?.experience_years,
           education: resume.parsed_data?.education,
+          linkedin: resume.parsed_data?.linkedin,
         })
       );
 
@@ -187,85 +165,6 @@ const Dashboard = () => {
       );
     } catch (error) {
       alert("Job processing failed: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle URL upload
-  const handleUrlUpload = async () => {
-    if (!urlList.trim()) {
-      alert("Please enter URLs to upload resumes from");
-      return;
-    }
-
-    const urls = urlList
-      .split("\n")
-      .map((url) => url.trim())
-      .filter((url) => url.length > 0);
-
-    if (urls.length === 0) {
-      alert("Please enter valid URLs");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Validate URLs
-      const validUrls = [];
-      const invalidUrls = [];
-
-      for (const url of urls) {
-        try {
-          const urlObj = new URL(url);
-          // Check if it's a valid HTTP/HTTPS URL
-          if (urlObj.protocol === "http:" || urlObj.protocol === "https:") {
-            validUrls.push(url);
-          } else {
-            invalidUrls.push(url);
-          }
-        } catch {
-          invalidUrls.push(url);
-        }
-      }
-
-      if (invalidUrls.length > 0) {
-        alert(
-          `Invalid URLs found:\n${invalidUrls.join(
-            "\n"
-          )}\n\nPlease ensure all URLs start with http:// or https://`
-        );
-        setLoading(false);
-        return;
-      }
-
-      // Use API service to upload from URLs
-      const response = await ApiService.uploadFromUrls(validUrls);
-
-      // Transform response to component format
-      const uploadedResumes = response.data.resumes.map((resume) => ({
-        id: resume.id,
-        name: resume.original_name || resume.filename,
-        filename: resume.filename,
-        upload_date: new Date(resume.upload_date).toLocaleDateString(),
-        description: `Downloaded from URL. Upload date: ${new Date(
-          resume.upload_date
-        ).toLocaleDateString()}`,
-        avatar: <MdInsertDriveFile />,
-      }));
-
-      // Add to allResumes
-      setAllResumes((prev) => [...prev, ...uploadedResumes]);
-
-      alert(
-        `Successfully uploaded ${response.data.uploaded_count} resume(s) from URLs!`
-      );
-      setUrlList("");
-    } catch (error) {
-      console.error("URL upload error:", error);
-      alert(
-        "Failed to upload resumes from URLs. Please check the URLs and try again."
-      );
     } finally {
       setLoading(false);
     }
@@ -679,97 +578,14 @@ const Dashboard = () => {
           {/* Upload Section */}
           <section className="upload-section">
             <div className="section-header">
-              <h2>Uploads</h2>
+              <h2>Upload Resume</h2>
             </div>
 
             <div className="upload-container">
-              <div className="upload-dropdown" ref={uploadDropdownRef}>
-                <div
-                  className="custom-select"
-                  onClick={() => setShowUploadDropdown(!showUploadDropdown)}
-                >
-                  <span>{uploadType}</span>
-                  <i
-                    className={`fas fa-chevron-down ${
-                      showUploadDropdown ? "rotated" : ""
-                    }`}
-                  ></i>
-                </div>
-
-                {showUploadDropdown && (
-                  <div className="custom-dropdown-menu">
-                    {[
-                      "Upload multiples",
-                      "Upload single",
-                      "Upload from URL",
-                    ].map((option) => (
-                      <div
-                        key={option}
-                        className={`custom-dropdown-item ${
-                          uploadType === option ? "selected" : ""
-                        }`}
-                        onClick={() => {
-                          setUploadType(option);
-                          setShowUploadDropdown(false);
-                          // Clear URL list when switching away from URL upload
-                          if (
-                            uploadType === "Upload from URL" &&
-                            option !== "Upload from URL"
-                          ) {
-                            setUrlList("");
-                          }
-                        }}
-                      >
-                        {option}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {uploadType === "Upload from URL" ? (
-                <div className="url-upload-section">
-                  <div className="url-input-container">
-                    <textarea
-                      className="url-textarea"
-                      value={urlList}
-                      onChange={(e) => setUrlList(e.target.value)}
-                      placeholder="Enter resume URLs (one per line):&#10;https://example.com/resume1.pdf&#10;https://example.com/resume2.pdf&#10;https://linkedin.com/in/johndoe/resume"
-                      rows={4}
-                    />
-                  </div>
-                  <div className="url-upload-actions">
-                    <button
-                      className="upload-from-urls-btn"
-                      onClick={handleUrlUpload}
-                      disabled={loading || !urlList.trim()}
-                    >
-                      <i className="fas fa-cloud-download-alt"></i>
-                      {loading ? "Uploading..." : "Upload from URLs"}
-                    </button>
-                    <button
-                      className="clear-urls-btn"
-                      onClick={() => setUrlList("")}
-                      disabled={!urlList.trim()}
-                    >
-                      <i className="fas fa-eraser"></i>
-                      Clear
-                    </button>
-                  </div>
-                  <div className="url-upload-info">
-                    <small>
-                      <i className="fas fa-info-circle"></i>
-                      Supported: Direct links to PDF, DOC, DOCX files or public
-                      resume URLs
-                    </small>
-                  </div>
-                </div>
-              ) : (
-                <button className="choose-files-btn" onClick={chooseFiles}>
-                  <i className="fas fa-upload"></i>
-                  Choose Files
-                </button>
-              )}
+              <button className="choose-files-btn" onClick={chooseFiles}>
+                <i className="fas fa-upload"></i>
+                Upload
+              </button>
             </div>
           </section>
 

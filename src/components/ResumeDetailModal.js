@@ -263,37 +263,6 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   }}
                 >
                   {resume.name}
-                  {/* Social icons */}
-                  {resume.linkedin && (
-                    <a
-                      href={resume.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        marginLeft: 12,
-                        color: "#0A66C2",
-                        verticalAlign: "middle",
-                      }}
-                      title="LinkedIn Profile"
-                    >
-                      <FaLinkedin size={22} />
-                    </a>
-                  )}
-                  {resume.github && (
-                    <a
-                      href={resume.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        marginLeft: 8,
-                        color: "#fff",
-                        verticalAlign: "middle",
-                      }}
-                      title="GitHub Profile"
-                    >
-                      <FaGithub size={22} />
-                    </a>
-                  )}
                 </h2>
                 {resume.email && (
                   <div
@@ -422,50 +391,6 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   gap: "15px",
                 }}
               >
-                {resume.filename && (
-                  <div>
-                    <div
-                      style={{
-                        color: "#9575CD",
-                        fontSize: "14px",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Filename
-                    </div>
-                    <div
-                      style={{
-                        color: "rgba(255,255,255,0.9)",
-                        fontSize: "15px",
-                      }}
-                    >
-                      {resume.filename}
-                    </div>
-                  </div>
-                )}
-
-                {resume.phone && (
-                  <div>
-                    <div
-                      style={{
-                        color: "#9575CD",
-                        fontSize: "14px",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Phone
-                    </div>
-                    <div
-                      style={{
-                        color: "rgba(255,255,255,0.9)",
-                        fontSize: "15px",
-                      }}
-                    >
-                      {resume.phone}
-                    </div>
-                  </div>
-                )}
-
                 {resume.location && (
                   <div>
                     <div
@@ -531,11 +456,49 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                     </div>
                   </div>
                 )}
+
+                {resume.contact_number && (
+                  <div>
+                    <div
+                      style={{
+                        color: "#9575CD",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Contact Number
+                    </div>
+                    <div
+                      style={{
+                        color: "rgba(255,255,255,0.9)",
+                        fontSize: "15px",
+                      }}
+                    >
+                      {resume.contact_number}
+                    </div>
+                  </div>
+                )}
+
+                {resume.linkedin && (
+                  <a
+                    href={resume.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      marginLeft: 12,
+                      color: "#0A66C2",
+                      verticalAlign: "middle",
+                    }}
+                    title="LinkedIn Profile"
+                  >
+                    <FaLinkedin size={22} />
+                  </a>
+                )}
               </div>
             </div>
 
             {/* Experience Section */}
-            {(resume.experienceMatch || resume.experience) && (
+            {resume.experience_years && (
               <div
                 style={{
                   ...sectionStyles,
@@ -567,9 +530,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                     fontWeight: "500",
                   }}
                 >
-                  {resume.experienceMatch ||
-                    resume.experience ||
-                    "No experience information available"}
+                  {resume.experience_years}
                 </p>
               </div>
             )}
