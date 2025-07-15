@@ -655,23 +655,6 @@ const Dashboard = () => {
               </div>
 
               <div className="filter-group">
-                <label>Search Radius (miles)</label>
-                <select
-                  className="filter-select"
-                  value={locationRadius}
-                  onChange={(e) => setLocationRadius(e.target.value)}
-                  disabled={location === "all" || location === "nationwide"}
-                >
-                  <option value="10">Within 10 miles</option>
-                  <option value="25">Within 25 miles</option>
-                  <option value="50">Within 50 miles</option>
-                  <option value="100">Within 100 miles</option>
-                  <option value="200">Within 200 miles</option>
-                  <option value="any">Any distance</option>
-                </select>
-              </div>
-
-              <div className="filter-group">
                 <label>Actions</label>
                 <div className="filter-actions">
                   <button
