@@ -23,6 +23,13 @@ const Dashboard = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const fileInputRef = useRef(null);
   const jobFileInputRef = useRef(null);
+  const [experienceLevel, setExperienceLevel] = useState("all");
+  const [techStack, setTechStack] = useState("all");
+  const [securityClearance, setSecurityClearance] = useState("all");
+  const [remoteWork, setRemoteWork] = useState("all");
+  const [visaStatus, setVisaStatus] = useState("all");
+  const [location, setLocation] = useState("all");
+  const [locationRadius, setLocationRadius] = useState("50");
 
   // Load resumes on component mount
   useEffect(() => {
@@ -575,17 +582,119 @@ const Dashboard = () => {
             </div>
           </section>
 
-          {/* Upload Section */}
-          <section className="upload-section">
-            <div className="section-header">
-              <h2>Upload Resume</h2>
-            </div>
+          <section>
+            <div className="filter-row">
+              <div className="filter-group">
+                <label>Visa Status / Work Authorization</label>
+                <select
+                  className="filter-select"
+                  value={visaStatus}
+                  onChange={(e) => setVisaStatus(e.target.value)}
+                >
+                  <option value="all">All Visa Types</option>
+                  <option value="us-citizen">US Citizen</option>
+                  <option value="green-card">Green Card Holder</option>
+                  <option value="h1b">H1B Visa</option>
+                  <option value="h4-ead">H4 EAD</option>
+                  <option value="l1">L1 Visa</option>
+                  <option value="tn">TN Visa (NAFTA)</option>
+                  <option value="opt">F1 OPT</option>
+                  <option value="cpt">F1 CPT</option>
+                  <option value="e3">E3 Visa (Australian)</option>
+                  <option value="o1">O1 Visa</option>
+                  <option value="gc-process">Green Card in Process</option>
+                  <option value="need-sponsorship">Requires Sponsorship</option>
+                </select>
+              </div>
 
-            <div className="upload-container">
-              <button className="choose-files-btn" onClick={chooseFiles}>
-                <i className="fas fa-upload"></i>
-                Upload
-              </button>
+              <div className="filter-group">
+                <label>Location / Market</label>
+                <select
+                  className="filter-select"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                >
+                  <option value="all">All Locations</option>
+                  <option value="nationwide">Nationwide Remote</option>
+                  <optgroup label="Major Tech Hubs">
+                    <option value="san-francisco-bay">
+                      San Francisco Bay Area, CA
+                    </option>
+                    <option value="seattle">Seattle, WA</option>
+                    <option value="austin">Austin, TX</option>
+                    <option value="denver">Denver, CO</option>
+                    <option value="atlanta">Atlanta, GA</option>
+                    <option value="raleigh-durham">Raleigh-Durham, NC</option>
+                  </optgroup>
+                  <optgroup label="East Coast">
+                    <option value="new-york">New York Metro, NY/NJ</option>
+                    <option value="boston">Boston, MA</option>
+                    <option value="washington-dc">Washington DC Metro</option>
+                    <option value="philadelphia">Philadelphia, PA</option>
+                    <option value="miami">Miami, FL</option>
+                  </optgroup>
+                  <optgroup label="Midwest">
+                    <option value="chicago">Chicago, IL</option>
+                    <option value="detroit">Detroit, MI</option>
+                    <option value="minneapolis">Minneapolis, MN</option>
+                    <option value="columbus">Columbus, OH</option>
+                  </optgroup>
+                  <optgroup label="West Coast">
+                    <option value="los-angeles">Los Angeles, CA</option>
+                    <option value="san-diego">San Diego, CA</option>
+                    <option value="portland">Portland, OR</option>
+                    <option value="phoenix">Phoenix, AZ</option>
+                  </optgroup>
+                  <optgroup label="South">
+                    <option value="dallas">Dallas-Fort Worth, TX</option>
+                    <option value="houston">Houston, TX</option>
+                    <option value="nashville">Nashville, TN</option>
+                    <option value="charlotte">Charlotte, NC</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Search Radius (miles)</label>
+                <select
+                  className="filter-select"
+                  value={locationRadius}
+                  onChange={(e) => setLocationRadius(e.target.value)}
+                  disabled={location === "all" || location === "nationwide"}
+                >
+                  <option value="10">Within 10 miles</option>
+                  <option value="25">Within 25 miles</option>
+                  <option value="50">Within 50 miles</option>
+                  <option value="100">Within 100 miles</option>
+                  <option value="200">Within 200 miles</option>
+                  <option value="any">Any distance</option>
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Actions</label>
+                <div className="filter-actions">
+                  <button
+                    className="filter-action-btn clear"
+                    onClick={() => {
+                      setExperienceLevel("all");
+                      setTechStack("all");
+                      setSecurityClearance("all");
+                      setRemoteWork("all");
+                      setVisaStatus("all");
+                      setLocation("all");
+                      setLocationRadius("50");
+                    }}
+                  >
+                    <i className="fas fa-eraser"></i>
+                    Clear Filters
+                  </button>
+                  <button className="filter-action-btn save">
+                    <i className="fas fa-bookmark"></i>
+                    Save Search
+                  </button>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -633,6 +742,15 @@ const Dashboard = () => {
                         })`}
                   </button>
                 )}
+                {/* Upload Resume button beside Download button */}
+                <button
+                  className="choose-files-btn"
+                  onClick={chooseFiles}
+                  style={{ marginLeft: "10px" }}
+                >
+                  <i className="fas fa-upload"></i>
+                  Upload Resume
+                </button>
                 {showMatched && (
                   <button className="reset-btn" onClick={resetToAllResumes}>
                     <i className="fas fa-list"></i>

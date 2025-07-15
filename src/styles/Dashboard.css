@@ -2317,3 +2317,10 @@
     transform: translateX(2px);
   }
 }
+
+.filter-row {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 10px;
+  margin-top: 50px;
+}
