@@ -1,7 +1,7 @@
 // API Configuration for Frontend-to-Python Backend Communication
 const API_CONFIG = {
   // Python backend URL
-  BASE_URL: "http://192.168.1.45:8000/api", // Force to use the new URL
+  BASE_URL: "http://192.168.1.2:8000/api", // Force to use the new URL
 
   // Clean API Endpoints for Python Backend
   ENDPOINTS: {
@@ -14,6 +14,8 @@ const API_CONFIG = {
       DOWNLOAD: "/resumes/{id}/download",
       DOWNLOAD_ALL: "/resumes/download-all",
       DELETE: "/resumes/{id}/delete",
+      DOWNLOAD_FROM_CEIPAL: "/resumes/download-from-db",
+      UPLOAD_FROM_CACHE: "/resumes/upload-from-cache",
     },
 
     // Job description endpoints

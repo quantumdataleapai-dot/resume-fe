@@ -5,7 +5,7 @@ import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
 // Force axios to use the hardcoded URL
 const apiClient = axios.create({
-  baseURL: "http://192.168.1.45:8000/api", // Explicitly set to avoid any confusion
+  baseURL: "http://192.168.1.2:8000/api", // Explicitly set to avoid any confusion
   timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
   headers: {
     "Content-Type": "application/json",
@@ -354,6 +354,34 @@ class ApiService {
     );
     const response = await apiClient.delete(endpoint);
     return response.data;
+  }
+
+  async downloadFromCeipal() {
+    try {
+      const response = await apiClient.post("/resumes/download-from-db");
+      return {
+        success: true,
+        data: response.data,
+        message: "Resumes from Ceipal downloaded successfully",
+      };
+    } catch (error) {
+      console.error("Error downloading resumes from Ceipal:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async uploadFromCeipalCache() {
+    try {
+      const response = await apiClient.post("/resumes/upload-from-cache");
+      return {
+        success: true,
+        data: response.data,
+        message: "Resumes uploaded from Ceipal cache successfully",
+      };
+    } catch (error) {
+      console.error("Error uploading resumes from Ceipal cache:", error);
+      return { success: false, error: error.message };
+    }
   }
 }
 

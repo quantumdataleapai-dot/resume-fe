@@ -8,9 +8,12 @@ import "../styles/Dashboard.css";
 import "../styles/Pagination.css";
 import { MdOutlineDocumentScanner, MdInsertDriveFile } from "react-icons/md";
 
+import apiService from "../services/apiService";
+
 const Dashboard = () => {
   const [jobDescription, setJobDescription] = useState("");
   const [jobFile, setJobFile] = useState(null);
+  const [jobVisaRequirement, setJobVisaRequirement] = useState("all");
   const [allResumes, setAllResumes] = useState([]);
   const [matchedResumes, setMatchedResumes] = useState([]);
   const [showMatched, setShowMatched] = useState(false);
@@ -91,6 +94,7 @@ const Dashboard = () => {
         education: resume.parsed_data?.education,
         location: resume.parsed_data?.location,
         linkedin: resume.parsed_data?.linkedin,
+        visa_type: resume.parsed_data?.visa_type,
 
         // Ensure arrays for modal compatibility
         strengths: Array.isArray(resume.strengths)
@@ -124,9 +128,18 @@ const Dashboard = () => {
     setLoading(true);
     try {
       // Prepare job data for unified processing
-      const jobData = jobFile
-        ? { file: jobFile, title: jobDescription.trim() || null }
-        : { job_description: jobDescription.trim() };
+      const jobData = {
+        ...(jobFile
+          ? {
+              file: jobFile,
+              title: jobDescription.trim() || null,
+            }
+          : {
+              job_description: jobDescription.trim(),
+            }),
+        // Always include visa requirement in the payload
+        visa_requirement: jobVisaRequirement,
+      };
 
       // Use unified API service for job processing and matching
       const response = await ApiService.processJobAndMatch(jobData);
@@ -158,6 +171,7 @@ const Dashboard = () => {
           experience_years: resume.parsed_data?.experience_years,
           education: resume.parsed_data?.education,
           linkedin: resume.parsed_data?.linkedin,
+          visa_type: resume.parsed_data?.visa_type,
         })
       );
 
@@ -569,6 +583,92 @@ const Dashboard = () => {
                 </div>
               </div>
 
+              {/* Visa Requirement Dropdown */}
+              <div className="job-option">
+                <h3 className="option-title">
+                  <i className="fas fa-passport"></i>
+                  Visa Requirement
+                </h3>
+                <select
+                  className="job-visa-select"
+                  value={jobVisaRequirement}
+                  onChange={(e) => setJobVisaRequirement(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    borderRadius: "4px",
+                    backgroundColor: "#2a2a2a",
+                    color: "#fff",
+                    border: "1px solid #444",
+                    marginBottom: "15px",
+                  }}
+                >
+                  <option value="all">All Visa Types Accepted</option>
+                  <optgroup label="Citizens and Permanent Residents">
+                    <option value="us-citizen">US Citizen</option>
+                    <option value="us-citizenship">US Citizenship</option>
+                    <option value="canadian-citizen">Canadian Citizen</option>
+                    <option value="green-card-holder">Green Card Holder</option>
+                    <option value="green-card">Green Card</option>
+                    <option value="gc">GC</option>
+                    <option value="gc-ead">GC-EAD</option>
+                  </optgroup>
+                  <optgroup label="H1 Related">
+                    <option value="h1b">H1-B</option>
+                    <option value="h1b">H1 Visa</option>
+                    <option value="h1b">Need H1</option>
+                    <option value="have-h1">Have H1 Visa</option>
+                    <option value="need-h1">Need H1 Visa</option>
+                    <option value="need-h1-sponsor">
+                      Need H1 Visa Sponsor
+                    </option>
+                    <option value="h4-ead">H4-EAD</option>
+                  </optgroup>
+                  <optgroup label="L Visas">
+                    <option value="l1a">L1-A</option>
+                    <option value="l2b">L2-B</option>
+                    <option value="l2-ead">L2-EAD</option>
+                  </optgroup>
+                  <optgroup label="Other Work Authorizations">
+                    <option value="tn-visa">TN Visa</option>
+                    <option value="tn-permit">TN Permit Holder</option>
+                    <option value="opt-ead">OPT-EAD</option>
+                    <option value="ead">Employment Auth Document</option>
+                    <option value="current-employer">
+                      Current Employer Only
+                    </option>
+                  </optgroup>
+                  <optgroup label="Country-Specific Authorizations">
+                    <option value="us-authorized">US Authorized</option>
+                    <option value="canada-authorized">Canada Authorized</option>
+                    <option value="uk-authorized">
+                      United Kingdom Authorized
+                    </option>
+                    <option value="france-authorized">France Authorized</option>
+                    <option value="india-authorized">India Authorized</option>
+                    <option value="kazakhstan-authorized">
+                      Kazakhstan Authorized
+                    </option>
+                    <option value="venezuela-authorized">
+                      Venezuela Authorized
+                    </option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="any-employer">
+                      Can Work for Any Employer
+                    </option>
+                    <option value="sponsorship-required">
+                      Sponsorship Required
+                    </option>
+                    <option value="not-specified">Not Specified</option>
+                    <option value="unspecified">Unspecified</option>
+                    <option value="unspecified-auth">
+                      Unspecified Work Authorization
+                    </option>
+                  </optgroup>
+                </select>
+              </div>
+
               {/* Submit Button */}
               <button
                 className="upload-job-btn"
@@ -592,18 +692,64 @@ const Dashboard = () => {
                   onChange={(e) => setVisaStatus(e.target.value)}
                 >
                   <option value="all">All Visa Types</option>
-                  <option value="us-citizen">US Citizen</option>
-                  <option value="green-card">Green Card Holder</option>
-                  <option value="h1b">H1B Visa</option>
-                  <option value="h4-ead">H4 EAD</option>
-                  <option value="l1">L1 Visa</option>
-                  <option value="tn">TN Visa (NAFTA)</option>
-                  <option value="opt">F1 OPT</option>
-                  <option value="cpt">F1 CPT</option>
-                  <option value="e3">E3 Visa (Australian)</option>
-                  <option value="o1">O1 Visa</option>
-                  <option value="gc-process">Green Card in Process</option>
-                  <option value="need-sponsorship">Requires Sponsorship</option>
+                  <optgroup label="Citizens and Permanent Residents">
+                    <option value="us-citizen">US Citizen</option>
+                    <option value="canadian-citizen">Canadian Citizen</option>
+                    <option value="green-card">Green Card Holder</option>
+                    <option value="gc">GC</option>
+                    <option value="gc-ead">GC-EAD</option>
+                  </optgroup>
+                  <optgroup label="H1 Related">
+                    <option value="h1b">H1-B Visa</option>
+                    <option value="have-h1">Have H1 Visa</option>
+                    <option value="need-h1">Need H1 Visa</option>
+                    <option value="need-h1-sponsor">
+                      Need H1 Visa Sponsor
+                    </option>
+                    <option value="h4-ead">H4-EAD</option>
+                  </optgroup>
+                  <optgroup label="L Visas">
+                    <option value="l1a">L1-A Visa</option>
+                    <option value="l2b">L2-B Visa</option>
+                    <option value="l2-ead">L2-EAD</option>
+                  </optgroup>
+                  <optgroup label="Other Work Authorizations">
+                    <option value="tn-visa">TN Visa</option>
+                    <option value="tn-permit">TN Permit Holder</option>
+                    <option value="opt-ead">OPT-EAD</option>
+                    <option value="ead">Employment Auth Document</option>
+                    <option value="current-employer">
+                      Current Employer Only
+                    </option>
+                  </optgroup>
+                  <optgroup label="Country-Specific Authorizations">
+                    <option value="us-authorized">US Authorized</option>
+                    <option value="canada-authorized">Canada Authorized</option>
+                    <option value="uk-authorized">
+                      United Kingdom Authorized
+                    </option>
+                    <option value="france-authorized">France Authorized</option>
+                    <option value="india-authorized">India Authorized</option>
+                    <option value="kazakhstan-authorized">
+                      Kazakhstan Authorized
+                    </option>
+                    <option value="venezuela-authorized">
+                      Venezuela Authorized
+                    </option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="any-employer">
+                      Can Work for Any Employer
+                    </option>
+                    <option value="sponsorship-required">
+                      Sponsorship Required
+                    </option>
+                    <option value="not-specified">Not Specified</option>
+                    <option value="unspecified">Unspecified</option>
+                    <option value="unspecified-auth">
+                      Unspecified Work Authorization
+                    </option>
+                  </optgroup>
                 </select>
               </div>
 
@@ -726,6 +872,65 @@ const Dashboard = () => {
                   </button>
                 )}
                 {/* Upload Resume button beside Download button */}
+
+                <button
+                  className="choose-files-btn"
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      const result = await apiService.uploadFromCeipalCache();
+                      if (result.success) {
+                        alert(
+                          "Resumes uploaded from Ceipal cache successfully"
+                        );
+                        await loadAllResumes(); // Refresh the resume list
+                      } else {
+                        alert(
+                          "Failed to upload resumes from Ceipal cache: " +
+                            result.error
+                        );
+                      }
+                    } catch (error) {
+                      console.error("Error:", error);
+                      alert(
+                        "An error occurred while uploading resumes from Ceipal cache"
+                      );
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Upload from Ceipal
+                </button>
+                <button
+                  className="choose-files-btn"
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      const result = await apiService.downloadFromCeipal();
+                      if (result.success) {
+                        alert("Resumes from Ceipal downloaded successfully");
+                        await loadAllResumes(); // Refresh the resume list
+                      } else {
+                        alert(
+                          "Failed to download resumes from Ceipal: " +
+                            result.error
+                        );
+                      }
+                    } catch (error) {
+                      console.error("Error:", error);
+                      alert(
+                        "An error occurred while downloading resumes from Ceipal"
+                      );
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Get Resumes from Ceipal
+                </button>
                 <button
                   className="choose-files-btn"
                   onClick={chooseFiles}
