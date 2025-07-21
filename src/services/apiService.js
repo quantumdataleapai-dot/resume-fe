@@ -5,7 +5,7 @@ import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
 // Force axios to use the hardcoded URL
 const apiClient = axios.create({
-  baseURL: "http://192.168.1.2:8000/api", // Explicitly set to avoid any confusion
+  baseURL: "http://10.30.0.21:8000/api", // Explicitly set to avoid any confusion
   timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
   headers: {
     "Content-Type": "application/json",
@@ -172,12 +172,10 @@ class ApiService {
         // Handle file-based job description
         formData = new FormData();
         formData.append("file", jobData.file);
-        if (jobData.title) {
-          formData.append("title", jobData.title);
-        }
-        if (resumeIds && resumeIds.length > 0) {
-          formData.append("resume_ids", JSON.stringify(resumeIds));
-        }
+        formData.append("title", jobData.title || "");
+        formData.append("resume_ids", JSON.stringify(resumeIds || []));
+        formData.append("visa_type", jobData.visa_type || "");
+        formData.append("location", jobData.location || "");
         endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_FILE_AND_MATCH;
 
         const response = await apiClient.post(endpoint, formData, {
@@ -189,13 +187,11 @@ class ApiService {
         // Handle text-based job description
         const payload = {
           job_description: jobData.job_description,
+          title: "",
+          resume_ids: resumeIds || [],
+          visa_type: jobData.visa_type || "",
+          location: jobData.location || "",
         };
-        if (jobData.title) {
-          payload.title = jobData.title;
-        }
-        if (resumeIds && resumeIds.length > 0) {
-          payload.resume_ids = resumeIds;
-        }
         endpoint = API_CONFIG.ENDPOINTS.JOBS.PROCESS_TEXT_AND_MATCH;
 
         const response = await apiClient.post(endpoint, payload);

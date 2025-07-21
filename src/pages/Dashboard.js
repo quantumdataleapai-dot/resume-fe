@@ -128,17 +128,23 @@ const Dashboard = () => {
     setLoading(true);
     try {
       // Prepare job data for unified processing
+      // Format visa type to remove hyphens and convert to proper case
+      const formatVisaType = (value) => {
+        if (!value || value === "all") return "";
+        return value
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      };
+
       const jobData = {
         ...(jobFile
-          ? {
-              file: jobFile,
-              title: jobDescription.trim() || null,
-            }
-          : {
-              job_description: jobDescription.trim(),
-            }),
-        // Always include visa requirement in the payload
-        visa_requirement: jobVisaRequirement,
+          ? { file: jobFile }
+          : { job_description: jobDescription.trim() }),
+        title: jobDescription.trim() || "",
+        resume_ids: Array.from(selectedResumes),
+        visa_type: formatVisaType(jobVisaRequirement),
+        location: location !== "all" ? location : "",
       };
 
       // Use unified API service for job processing and matching
@@ -583,90 +589,133 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Visa Requirement Dropdown */}
-              <div className="job-option">
-                <h3 className="option-title">
-                  <i className="fas fa-passport"></i>
-                  Visa Requirement
-                </h3>
-                <select
-                  className="job-visa-select"
-                  value={jobVisaRequirement}
-                  onChange={(e) => setJobVisaRequirement(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    borderRadius: "4px",
-                    backgroundColor: "#2a2a2a",
-                    color: "#fff",
-                    border: "1px solid #444",
-                    marginBottom: "15px",
-                  }}
-                >
-                  <option value="all">All Visa Types Accepted</option>
-                  <optgroup label="Citizens and Permanent Residents">
-                    <option value="us-citizen">US Citizen</option>
-                    <option value="us-citizenship">US Citizenship</option>
-                    <option value="canadian-citizen">Canadian Citizen</option>
-                    <option value="green-card-holder">Green Card Holder</option>
-                    <option value="green-card">Green Card</option>
-                    <option value="gc">GC</option>
-                    <option value="gc-ead">GC-EAD</option>
-                  </optgroup>
-                  <optgroup label="H1 Related">
-                    <option value="h1b">H1-B</option>
-                    <option value="h1b">H1 Visa</option>
-                    <option value="h1b">Need H1</option>
-                    <option value="have-h1">Have H1 Visa</option>
-                    <option value="need-h1">Need H1 Visa</option>
-                    <option value="need-h1-sponsor">
-                      Need H1 Visa Sponsor
-                    </option>
-                    <option value="h4-ead">H4-EAD</option>
-                  </optgroup>
-                  <optgroup label="L Visas">
-                    <option value="l1a">L1-A</option>
-                    <option value="l2b">L2-B</option>
-                    <option value="l2-ead">L2-EAD</option>
-                  </optgroup>
-                  <optgroup label="Other Work Authorizations">
-                    <option value="tn-visa">TN Visa</option>
-                    <option value="tn-permit">TN Permit Holder</option>
-                    <option value="opt-ead">OPT-EAD</option>
-                    <option value="ead">Employment Auth Document</option>
-                    <option value="current-employer">
-                      Current Employer Only
-                    </option>
-                  </optgroup>
-                  <optgroup label="Country-Specific Authorizations">
-                    <option value="us-authorized">US Authorized</option>
-                    <option value="canada-authorized">Canada Authorized</option>
-                    <option value="uk-authorized">
-                      United Kingdom Authorized
-                    </option>
-                    <option value="france-authorized">France Authorized</option>
-                    <option value="india-authorized">India Authorized</option>
-                    <option value="kazakhstan-authorized">
-                      Kazakhstan Authorized
-                    </option>
-                    <option value="venezuela-authorized">
-                      Venezuela Authorized
-                    </option>
-                  </optgroup>
-                  <optgroup label="Other">
-                    <option value="any-employer">
-                      Can Work for Any Employer
-                    </option>
-                    <option value="sponsorship-required">
-                      Sponsorship Required
-                    </option>
-                    <option value="not-specified">Not Specified</option>
-                    <option value="unspecified">Unspecified</option>
-                    <option value="unspecified-auth">
-                      Unspecified Work Authorization
-                    </option>
-                  </optgroup>
-                </select>
+              {/* Filters Container */}
+              <div
+                className="job-filters"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "20px",
+                  marginBottom: "20px",
+                }}
+              >
+                {/* Visa Filter */}
+                <div className="job-option">
+                  <h3 className="option-title">
+                    <i className="fas fa-passport"></i>
+                    Visa Requirement
+                  </h3>
+                  <select
+                    className="job-visa-select"
+                    value={jobVisaRequirement}
+                    onChange={(e) => setJobVisaRequirement(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#2a2a2a",
+                      color: "#fff",
+                      border: "1px solid #444",
+                    }}
+                  >
+                    <option value="all">All</option>
+                    <optgroup label="Citizens and Permanent Residents">
+                      <option value="us-citizen">US Citizen</option>
+                      <option value="us-citizenship">US Citizenship</option>
+                      <option value="us-authorized">US Authorized</option>
+                      <option value="canadian-citizen">Canadian Citizen</option>
+                      <option value="canada-authorized">
+                        Canada Authorized
+                      </option>
+                      <option value="citizen">Citizen</option>
+                    </optgroup>
+                    <optgroup label="Green Card and EAD">
+                      <option value="green-card">Green Card</option>
+                      <option value="green-card-holder">
+                        Green Card Holder
+                      </option>
+                      <option value="gc">GC</option>
+                      <option value="gc-ead">GC-EAD</option>
+                      <option value="employment-auth-document">
+                        Employment Auth Document
+                      </option>
+                      <option value="opt-ead">OPT-EAD</option>
+                      <option value="h4-ead">H4-EAD</option>
+                      <option value="l2-ead">L2-EAD</option>
+                    </optgroup>
+                    <optgroup label="H1 Related">
+                      <option value="h1-visa">H1 Visa</option>
+                      <option value="h1b">H1-B</option>
+                      <option value="have-h1">Have H1</option>
+                      <option value="have-h1-visa">Have H1 Visa</option>
+                      <option value="need-h1">Need H1</option>
+                      <option value="need-h1-visa">Need H1 Visa</option>
+                      <option value="need-h1-visa-sponsor">
+                        Need H1 Visa Sponsor
+                      </option>
+                    </optgroup>
+                    <optgroup label="Other Visas">
+                      <option value="b1">B1</option>
+                      <option value="l1a">L1-A</option>
+                      <option value="l2b">L2-B</option>
+                      <option value="tn-visa">TN Visa</option>
+                      <option value="tn-permit-holder">TN Permit Holder</option>
+                    </optgroup>
+                    <optgroup label="Work Authorization">
+                      <option value="can-work-for-any-employer">
+                        Can work for any employer
+                      </option>
+                      <option value="current-employer-only">
+                        Current Employer Only
+                      </option>
+                      <option value="sponsorship-required">
+                        Sponsorship Required
+                      </option>
+                      <option value="france-authorized">
+                        France Authorized
+                      </option>
+                      <option value="india-authorized">India Authorized</option>
+                      <option value="kazakhstan-authorized">
+                        Kazakhstan Authorized
+                      </option>
+                      <option value="united-kingdom-authorized">
+                        United Kingdom Authorized
+                      </option>
+                      <option value="venezuela-authorized">
+                        Venezuela Authorized
+                      </option>
+                      <option value="unspecified-work-authorization">
+                        Unspecified Work Authorization
+                      </option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="not-specified">Not Specified</option>
+                      <option value="unspecified">Unspecified</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                {/* Location Filter */}
+                <div className="job-option">
+                  <h3 className="option-title">
+                    <i className="fas fa-map-marker-alt"></i>
+                    Job Location
+                  </h3>
+                  <input
+                    type="text"
+                    placeholder="Enter job location (e.g., New York, Remote)"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#2a2a2a",
+                      color: "#fff",
+                      border: "1px solid #444",
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -692,64 +741,7 @@ const Dashboard = () => {
                   onChange={(e) => setVisaStatus(e.target.value)}
                 >
                   <option value="all">All Visa Types</option>
-                  <optgroup label="Citizens and Permanent Residents">
-                    <option value="us-citizen">US Citizen</option>
-                    <option value="canadian-citizen">Canadian Citizen</option>
-                    <option value="green-card">Green Card Holder</option>
-                    <option value="gc">GC</option>
-                    <option value="gc-ead">GC-EAD</option>
-                  </optgroup>
-                  <optgroup label="H1 Related">
-                    <option value="h1b">H1-B Visa</option>
-                    <option value="have-h1">Have H1 Visa</option>
-                    <option value="need-h1">Need H1 Visa</option>
-                    <option value="need-h1-sponsor">
-                      Need H1 Visa Sponsor
-                    </option>
-                    <option value="h4-ead">H4-EAD</option>
-                  </optgroup>
-                  <optgroup label="L Visas">
-                    <option value="l1a">L1-A Visa</option>
-                    <option value="l2b">L2-B Visa</option>
-                    <option value="l2-ead">L2-EAD</option>
-                  </optgroup>
-                  <optgroup label="Other Work Authorizations">
-                    <option value="tn-visa">TN Visa</option>
-                    <option value="tn-permit">TN Permit Holder</option>
-                    <option value="opt-ead">OPT-EAD</option>
-                    <option value="ead">Employment Auth Document</option>
-                    <option value="current-employer">
-                      Current Employer Only
-                    </option>
-                  </optgroup>
-                  <optgroup label="Country-Specific Authorizations">
-                    <option value="us-authorized">US Authorized</option>
-                    <option value="canada-authorized">Canada Authorized</option>
-                    <option value="uk-authorized">
-                      United Kingdom Authorized
-                    </option>
-                    <option value="france-authorized">France Authorized</option>
-                    <option value="india-authorized">India Authorized</option>
-                    <option value="kazakhstan-authorized">
-                      Kazakhstan Authorized
-                    </option>
-                    <option value="venezuela-authorized">
-                      Venezuela Authorized
-                    </option>
-                  </optgroup>
-                  <optgroup label="Other">
-                    <option value="any-employer">
-                      Can Work for Any Employer
-                    </option>
-                    <option value="sponsorship-required">
-                      Sponsorship Required
-                    </option>
-                    <option value="not-specified">Not Specified</option>
-                    <option value="unspecified">Unspecified</option>
-                    <option value="unspecified-auth">
-                      Unspecified Work Authorization
-                    </option>
-                  </optgroup>
+                  <optgroup label="Citizens and Permanent Residents"></optgroup>
                 </select>
               </div>
 
