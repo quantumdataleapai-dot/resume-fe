@@ -221,8 +221,8 @@
 
 .content-wrapper {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  grid-template-columns: 1fr;
+  gap: 30px;
   margin-bottom: 40px;
 }
 
@@ -278,12 +278,12 @@
 .job-input-container {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  padding: 10px;
+  padding: 15px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  grid-template-rows: auto auto;
-  gap: 10px;
+  grid-template-rows: auto auto auto;
+  gap: 15px;
   align-items: start;
 }
 
@@ -291,6 +291,17 @@
   grid-column: 1 / -1;
   justify-self: center;
   margin-top: 5px;
+}
+
+/* Reduce gap in job filters */
+.job-filters {
+  grid-column: 1 / -1 !important;
+}
+
+/* Make job options take equal space */
+.job-option {
+  flex: 1;
+  min-width: 0;
 }
 
 .job-input-area {

@@ -178,6 +178,9 @@ const Dashboard = () => {
           education: resume.parsed_data?.education,
           linkedin: resume.parsed_data?.linkedin,
           visa_type: resume.parsed_data?.visa_type,
+          generated_questions: resume.generated_questions || [],
+          resume_text: resume.parsed_data?.resume_text || "",
+          filename: resume.filename,
         })
       );
 

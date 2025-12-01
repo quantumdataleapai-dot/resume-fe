@@ -14,9 +14,20 @@ import {
   MdOutlineEmail,
   MdCheck,
   MdOutlineClose,
+  MdHelpOutline,
+  MdPictureAsPdf,
+  MdDownload,
 } from "react-icons/md";
+import { useState } from "react";
+import axios from "axios";
 
 const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [showResumeViewer, setShowResumeViewer] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState(null);
+  const [loadingResume, setLoadingResume] = useState(false);
+  const [resumeBlob, setResumeBlob] = useState(null);
+
   if (!isOpen || !resume) return null;
 
   const getScoreColor = (score) => {
@@ -29,6 +40,57 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
+    }
+  };
+
+  const handleViewResume = async () => {
+    setLoadingResume(true);
+    try {
+      console.log("Starting to fetch resume for ID:", resume.id);
+      
+      // Fetch the resume file from the backend using axios
+      const response = await axios.get(
+        `http://10.20.0.58:8000/api/resumes/${resume.id}/download`,
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      console.log("Response status:", response.status);
+      console.log("Response data type:", response.data.type);
+
+      if (response.status === 200) {
+        // response.data is already a blob
+        const blob = response.data;
+        console.log("Resume blob received - Type:", blob.type, "Size:", blob.size);
+        
+        // Check if it's actually a PDF
+        if (blob.size === 0) {
+          console.error("Empty blob received");
+          alert("Resume file is empty. Please try again.");
+          setLoadingResume(false);
+          return;
+        }
+        
+        // Create a URL for the blob
+        const url = URL.createObjectURL(blob);
+        console.log("Resume URL created:", url);
+        
+        setResumeBlob(blob);
+        setResumeUrl(url);
+        setShowResumeViewer(true);
+      } else {
+        console.error("Failed to fetch resume:", response.status);
+        alert("Failed to load resume. Status: " + response.status);
+      }
+    } catch (error) {
+      console.error("Error loading resume:", error);
+      alert("Error loading resume: " + error.message);
+    } finally {
+      setLoadingResume(false);
     }
   };
 
@@ -663,6 +725,52 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                 </div>
               </div>
             )}
+
+            {/* Questions to Ask Section */}
+            {resume.questionsToAsk?.length > 0 && (
+              <div
+                style={{
+                  ...sectionStyles,
+                  background: getSectionBackground(4),
+                  border: `1px solid ${getSectionBorderColor(4)}`,
+                }}
+              >
+                <h3
+                  style={{
+                    color: "#FF6B6B",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    margin: "0 0 15px 0",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  ❓ Questions to Ask ({resume.questionsToAsk.length})
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {resume.questionsToAsk.map((question, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        padding: "12px",
+                        borderRadius: "8px",
+                        background: "rgba(255, 107, 107, 0.1)",
+                        border: "1px solid rgba(255, 107, 107, 0.2)",
+                        color: "rgba(255, 255, 255, 0.9)",
+                        fontSize: "14px",
+                        lineHeight: "1.5",
+                      }}
+                    >
+                      <span style={{ marginRight: "8px", fontWeight: "bold", color: "#FF6B6B" }}>
+                        Q{index + 1}.
+                      </span>
+                      {question}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Modal Footer */}
@@ -672,9 +780,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
             </button>
             <button
               style={primaryButtonStyles}
-              onClick={handleDownload} //handleDownload common from
+              onClick={handleViewResume}
+              disabled={loadingResume}
             >
-              Download Resume
+              <MdPictureAsPdf /> {loadingResume ? "Loading..." : "View Resume"}
             </button>
             {resume.email && (
               <button
@@ -686,9 +795,313 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                 Contact Candidate
               </button>
             )}
+            {resume.contact_number && (
+              <button
+                style={successButtonStyles}
+                onClick={() =>
+                  (window.location.href = `tel:${resume.contact_number}`)
+                }
+              >
+                Call Candidate
+              </button>
+            )}
+            {resume.generated_questions?.length > 0 && (
+              <button
+                style={{
+                  ...buttonStyles,
+                  background: "linear-gradient(135deg, #FF9800, #F57C00)",
+                  color: "white",
+                }}
+                onClick={() => setShowQuestions(true)}
+              >
+                <MdHelpOutline /> Questions
+              </button>
+            )}
             <button style={successButtonStyles}>Schedule Interview</button>
           </div>
         </div>
+
+        {/* Questions Modal */}
+        {showQuestions && resume.generated_questions?.length > 0 && (
+          <div style={overlayStyles} onClick={() => setShowQuestions(false)}>
+            <div
+              style={{
+                ...modalStyles,
+                maxHeight: "85vh",
+                width: "900px",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Questions Modal Header */}
+              <div style={headerStyles}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <MdHelpOutline style={{ fontSize: "24px", color: "#FF9800" }} />
+                  <h2
+                    style={{
+                      color: "#fff",
+                      fontSize: "24px",
+                      fontWeight: "600",
+                      margin: 0,
+                    }}
+                  >
+                    Interview Questions - {resume.name}
+                  </h2>
+                </div>
+              </div>
+
+              {/* Questions Modal Body */}
+              <div style={bodyStyles}>
+                {resume.generated_questions.map((questionObj, index) => (
+                  <div
+                    key={questionObj.id || index}
+                    style={{
+                      ...sectionStyles,
+                      background:
+                        questionObj.type === "technical"
+                          ? "rgba(102, 126, 234, 0.1)"
+                          : "rgba(76, 175, 80, 0.1)",
+                      border:
+                        questionObj.type === "technical"
+                          ? "1px solid rgba(102, 126, 234, 0.3)"
+                          : "1px solid rgba(76, 175, 80, 0.3)",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "15px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          minWidth: "40px",
+                          height: "40px",
+                          borderRadius: "50%",
+                          background:
+                            questionObj.type === "technical"
+                              ? "rgba(102, 126, 234, 0.3)"
+                              : "rgba(76, 175, 80, 0.3)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color:
+                            questionObj.type === "technical"
+                              ? "#667eea"
+                              : "#4CAF50",
+                          fontWeight: "bold",
+                          fontSize: "18px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {index + 1}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div
+                          style={{
+                            color: "#fff",
+                            fontSize: "15px",
+                            lineHeight: "1.6",
+                            marginBottom: "10px",
+                          }}
+                        >
+                          {questionObj.question}
+                        </div>
+                        <div
+                          style={{
+                            display: "inline-block",
+                            padding: "4px 12px",
+                            borderRadius: "20px",
+                            fontSize: "12px",
+                            fontWeight: "500",
+                            background:
+                              questionObj.type === "technical"
+                                ? "rgba(102, 126, 234, 0.3)"
+                                : "rgba(76, 175, 80, 0.3)",
+                            color:
+                              questionObj.type === "technical"
+                                ? "#667eea"
+                                : "#4CAF50",
+                            textTransform: "capitalize",
+                          }}
+                        >
+                          {questionObj.type}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Questions Modal Footer */}
+              <div style={footerStyles}>
+                <button
+                  style={secondaryButtonStyles}
+                  onClick={() => setShowQuestions(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Resume Viewer Modal */}
+        {showResumeViewer && (
+          <div style={overlayStyles} onClick={() => setShowResumeViewer(false)}>
+            <div
+              style={{
+                ...modalStyles,
+                width: "95vw",
+                maxWidth: "1400px",
+                height: "95vh",
+                maxHeight: "95vh",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Resume Viewer Header */}
+              <div style={headerStyles}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <MdPictureAsPdf style={{ fontSize: "24px", color: "#667eea" }} />
+                  <h2
+                    style={{
+                      color: "#fff",
+                      fontSize: "24px",
+                      fontWeight: "600",
+                      margin: 0,
+                    }}
+                  >
+                    Resume - {resume.name}
+                  </h2>
+                </div>
+              </div>
+
+              {/* Resume Viewer Body */}
+              <div style={bodyStyles}>
+                {loadingResume ? (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "60px 20px",
+                      color: "rgba(255, 255, 255, 0.6)",
+                      fontSize: "16px",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "100%",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "32px",
+                        marginBottom: "15px",
+                        animation: "spin 2s linear infinite",
+                      }}
+                    >
+                      ⏳
+                    </div>
+                    <p>Loading resume...</p>
+                  </div>
+                ) : resumeUrl ? (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      position: "relative",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <iframe
+                      src={`${resumeUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+                      type="application/pdf"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        border: "none",
+                        borderRadius: "8px",
+                        flex: 1,
+                      }}
+                      title="Resume PDF Viewer"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "60px 20px",
+                      color: "rgba(255, 255, 255, 0.6)",
+                      fontSize: "16px",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "100%",
+                    }}
+                  >
+                    <MdPictureAsPdf style={{ fontSize: "48px", marginBottom: "15px", color: "#667eea" }} />
+                    <p>Resume could not be loaded</p>
+                    <small style={{ marginTop: "10px", color: "rgba(255, 255, 255, 0.5)" }}>
+                      Check your internet connection and try again
+                    </small>
+                  </div>
+                )}
+              </div>
+
+              {/* Resume Viewer Footer */}
+              <div style={footerStyles}>
+                <button
+                  style={secondaryButtonStyles}
+                  onClick={() => {
+                    setShowResumeViewer(false);
+                    if (resumeUrl) {
+                      URL.revokeObjectURL(resumeUrl);
+                      setResumeUrl(null);
+                      setResumeBlob(null);
+                    }
+                  }}
+                >
+                  Close
+                </button>
+                {resumeBlob && (
+                  <button
+                    style={successButtonStyles}
+                    onClick={() => {
+                      // Download the blob
+                      const url = URL.createObjectURL(resumeBlob);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = `${resume.name}_resume.pdf`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      URL.revokeObjectURL(url);
+                    }}
+                  >
+                    <MdDownload /> Download Resume
+                  </button>
+                )}
+                {resumeUrl && (
+                  <button
+                    style={{
+                      ...buttonStyles,
+                      background: "linear-gradient(135deg, #FF9800, #F57C00)",
+                      color: "white",
+                    }}
+                    onClick={() => {
+                      // Open in new tab as fallback
+                      window.open(resumeUrl, '_blank');
+                    }}
+                  >
+                    Open in New Tab
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </ModalPortal>
   );
