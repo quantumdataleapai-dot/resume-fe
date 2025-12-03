@@ -33,14 +33,44 @@ const Login = () => {
 
   return (
     <div className="login-container">
+      {/* Left side: Branding and Features */}
+      <div className="login-features">
+        <div className="features-content">
+          <div className="features-header">
+            <div className="logo">
+              <i className="fas fa-file-alt"></i>
+              <span>ResumeMatch</span>
+            </div>
+            <h1>
+              AI-Powered<br />
+              <span>Resume Analysis</span>
+            </h1>
+          </div>
+          <p className="features-subtitle">
+            Upload resumes, match against job descriptions, and let AI help you find the perfect candidates faster than ever.
+          </p>
+          <div className="features-list">
+            <div className="feature-item">
+              <i className="fas fa-bolt"></i>
+              <span>Instant resume scoring & ranking</span>
+            </div>
+            <div className="feature-item">
+              <i className="fas fa-brain"></i>
+              <span>AI-powered skill matching</span>
+            </div>
+            <div className="feature-item">
+              <i className="fas fa-boxes"></i>
+              <span>Bulk resume processing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right side: Login Form */}
       <div className="login-card">
         <div className="login-header">
-          <div className="logo">
-            <i className="fas fa-file-alt"></i>
-            <span>Resume</span>
-          </div>
           <h2>Welcome Back</h2>
-          <p>Sign in to access your resume matching dashboard</p>
+          <p>Sign in to your account</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
@@ -93,6 +123,15 @@ const Login = () => {
 
           <button type="submit" className="login-btn" disabled={loading}>
             {loading ? "Signing In..." : "Sign In"}
+          </button>
+
+          <div className="divider">
+            <span>or continue with</span>
+          </div>
+
+          <button type="button" className="google-btn">
+            <i className="fab fa-google"></i>
+            Continue with Google
           </button>
 
           <div className="signup-link">

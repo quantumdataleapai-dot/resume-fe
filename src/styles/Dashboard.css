@@ -1,15 +1,14 @@
 .dashboard-container {
   min-height: 100vh;
-  background: #1a1a2e;
-  color: white;
+  background: #0a0015;
+  color: #e0e7ff;
 }
 
 /* Header Styles */
 .header {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 5px 0;
+  background: #1a0a2e;
+  border-bottom: 1px solid rgba(217, 70, 239, 0.2);
+  padding: 8px 0;
 }
 
 .header-content {
@@ -29,13 +28,13 @@
 
 .logo i {
   font-size: 28px;
-  color: #667eea;
+  color: #4d0e57;
 }
 
 .logo span {
   font-size: 24px;
   font-weight: bold;
-  color: white;
+  color: #e0e7ff;
 }
 
 .header-actions {
@@ -58,14 +57,14 @@
 
 .notification-icon i {
   font-size: 20px;
-  color: white;
+  color: #e0e7ff;
 }
 
 .notification-badge {
   position: absolute;
   top: -2px;
   right: -2px;
-  background: #ff4757;
+  background: #a52b35;
   color: white;
   border-radius: 50%;
   width: 20px;
@@ -80,7 +79,7 @@
 .menu-btn {
   background: none;
   border: none;
-  color: white;
+  color: #e0e7ff;
   font-size: 20px;
   cursor: pointer;
   padding: 8px;
@@ -2335,3 +2334,180 @@
   padding: 10px;
   margin-top: 50px;
 }
+
+/* ===========================
+   NEON COLOR THEME OVERRIDES
+   =========================== */
+
+/* Dark background with neon accents */
+.dashboard-container {
+  background: #0a0015 !important;
+  color: #e0e7ff !important;
+}
+
+.job-section {
+  background: linear-gradient(180deg, rgba(26,10,46,0.85), rgba(26,10,46,0.6)) !important;
+  border: 1px solid rgba(217, 70, 239, 0.25) !important;
+  box-shadow: 0 10px 40px rgba(217,70,239,0.12) !important;
+}
+
+.job-textarea {
+  background: rgba(217, 70, 239, 0.08) !important;
+  border: 1px solid rgba(217, 70, 239, 0.3) !important;
+  color: #e0e7ff !important;
+}
+
+.job-textarea:focus {
+  border-color: #d946ef !important;
+  box-shadow: 0 0 15px rgba(217, 70, 239, 0.25) !important;
+}
+
+/* Buttons: Neon magenta with glow */
+.choose-files-btn,
+.upload-job-btn,
+.reset-btn,
+.load-btn,
+.download-all-btn {
+  background: linear-gradient(135deg, #d946ef 0%, #3a0f56 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 0 20px rgba(217, 70, 239, 0.3) !important;
+}
+
+.choose-files-btn:hover,
+.upload-job-btn:hover,
+.reset-btn:hover,
+.load-btn:hover,
+.download-all-btn:hover {
+  box-shadow: 0 0 30px rgba(217, 70, 239, 0.6) !important;
+}
+
+/* Form inputs */
+.filter-select,
+.job-visa-select,
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  background: rgba(217, 70, 239, 0.08) !important;
+  border: 1px solid rgba(217, 70, 239, 0.25) !important;
+  color: #e0e7ff !important;
+}
+
+input::placeholder {
+  color: rgba(224, 231, 255, 0.4) !important;
+}
+
+.filter-select:focus,
+.job-visa-select:focus,
+input:focus {
+  border-color: #06b6d4 !important;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.2) !important;
+}
+
+/* Resume cards: Dark with neon border */
+.resumes-table {
+  background: linear-gradient(180deg, rgba(26,10,46,0.6), rgba(26,10,46,0.4)) !important;
+  border: 1px solid rgba(217, 70, 239, 0.2) !important;
+  box-shadow: 0 10px 40px rgba(217,70,239,0.1) !important;
+}
+
+.resume-card,
+.table-header {
+  background: rgba(26,10,46,0.5) !important;
+  border: 1px solid rgba(217, 70, 239, 0.15) !important;
+  color: #e0e7ff !important;
+}
+
+.resume-card:hover {
+  background: rgba(26,10,46,0.7) !important;
+  box-shadow: 0 0 25px rgba(217, 70, 239, 0.25) !important;
+}
+
+/* Action buttons: Cyan accent */
+.details-btn {
+  background: rgba(6, 182, 212, 0.12) !important;
+  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+  color: #06b6d4 !important;
+}
+
+.download-btn {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  color: #10b981 !important;
+}
+
+.action-btn {
+  background: rgba(217, 70, 239, 0.08) !important;
+  border: 1px solid rgba(217, 70, 239, 0.2) !important;
+  color: #e0e7ff !important;
+}
+
+/* Section text */
+.section-header h2,
+.section-title h2,
+.option-title {
+  color: #e0e7ff !important;
+}
+
+.section-subtitle {
+  color: rgba(224, 231, 255, 0.6) !important;
+}
+
+/* Links */
+.signup-btn,
+.forgot-password {
+  color: #06b6d4 !important;
+}
+
+.signup-btn:hover,
+.forgot-password:hover {
+  color: #22d3ee !important;
+}
+
+/* Checkboxes and form elements */
+.checkbox-container input:checked ~ .checkmark {
+  background-color: #216925 !important;
+  border-color: #d44be9 !important;
+}
+
+.pagination-btn {
+  color: #e0e7ff !important;
+}
+
+.pagination-btn:hover {
+  background: rgba(217, 70, 239, 0.15) !important;
+}
+
+/* Dropdown and menus */
+.user-dropdown,
+.custom-dropdown-menu {
+  background: #1a0a2e !important;
+  border: 1px solid rgba(217, 70, 239, 0.25) !important;
+}
+
+.dropdown-item:hover {
+  background: rgba(217, 70, 239, 0.15) !important;
+  color: #e0e7ff !important;
+}
+
+/* Loading and empty states */
+.loading-message,
+.empty-message {
+  color: rgba(224, 231, 255, 0.7) !important;
+}
+
+/* Filter controls */
+.filter-controls {
+  background: linear-gradient(180deg, rgba(217,70,239,0.08), rgba(6,182,212,0.04)) !important;
+  border: 1px solid rgba(217, 70, 239, 0.15) !important;
+}
+
+.filter-group {
+  background: rgba(217, 70, 239, 0.08) !important;
+  border: 1px solid rgba(217, 70, 239, 0.15) !important;
+}
+
+.filter-group label {
+  color: #e0e7ff !important;
+}
+
