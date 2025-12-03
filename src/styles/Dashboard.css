@@ -2511,3 +2511,25 @@ input:focus {
   color: #e0e7ff !important;
 }
 
+/* Visa Requirement Dropdown */
+.job-visa-select {
+  background: #3d1b4e !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(74, 29, 83, 0.401) !important;
+}
+
+.job-visa-select:focus {
+  outline: none;
+  border-color: #d9e9eb !important;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2) !important;
+}
+
+.job-visa-select option {
+  background: #000000;
+  color: #ffffff;
+}
+
+.job-visa-select option:hover {
+  background: #c779c9;
+}
+

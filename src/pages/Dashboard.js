@@ -994,7 +994,9 @@ const Dashboard = () => {
                 )}
                 <div className="table-col" style={{ textAlign: "center" }}>
                   <i className="fas fa-cog"></i>
+                  <span className="actions-label text-color-black">
                   Actions
+                  </span>
                 </div>
               </div>
 
