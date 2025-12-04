@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import AIChat from "../components/AIChat";
 import FileUpload from "../components/FileUpload";
+import apiService from "../services/apiService";
 import "../styles/DashboardNew.css";
 
 // Sample data
@@ -72,6 +73,11 @@ export default function DashboardNew() {
   const [showAIChat, setShowAIChat] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [resumes, setResumes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [visaRequirement, setVisaRequirement] = useState("H1 Visa");
+  const [jobLocation, setJobLocation] = useState("all");
 
   const handleLogout = () => {
     navigate("/");
@@ -81,31 +87,256 @@ export default function DashboardNew() {
     setUploadedFiles(files);
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
       window.alert("Please enter a job description");
       return;
     }
+
     setIsAnalyzing(true);
-    setTimeout(() => setIsAnalyzing(false), 1200);
+    setError(null);
+
+    try {
+      // Prepare JSON payload for API request
+      const payload = {
+        job_description: jobDescription,
+        visa_requirement: visaRequirement,
+        job_location: jobLocation,
+      };
+
+      // Make API call to process job description and match resumes
+      const response = await fetch(
+        "http://10.30.0.104:8006/api/jobs/process-text-and-match",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("API error response:", errorData);
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("Job matching response:", result);
+
+      // The backend may return matches under various keys. Try several common shapes.
+      let items = [];
+      if (Array.isArray(result)) items = result;
+      else if (Array.isArray(result.matches)) items = result.matches;
+      else if (result.data && Array.isArray(result.data.matches)) items = result.data.matches;
+      else if (Array.isArray(result.data)) items = result.data;
+      else if (Array.isArray(result.matched_resumes)) items = result.matched_resumes;
+      else if (Array.isArray(result.matched)) items = result.matched;
+      else if (Array.isArray(result.items)) items = result.items;
+      else if (Array.isArray(result.results)) items = result.results;
+
+      if (items.length === 0) {
+        // No array found — try to see if API returned a single object with a "match" field
+        if (result.match && Array.isArray(result.match)) items = result.match;
+      }
+
+      if (items.length > 0) {
+        const normalized = items.map((r, idx) => ({
+          id: r.id || r._id || idx + 1,
+          name: r.name || r.original_name || r.filename || r.title || "Unknown",
+          email: r.email || r.parsed_data?.email || r.contact_email || "",
+          phone: r.phone || r.contact_number || r.parsed_data?.contact_number || "",
+          location: r.location || r.parsed_data?.location || r.city || "",
+          score: r.score || r.match_score || r.similarity || 0,
+          skills: r.skills || r.parsed_data?.skills || r.tags || [],
+          experience: r.experience || r.experience_years || r.parsed_data?.experience_years || "",
+          avatar: (r.name || r.original_name) ? ((r.name || r.original_name).split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
+        }));
+        setResumes(normalized);
+        // clear search to ensure matched resumes are visible
+        setSearchQuery("");
+      } else {
+        // No matched items — show message and keep existing resumes
+        console.warn("No matched resumes returned from API");
+        window.alert("No matched resumes were returned by the server.");
+      }
+    } catch (err) {
+      console.error("Job analysis error:", err);
+      setError(err.message || "Failed to analyze job and match resumes");
+      window.alert("Error: " + (err.message || "Failed to analyze job"));
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
-  const filteredResumes = sampleResumes.filter((resume) =>
-    resume.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const handleDownloadAll = async () => {
+    try {
+      setError(null);
+      const response = await fetch(
+        "http://10.30.0.104:8006/api/resumes/download-all?format=zip",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status} ${response.statusText}`);
+      }
+
+      // Get the blob from response
+      const blob = await response.blob();
+
+      // Create a temporary URL for the blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary anchor element and trigger download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `resumes-${new Date().toISOString().split('T')[0]}.zip`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      console.log("Resumes downloaded successfully");
+    } catch (err) {
+      console.error("Download error:", err);
+      setError(err.message || "Failed to download resumes");
+      window.alert("Error: " + (err.message || "Failed to download resumes"));
+    }
+  };
+
+  const handleUploadResume = async () => {
+    try {
+      setError(null);
+
+      // Create an invisible file input to prompt user
+      const input = document.createElement("input");
+      input.type = "file";
+      input.multiple = true;
+      input.accept = ".pdf,.doc,.docx";
+
+      input.onchange = async (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        const formData = new FormData();
+        // use 'files' field name - backend may accept other names
+        files.forEach((f) => formData.append("files", f));
+
+        try {
+          const resp = await fetch("http://10.30.0.104:8006/api/resumes/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!resp.ok) {
+            const txt = await resp.text();
+            console.error("Upload error response:", txt);
+            throw new Error(`Upload failed: ${resp.status} ${resp.statusText}`);
+          }
+
+          // On success, refresh resume list
+          const data = await apiService.getResumes(1, 10);
+          let items = [];
+          if (!data) items = [];
+          else if (Array.isArray(data)) items = data;
+          else if (data.resumes && Array.isArray(data.resumes)) items = data.resumes;
+          else if (data.data && Array.isArray(data.data)) items = data.data;
+
+          const normalized = items.map((r, idx) => ({
+            id: r.id || r._id || idx + 1,
+            name: r.name || r.original_name || r.filename || "Unknown",
+            email: r.email || r.parsed_data?.email || "",
+            phone: r.phone || r.contact_number || r.parsed_data?.contact_number || "",
+            location: r.location || r.parsed_data?.location || "",
+            score: r.score || r.match_score || 0,
+            skills: r.skills || r.parsed_data?.skills || [],
+            experience: r.experience || r.experience_years || r.parsed_data?.experience_years || "",
+            avatar: (r.name || r.original_name) ? ((r.name || r.original_name).split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
+          }));
+
+          setResumes(normalized);
+          window.alert("Upload successful");
+        } catch (uploadErr) {
+          console.error("Upload failed:", uploadErr);
+          window.alert("Upload failed: " + (uploadErr.message || "Unknown error"));
+        }
+      };
+
+      // Trigger file picker
+      input.click();
+    } catch (err) {
+      console.error("Upload resume handler error:", err);
+      setError(err.message || "Failed to upload resume");
+      window.alert("Error: " + (err.message || "Failed to upload resume"));
+    }
+  };
+
+  const sourceResumes = resumes.length > 0 ? resumes : sampleResumes;
+
+  const filteredResumes = sourceResumes.filter((resume) =>
+    (resume.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
     (resume.skills || []).some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-
-  const stats = [
-    { label: "Total Resumes", value: sampleResumes.length, icon: "📄" },
-    { label: "Excellent Matches", value: sampleResumes.filter((r) => r.score >= 85).length, icon: "📈" },
-    { label: "Candidates Reviewed", value: sampleResumes.length, icon: "👥" },
-  ];
 
   const getScoreBadgeClass = (score) => {
     if (score >= 85) return "score-excellent";
     if (score >= 70) return "score-good";
     return "score-fair";
   };
+
+  // Fetch resumes from backend when dashboard loads
+  React.useEffect(() => {
+    let mounted = true;
+    const fetchResumes = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await apiService.getResumes(1, 10);
+        let items = [];
+        if (!data) items = [];
+        else if (Array.isArray(data)) items = data;
+        else if (data.resumes && Array.isArray(data.resumes)) items = data.resumes;
+        else if (data.data && Array.isArray(data.data)) items = data.data;
+
+        const normalized = items.map((r, idx) => ({
+          id: r.id || r._id || idx + 1,
+          name: r.name || r.original_name || r.filename || "Unknown",
+          email: r.email || r.parsed_data?.email || "",
+          phone: r.phone || r.contact_number || r.parsed_data?.contact_number || "",
+          location: r.location || r.parsed_data?.location || "",
+          score: r.score || r.match_score || 0,
+          skills: r.skills || r.parsed_data?.skills || [],
+          experience: r.experience || r.experience_years || r.parsed_data?.experience_years || "",
+          avatar: (r.name || r.original_name) ? ((r.name || r.original_name).split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
+        }));
+
+        if (mounted) setResumes(normalized);
+      } catch (err) {
+        console.error("Failed to fetch resumes:", err);
+        if (mounted) setError(err.message || "Failed to load resumes");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchResumes();
+    return () => { mounted = false; };
+  }, []);
+
+  const stats = [
+    { label: "Total Resumes", value: sourceResumes.length, icon: "📄" },
+    { label: "Excellent Matches", value: sourceResumes.filter(r=> (r.score||0) >= 85).length, icon: "📈" },
+    { label: "Candidates Reviewed", value: sourceResumes.length, icon: "👥" },
+  ];
+
 
   return (
     <div className="dashboard-new-container">
@@ -143,6 +374,42 @@ export default function DashboardNew() {
                 <span>{jobDescription.length} characters</span>
                 <button className="upload-link">Upload file</button>
               </div>
+
+              {/* Visa Requirement & Job Location */}
+              <div className="job-filters-section">
+                <div className="filter-group">
+                  <label>💼 Visa Requirement</label>
+                  <select
+                    value={visaRequirement}
+                    onChange={(e) => setVisaRequirement(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="H1 Visa">H1 Visa</option>
+                    <option value="Green Card">Green Card</option>
+                    <option value="US Citizen">US Citizen</option>
+                    <option value="GC-EAD">GC-EAD</option>
+                    <option value="L1 Visa">L1 Visa</option>
+                    <option value="TN Visa">TN Visa</option>
+                    <option value="Any">Any</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label>📍 Job Location</label>
+                  <input
+                    type="text"
+                    value={jobLocation}
+                    onChange={(e) => setJobLocation(e.target.value)}
+                    placeholder="Enter job location"
+                    className="filter-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* OR Divider */}
+            <div className="or-divider">
+              <span>OR</span>
             </div>
 
             {/* Upload Resumes Card */}
@@ -168,6 +435,21 @@ export default function DashboardNew() {
           {/* Right Column - Results */}
           <div className="right-column">
             <div className="results-card">
+              {/* Action Buttons */}
+              <div className="results-action-buttons">
+                <button 
+                  className="action-btn download-btn"
+                  onClick={handleDownloadAll}
+                >
+                  ⬇️ Download All ({filteredResumes.length})
+                </button>
+                <button className="action-btn">Upload from Ceipal</button>
+                <button className="action-btn">Get Resumes from Ceipal</button>
+                <button className="action-btn upload-resume-btn" onClick={handleUploadResume}>
+                  ⬆️ Upload Resume
+                </button>
+              </div>
+
               {/* Search & Filter */}
               <div className="search-filter-bar">
                 <input
@@ -178,6 +460,18 @@ export default function DashboardNew() {
                   className="search-input"
                 />
                 <button className="filter-btn">Filters</button>
+                <select className="sort-select">
+                  <option>Show top candidates: All candidates</option>
+                  <option>Top 5</option>
+                  <option>Top 10</option>
+                  <option>Top 20</option>
+                </select>
+                <select className="sort-select">
+                  <option>Sort by: Score (High to Low)</option>
+                  <option>Score (Low to High)</option>
+                  <option>Name (A-Z)</option>
+                  <option>Name (Z-A)</option>
+                </select>
               </div>
 
               {/* Results Header */}

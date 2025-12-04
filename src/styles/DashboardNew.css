@@ -170,6 +170,94 @@
   color: var(--primary-color);
 }
 
+/* Job Filters Section */
+.job-filters-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-select,
+.filter-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.filter-select:hover,
+.filter-input:hover {
+  border-color: var(--primary-color);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.filter-select:focus,
+.filter-input:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+}
+
+.filter-select option {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.filter-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* OR Divider */
+.or-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.or-divider::before,
+.or-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+}
+
+.or-divider span {
+  padding: 0 16px;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+  color: var(--secondary-color);
+  font-weight: 700;
+}
+
 /* Upload Card */
 .upload-card {
   background: var(--card-bg);
@@ -278,6 +366,87 @@
 
 .search-input::placeholder {
   color: rgba(255, 255, 255, 0.4);
+}
+
+/* Results Action Buttons */
+.results-action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.action-btn {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--secondary-color);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.action-btn:hover {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+}
+
+.download-btn {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 212, 255, 0.1));
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: var(--green-accent);
+}
+
+.download-btn:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(0, 212, 255, 0.15));
+  border-color: var(--green-accent);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.upload-resume-btn {
+  background: rgba(217, 70, 239, 0.1);
+  border: 1px solid rgba(217, 70, 239, 0.3);
+  color: var(--primary-color);
+}
+
+.upload-resume-btn:hover {
+  background: rgba(217, 70, 239, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 12px rgba(217, 70, 239, 0.2);
+}
+
+/* Sort Select */
+.sort-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(217, 70, 239, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sort-select:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary-color);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+}
+
+.sort-select option {
+  background: var(--card-bg);
+  color: var(--text-primary);
 }
 
 .filter-btn {
