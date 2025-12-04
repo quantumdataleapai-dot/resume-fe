@@ -384,13 +384,35 @@ export default function DashboardNew() {
                     onChange={(e) => setVisaRequirement(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="H1 Visa">H1 Visa</option>
-                    <option value="Green Card">Green Card</option>
+                    <option value="All">All</option>
                     <option value="US Citizen">US Citizen</option>
+                    <option value="US Citizenship">US Citizenship</option>
+                    <option value="US Authorized">US Authorized</option>
+                    <option value="Canadian Citizen">Canadian Citizen</option>
+                    <option value="Canadian Authorized">Canadian Authorized</option>
+                    <option value="Green Card Holder">Green Card Holder</option>
+                    <option value="GC">GC</option>
                     <option value="GC-EAD">GC-EAD</option>
-                    <option value="L1 Visa">L1 Visa</option>
+                    <option value="Employment Auth Document">Employment Auth Document</option>
+                    <option value="OPT-EAD">OPT-EAD</option>
+                    <option value="H4-EAD">H4-EAD</option>
+                    <option value="L2-EAD">L2-EAD</option>
+                    <option value="H1 visa">H1 visa</option>
+                    <option value="H1-B">H1-B</option>
+                    <option value="Need H1 visa">Need H1 visa</option>
+                    <option value="Have H1 visa">Have H1 visa</option>
+                    <option value="B1">B1</option>
+                    <option value="L1-A">L1-A</option>
+                    <option value="L2-B">L2-B</option>
                     <option value="TN Visa">TN Visa</option>
-                    <option value="Any">Any</option>
+                    <option value="TN Permit Holder">TN Permit Holder</option>
+                    <option value="Can work for any employer">Can work for any employer</option>
+                    <option value="Indian Authorized">Indian Authorized</option>
+                    <option value="United Kingdom Authorized">United Kingdom Authorized</option>
+                    <option value="France Authorized">France Authorized</option>
+                    <option value="Sponsership Required">Sponsership Required</option>
+                    <option value="Unspecified Work Authorization">Unspecified Work Authorization</option>
+                    <option value="Not Specified">Not Specified</option>
                   </select>
                 </div>
 
