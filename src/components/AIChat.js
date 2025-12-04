@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const AIChat = ({ onClose }) => {
+const AIChat = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -35,9 +35,11 @@ const AIChat = ({ onClose }) => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <div className="modal-overlay">
-      <div className="ai-chat-content">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="ai-chat-content" onClick={(e) => e.stopPropagation()}>
         <div className="ai-chat-header">
           <h3 style={{ color: "#fff" }}>AI Assistant</h3>
           <span className="close" onClick={onClose}>

@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import DashboardNew from "./pages/DashboardNew";
 import { AuthProvider, useAuth } from "./utils/AuthContext";
 import "./styles/App.css";
 
@@ -26,7 +26,7 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <DashboardNew />
                 </ProtectedRoute>
               }
             />

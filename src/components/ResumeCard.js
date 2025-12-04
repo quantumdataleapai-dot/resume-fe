@@ -122,66 +122,89 @@ const ResumeCard = ({
       </div>
 
       {/* Resume info column */}
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem", flex: 1 }}>
         <div className="resume-avatar">
           <span style={{ fontSize: "1.5rem" }}>
             {resume.avatar || <MdOutlineInsertDriveFile />}
           </span>
         </div>
-        <div className="resume-details">
+        <div className="resume-details" style={{ flex: 1 }}>
           <div
             className="resume-name"
             style={{
-              fontWeight: "500",
-              marginBottom: "0.25rem",
-              display: "flex",
-              justifyContent: "start",
+              fontWeight: "700",
+              marginBottom: "0.5rem",
+              fontSize: "16px",
+              color: "#fff",
             }}
           >
-            {resume.filename || resume.name}
+            {resume.name || resume.filename}
           </div>
-          <div
-            className="resume-description"
-            style={{
-              fontSize: "0.85rem",
-              color: "rgba(255, 255, 255, 0.6)",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              maxWidth: "400px",
-              display: "flex",
-              justifyContent: "start",
-            }}
-          >
-            {resume.upload_date
-              ? `Upload date: ${resume.upload_date}`
-              : resume.description}
+          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "8px" }}>
+            {resume.email && (
+              <div style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", display: "flex", alignItems: "center", gap: "4px" }}>
+                <i className="fas fa-envelope" style={{ color: "#d946ef" }}></i>
+                {resume.email}
+              </div>
+            )}
+            {resume.contact_number && (
+              <div style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", display: "flex", alignItems: "center", gap: "4px" }}>
+                <i className="fas fa-phone" style={{ color: "#d946ef" }}></i>
+                {resume.contact_number}
+              </div>
+            )}
+            {resume.location && (
+              <div style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", display: "flex", alignItems: "center", gap: "4px" }}>
+                <i className="fas fa-map-marker-alt" style={{ color: "#d946ef" }}></i>
+                {resume.location}
+              </div>
+            )}
           </div>
+          {resume.experience_years && (
+            <div style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.8)", marginBottom: "8px" }}>
+              <strong>{resume.experience_years} years experience</strong>
+            </div>
+          )}
+          {resume.skills && resume.skills.length > 0 && (
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              {resume.skills.slice(0, 5).map((skill, idx) => (
+                <span
+                  key={idx}
+                  style={{
+                    fontSize: "12px",
+                    padding: "4px 8px",
+                    borderRadius: "10px",
+                    background: "rgba(217,70,239,0.08)",
+                    color: "#e9d8ff",
+                    border: "1px solid rgba(217,70,239,0.12)",
+                  }}
+                >
+                  {skill}
+                </span>
+              ))}
+              {resume.skills.length > 5 && (
+                <span style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.6)" }}>
+                  +{resume.skills.length - 5} more
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Match score column (only when showMatched is true) */}
       {showMatched && (
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", position: "relative" }}>
           {resume.score > 0 ? (
-            <div className="score-container" style={{ textAlign: "center" }}>
-              <span
-                className="score-value prominent"
-                style={{
-                  color: getScoreColor(resume.score),
-                  textShadow: `0 0 10px ${getScoreColor(resume.score)}40`,
-                  fontSize: "1.2rem",
-                  fontWeight: "bold",
-                }}
-              >
-                {resume.score}%
-              </span>
+            <div className="score-badge" aria-hidden>
+              <div className="score-percent">
+                <i className="fas fa-star"></i>
+                <span className="percent-text">{resume.score}%</span>
+              </div>
+              <div className="score-label">Excellent Match</div>
             </div>
           ) : (
-            <div
-              className="score-container no-score"
-              style={{ textAlign: "center" }}
-            >
+            <div className="score-container no-score" style={{ textAlign: "center" }}>
               <span className="score-value">N/A</span>
             </div>
           )}
