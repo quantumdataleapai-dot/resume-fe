@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ResumeDetailModal from "./ResumeDetailModal";
-import { MdOutlineInsertDriveFile } from "react-icons/md";
+import { MdOutlineInsertDriveFile, MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
 
 const ResumeCard = ({
   resume,
@@ -143,19 +143,19 @@ const ResumeCard = ({
           <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "8px" }}>
             {resume.email && (
               <div style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", display: "flex", alignItems: "center", gap: "4px" }}>
-                <i className="fas fa-envelope" style={{ color: "#d946ef" }}></i>
+                <MdEmail size={14} style={{ color: "#d946ef" }} />
                 {resume.email}
               </div>
             )}
             {resume.contact_number && (
               <div style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", display: "flex", alignItems: "center", gap: "4px" }}>
-                <i className="fas fa-phone" style={{ color: "#d946ef" }}></i>
+                <MdPhone size={14} style={{ color: "#d946ef" }} />
                 {resume.contact_number}
               </div>
             )}
             {resume.location && (
               <div style={{ fontSize: "13px", color: "rgba(255, 255, 255, 0.7)", display: "flex", alignItems: "center", gap: "4px" }}>
-                <i className="fas fa-map-marker-alt" style={{ color: "#d946ef" }}></i>
+                <MdLocationOn size={14} style={{ color: "#d946ef" }} />
                 {resume.location}
               </div>
             )}

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import AIChat from "../components/AIChat";
 import FileUpload from "../components/FileUpload";
+import ResumeDetailModal from "../components/ResumeDetailModal";
 import "../styles/DashboardNew.css";
 
 // Sample data
@@ -69,12 +70,23 @@ export default function DashboardNew() {
   const [jobDescription, setJobDescription] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedResume, setSelectedResume] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const handleLogout = () => {
     navigate("/");
+  };
+
+  const handleViewDetails = (resume) => {
+    setSelectedResume(resume);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedResume(null);
   };
 
   const handleFilesSelected = (files) => {
@@ -208,7 +220,12 @@ export default function DashboardNew() {
                         ))}
                       </div>
                     </div>
-                    <button className="view-details-btn">View Details →</button>
+                    <button 
+                      className="view-details-btn"
+                      onClick={() => handleViewDetails(resume)}
+                    >
+                      View Details →
+                    </button>
                   </div>
                 ))}
               </div>
@@ -227,6 +244,13 @@ export default function DashboardNew() {
 
       {/* AI Chat Modal */}
       <AIChat isOpen={showAIChat} onClose={() => setShowAIChat(false)} />
+
+      {/* Resume Detail Modal */}
+      <ResumeDetailModal
+        resume={selectedResume}
+        isOpen={showDetailModal}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

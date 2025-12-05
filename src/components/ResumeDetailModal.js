@@ -614,7 +614,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                     fontWeight: "500",
                   }}
                 >
-                  {resume.experience_years}
+                  {typeof resume.experience_years === 'number' 
+                    ? `${resume.experience_years} years of experience`
+                    : resume.experience_years
+                  }
                 </p>
               </div>
             )}

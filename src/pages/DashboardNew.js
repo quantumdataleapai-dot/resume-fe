@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
 import Header from "../components/Header";
 import AIChat from "../components/AIChat";
 import FileUpload from "../components/FileUpload";
 import apiService from "../services/apiService";
+import ResumeDetailModal from "../components/ResumeDetailModal";
+
 import API_CONFIG from "../config/apiConfig";
 import "../styles/DashboardNew.css";
 
@@ -69,6 +72,8 @@ const sampleResumes = [
 export default function DashboardNew() {
   const navigate = useNavigate();
   const [jobDescription, setJobDescription] = useState("");
+    const [showDetailModal, setShowDetailModal] = useState(false);
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedResume, setSelectedResume] = useState(null);
   const [showAIChat, setShowAIChat] = useState(false);
@@ -80,6 +85,16 @@ export default function DashboardNew() {
   const [visaRequirement, setVisaRequirement] = useState("H1 Visa");
   const [jobLocation, setJobLocation] = useState("all");
 
+  
+  const handleViewDetails = (resume) => {
+    setSelectedResume(resume);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedResume(null);
+  };
   const handleLogout = () => {
     navigate("/");
   };
@@ -89,8 +104,9 @@ export default function DashboardNew() {
   };
 
   const handleAnalyze = async () => {
-    if (!jobDescription.trim()) {
-      window.alert("Please enter a job description");
+    // Check if either job description OR files are provided
+    if (!jobDescription.trim() && uploadedFiles.length === 0) {
+      window.alert("Please enter a job description or upload resume files");
       return;
     }
 
@@ -98,67 +114,122 @@ export default function DashboardNew() {
     setError(null);
 
     try {
-      // Prepare JSON payload for API request
-      const payload = {
-        job_description: jobDescription,
-        visa_requirement: visaRequirement,
-        job_location: jobLocation,
-      };
+      let result;
 
-      // Make API call to process job description and match resumes
-      const response = await fetch(
-        "http://10.30.0.104:8006/api/jobs/process-text-and-match",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
+      // If files are uploaded, use file-based API
+      if (uploadedFiles.length > 0) {
+        const formData = new FormData();
+        
+        // Add job description if provided
+        if (jobDescription.trim()) {
+          formData.append("job_description", jobDescription);
         }
-      );
+        
+        // Add resume files
+        uploadedFiles.forEach((file) => {
+          formData.append("files", file);
+        });
+        
+        // Add filters
+        formData.append("visa_requirement", visaRequirement);
+        formData.append("job_location", jobLocation);
 
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("API error response:", errorData);
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+        console.log("Uploading files for processing...");
+        const response = await fetch(
+          "http://10.30.0.104:8006/api/jobs/process-file-and-match",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          console.error("API error response:", errorData);
+          throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+
+        result = await response.json();
+        console.log("File matching response:", result);
+      } else {
+        // Use text-based API for job description
+        const payload = {
+          job_description: jobDescription,
+          visa_requirement: visaRequirement,
+          job_location: jobLocation,
+        };
+
+        console.log("Sending text job description for processing...");
+        const response = await fetch(
+          "http://10.30.0.104:8006/api/jobs/process-text-and-match",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          console.error("API error response:", errorData);
+          throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+
+        result = await response.json();
+        console.log("Job matching response:", result);
       }
 
-      const result = await response.json();
-      console.log("Job matching response:", result);
-
-      // The backend may return matches under various keys. Try several common shapes.
+      // Process the response - extract matched resumes
       let items = [];
-      if (Array.isArray(result)) items = result;
-      else if (Array.isArray(result.matches)) items = result.matches;
-      else if (result.data && Array.isArray(result.data.matches)) items = result.data.matches;
-      else if (Array.isArray(result.data)) items = result.data;
-      else if (Array.isArray(result.matched_resumes)) items = result.matched_resumes;
-      else if (Array.isArray(result.matched)) items = result.matched;
-      else if (Array.isArray(result.items)) items = result.items;
-      else if (Array.isArray(result.results)) items = result.results;
-
-      if (items.length === 0) {
-        // No array found — try to see if API returned a single object with a "match" field
-        if (result.match && Array.isArray(result.match)) items = result.match;
+      
+      // Try to extract matched resumes from various possible response structures
+      if (result.data && result.data.matched_resumes && Array.isArray(result.data.matched_resumes)) {
+        items = result.data.matched_resumes;
+      } else if (Array.isArray(result.matched_resumes)) {
+        items = result.matched_resumes;
+      } else if (result.data && Array.isArray(result.data)) {
+        items = result.data;
+      } else if (Array.isArray(result.matches)) {
+        items = result.matches;
+      } else if (Array.isArray(result)) {
+        items = result;
       }
 
       if (items.length > 0) {
-        const normalized = items.map((r, idx) => ({
-          id: r.id || r._id || idx + 1,
-          name: r.name || r.original_name || r.filename || r.title || "Unknown",
-          email: r.email || r.parsed_data?.email || r.contact_email || "",
-          phone: r.phone || r.contact_number || r.parsed_data?.contact_number || "",
-          location: r.location || r.parsed_data?.location || r.city || "",
-          score: r.score || r.match_score || r.similarity || 0,
-          skills: r.skills || r.parsed_data?.skills || r.tags || [],
-          experience: r.experience || r.experience_years || r.parsed_data?.experience_years || "",
-          avatar: (r.name || r.original_name) ? ((r.name || r.original_name).split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
-        }));
+        const normalized = items.map((r, idx) => {
+          const parsed = r.parsed_data || {};
+          const name = r.name || parsed.name || r.original_name || r.filename || r.title || "Unknown";
+          return {
+            id: r.id || r._id || idx + 1,
+            filename: r.filename || "",
+            upload_date: r.upload_date || "",
+            name: name,
+            email: parsed.email || r.email || r.contact_email || "",
+            contact_number: parsed.contact_number || r.phone || r.contact_number || "",
+            location: parsed.location || r.location || r.city || "",
+            score: r.match_score || r.score || r.similarity || 0,
+            skills: parsed.skills || r.skills || r.tags || [],
+            experience_years: parsed.experience_years || r.experience_years || r.experience || "",
+            description: parsed.description || r.description || "",
+            linkedin: parsed.linkedin || r.linkedin || "",
+            visa_type: parsed.visa_type || r.visa_type || "",
+            education: parsed.education || r.education || "",
+            matchingSkills: r.matchingSkills || r.matching_skills || [],
+            missingSkills: r.missingSkills || r.missing_skills || [],
+            questionsToAsk: r.questionsToAsk || r.questions_to_ask || [],
+            generated_questions: r.generated_questions || [],
+            avatar: name ? (name.split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
+          };
+        });
         setResumes(normalized);
-        // clear search to ensure matched resumes are visible
+        // Clear search to ensure matched resumes are visible
         setSearchQuery("");
+        // Clear uploaded files after successful analysis
+        setUploadedFiles([]);
+        window.alert(`Successfully matched ${normalized.length} resumes!`);
       } else {
-        // No matched items — show message and keep existing resumes
         console.warn("No matched resumes returned from API");
         window.alert("No matched resumes were returned by the server.");
       }
@@ -329,16 +400,27 @@ export default function DashboardNew() {
 
         const normalized = items.map((r, idx) => {
           const p = r.parsed_data || {};
+          const name = p.name || r.name || r.filename || "Unknown";
           return {
             id: r.id || r._id || idx + 1,
-            name: p.name || r.name || r.filename || "Unknown",
+            filename: r.filename || "",
+            upload_date: r.upload_date || "",
+            name: name,
             email: p.email || r.email || "",
-            phone: p.contact_number || r.contact_number || "",
-            location: p.location || p.description || r.location || "",
+            contact_number: p.contact_number || r.contact_number || "",
+            location: p.location || r.location || "",
             score: (r.match_score || r.score || 0) || 0,
             skills: Array.isArray(p.skills) ? p.skills : (r.skills || []),
-            experience: p.experience_years || r.experience || "",
-            avatar: (p.name || r.name || r.filename) ? ((p.name || r.name || r.filename).split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
+            experience_years: p.experience_years || r.experience_years || r.experience || "",
+            description: p.description || r.description || "",
+            linkedin: p.linkedin || r.linkedin || "",
+            visa_type: p.visa_type || r.visa_type || "",
+            education: p.education || r.education || "",
+            matchingSkills: r.matchingSkills || [],
+            missingSkills: r.missingSkills || [],
+            questionsToAsk: r.questionsToAsk || [],
+            generated_questions: r.generated_questions || [],
+            avatar: name ? (name.split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
           };
         });
 
@@ -367,7 +449,7 @@ export default function DashboardNew() {
 
       <main className="dashboard-new-main">
         {/* Stats Section */}
-        <div className="stats-section">
+        {/* <div className="stats-section">
           {stats.map((stat, i) => (
             <div key={i} className="stat-card">
               <div className="stat-icon">{stat.icon}</div>
@@ -377,7 +459,7 @@ export default function DashboardNew() {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         <div className="dashboard-grid">
           {/* Left Column - Job Description & Upload */}
@@ -385,7 +467,7 @@ export default function DashboardNew() {
             {/* Job Description Card */}
             <div className="job-card">
               <div className="job-header">
-                <h2>📄 Job Description</h2>
+                <h2>Job Description</h2>
               </div>
               <textarea
                 value={jobDescription}
@@ -401,46 +483,98 @@ export default function DashboardNew() {
               {/* Visa Requirement & Job Location */}
               <div className="job-filters-section">
                 <div className="filter-group">
-                  <label>💼 Visa Requirement</label>
+                  <label>Visa Requirement</label>
                   <select
                     value={visaRequirement}
                     onChange={(e) => setVisaRequirement(e.target.value)}
                     className="filter-select"
+                      style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#262639",
+                      color: "#fff",
+                    }}
                   >
-                    <option value="All">All</option>
-                    <option value="US Citizen">US Citizen</option>
-                    <option value="US Citizenship">US Citizenship</option>
-                    <option value="US Authorized">US Authorized</option>
-                    <option value="Canadian Citizen">Canadian Citizen</option>
-                    <option value="Canadian Authorized">Canadian Authorized</option>
-                    <option value="Green Card Holder">Green Card Holder</option>
-                    <option value="GC">GC</option>
-                    <option value="GC-EAD">GC-EAD</option>
-                    <option value="Employment Auth Document">Employment Auth Document</option>
-                    <option value="OPT-EAD">OPT-EAD</option>
-                    <option value="H4-EAD">H4-EAD</option>
-                    <option value="L2-EAD">L2-EAD</option>
-                    <option value="H1 visa">H1 visa</option>
-                    <option value="H1-B">H1-B</option>
-                    <option value="Need H1 visa">Need H1 visa</option>
-                    <option value="Have H1 visa">Have H1 visa</option>
-                    <option value="B1">B1</option>
-                    <option value="L1-A">L1-A</option>
-                    <option value="L2-B">L2-B</option>
-                    <option value="TN Visa">TN Visa</option>
-                    <option value="TN Permit Holder">TN Permit Holder</option>
-                    <option value="Can work for any employer">Can work for any employer</option>
-                    <option value="Indian Authorized">Indian Authorized</option>
-                    <option value="United Kingdom Authorized">United Kingdom Authorized</option>
-                    <option value="France Authorized">France Authorized</option>
-                    <option value="Sponsership Required">Sponsership Required</option>
-                    <option value="Unspecified Work Authorization">Unspecified Work Authorization</option>
-                    <option value="Not Specified">Not Specified</option>
+                    <option value="all">All</option>
+                    <optgroup label="Citizens and Permanent Residents">
+                      <option value="us-citizen">US Citizen</option>
+                      <option value="us-citizenship">US Citizenship</option>
+                      <option value="us-authorized">US Authorized</option>
+                      <option value="canadian-citizen">Canadian Citizen</option>
+                      <option value="canada-authorized">
+                        Canada Authorized
+                      </option>
+                      <option value="citizen">Citizen</option>
+                    </optgroup>
+                    <optgroup label="Green Card and EAD">
+                      <option value="green-card">Green Card</option>
+                      <option value="green-card-holder">
+                        Green Card Holder
+                      </option>
+                      <option value="gc">GC</option>
+                      <option value="gc-ead">GC-EAD</option>
+                      <option value="employment-auth-document">
+                        Employment Auth Document
+                      </option>
+                      <option value="opt-ead">OPT-EAD</option>
+                      <option value="h4-ead">H4-EAD</option>
+                      <option value="l2-ead">L2-EAD</option>
+                    </optgroup>
+                    <optgroup label="H1 Related">
+                      <option value="h1-visa">H1 Visa</option>
+                      <option value="h1b">H1-B</option>
+                      <option value="have-h1">Have H1</option>
+                      <option value="have-h1-visa">Have H1 Visa</option>
+                      <option value="need-h1">Need H1</option>
+                      <option value="need-h1-visa">Need H1 Visa</option>
+                      <option value="need-h1-visa-sponsor">
+                        Need H1 Visa Sponsor
+                      </option>
+                    </optgroup>
+                    <optgroup label="Other Visas">
+                      <option value="b1">B1</option>
+                      <option value="l1a">L1-A</option>
+                      <option value="l2b">L2-B</option>
+                      <option value="tn-visa">TN Visa</option>
+                      <option value="tn-permit-holder">TN Permit Holder</option>
+                    </optgroup>
+                    <optgroup label="Work Authorization">
+                      <option value="can-work-for-any-employer">
+                        Can work for any employer
+                      </option>
+                      <option value="current-employer-only">
+                        Current Employer Only
+                      </option>
+                      <option value="sponsorship-required">
+                        Sponsorship Required
+                      </option>
+                      <option value="france-authorized">
+                        France Authorized
+                      </option>
+                      <option value="india-authorized">India Authorized</option>
+                      <option value="kazakhstan-authorized">
+                        Kazakhstan Authorized
+                      </option>
+                      <option value="united-kingdom-authorized">
+                        United Kingdom Authorized
+                      </option>
+                      <option value="venezuela-authorized">
+                        Venezuela Authorized
+                      </option>
+                      <option value="unspecified-work-authorization">
+                        Unspecified Work Authorization
+                      </option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="not-specified">Not Specified</option>
+                      <option value="unspecified">Unspecified</option>
+                    </optgroup>
                   </select>
                 </div>
 
                 <div className="filter-group">
-                  <label>📍 Job Location</label>
+                  <label>Job Location</label>
                   <input
                     type="text"
                     value={jobLocation}
@@ -452,20 +586,7 @@ export default function DashboardNew() {
               </div>
             </div>
 
-            {/* OR Divider */}
-            <div className="or-divider">
-              <span>OR</span>
-            </div>
-
-            {/* Upload Resumes Card */}
-            <div className="upload-card">
-              <div className="upload-header">
-                <h2>👥 Upload Resumes</h2>
-              </div>
-              <div className="upload-area">
-                <FileUpload onFilesSelected={handleFilesSelected} />
-              </div>
-            </div>
+            
 
             {/* Analyze Button */}
             <button
@@ -473,7 +594,7 @@ export default function DashboardNew() {
               onClick={handleAnalyze}
               disabled={isAnalyzing}
             >
-              {isAnalyzing ? "🔄 Analyzing..." : "✨ Analyze & Match"}
+              {isAnalyzing ? "Analyzing..." : "Analyze & Match"}
             </button>
           </div>
 
@@ -486,12 +607,12 @@ export default function DashboardNew() {
                   className="action-btn download-btn"
                   onClick={handleDownloadAll}
                 >
-                  ⬇️ Download All ({filteredResumes.length})
+                  ⬇ Download All ({filteredResumes.length})
                 </button>
                 <button className="action-btn">Upload from Ceipal</button>
                 <button className="action-btn">Get Resumes from Ceipal</button>
                 <button className="action-btn upload-resume-btn" onClick={handleUploadResume}>
-                  ⬆️ Upload Resume
+                  ⬆ Upload Resume
                 </button>
               </div>
 
@@ -535,18 +656,46 @@ export default function DashboardNew() {
                         <div>
                           <h3 className="resume-name">{resume.name}</h3>
                         </div>
-                        <div className={`score-badge ${getScoreBadgeClass(resume.score)}`}>
-                          ⭐ {resume.score}%
-                        </div>
+                        {resume.score > 0 && (
+                          <div className={`score-badge ${getScoreBadgeClass(resume.score)}`}>
+                            ⭐ {resume.score.toFixed(1)}%
+                          </div>
+                        )}
                       </div>
                       <div className="resume-details">
-                        <span className="detail-item">📧 {resume.email}</span>
-                        <span className="detail-item">📞 {resume.phone}</span>
-                        <span className="detail-item">📍 {resume.location}</span>
+                        {resume.email && (
+                          <span className="detail-item">
+                            <MdEmail size={14} /> {resume.email}
+                          </span>
+                        )}
+                        {resume.contact_number && (
+                          <span className="detail-item">
+                            <MdPhone size={14} /> {resume.contact_number}
+                          </span>
+                        )}
+                        {resume.location && (
+                          <span className="detail-item">
+                            <MdLocationOn size={14} /> {resume.location}
+                          </span>
+                        )}
                       </div>
-                      {/* skills and summary removed per request */}
+                      {resume.skills && resume.skills.length > 0 && (
+                        <div className="skills-section">
+                          {resume.skills.slice(0, 5).map((skill, idx) => (
+                            <span key={idx} className="skill-chip">{skill}</span>
+                          ))}
+                          {resume.skills.length > 5 && (
+                            <span className="skill-chip">+{resume.skills.length - 5} more</span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <button className="view-details-btn">View Details →</button>
+                    <button 
+                      className="view-details-btn"
+                      onClick={() => handleViewDetails(resume)}
+                    >
+                      View Details →
+                    </button>
                   </div>
                 ))}
               </div>
@@ -565,6 +714,13 @@ export default function DashboardNew() {
 
       {/* AI Chat Modal */}
       <AIChat isOpen={showAIChat} onClose={() => setShowAIChat(false)} />
+
+        {/* Resume Detail Modal */}
+      <ResumeDetailModal
+        resume={selectedResume}
+        isOpen={showDetailModal}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
