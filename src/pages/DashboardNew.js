@@ -84,6 +84,8 @@ export default function DashboardNew() {
   const [error, setError] = useState(null);
   const [visaRequirement, setVisaRequirement] = useState("H1 Visa");
   const [jobLocation, setJobLocation] = useState("all");
+  const [expectedSalary, setExpectedSalary] = useState("");
+  const [noticePeriod, setNoticePeriod] = useState("");
 
   
   const handleViewDetails = (resume) => {
@@ -133,6 +135,8 @@ export default function DashboardNew() {
         // Add filters
         formData.append("visa_requirement", visaRequirement);
         formData.append("job_location", jobLocation);
+        if (expectedSalary) formData.append("expected_salary", expectedSalary);
+        if (noticePeriod) formData.append("notice_period", noticePeriod);
 
         console.log("Uploading files for processing...");
         const response = await fetch(
@@ -157,6 +161,8 @@ export default function DashboardNew() {
           job_description: jobDescription,
           visa_requirement: visaRequirement,
           job_location: jobLocation,
+          ...(expectedSalary && { expected_salary: expectedSalary }),
+          ...(noticePeriod && { notice_period: noticePeriod }),
         };
 
         console.log("Sending text job description for processing...");
@@ -228,6 +234,12 @@ export default function DashboardNew() {
         setSearchQuery("");
         // Clear uploaded files after successful analysis
         setUploadedFiles([]);
+        // Clear form fields after successful analysis
+        setJobDescription("");
+        setVisaRequirement("H1 Visa");
+        setJobLocation("all");
+        setExpectedSalary("");
+        setNoticePeriod("");
         window.alert(`Successfully matched ${normalized.length} resumes!`);
       } else {
         console.warn("No matched resumes returned from API");
@@ -355,10 +367,12 @@ export default function DashboardNew() {
   // Use resumes from backend; do not fall back to sample data so dashboard shows real data
   const sourceResumes = resumes;
 
-  const filteredResumes = sourceResumes.filter((resume) =>
-    (resume.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (resume.skills || []).some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredResumes = sourceResumes
+    .filter((resume) =>
+      (resume.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (resume.skills || []).some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+    .sort((a, b) => (b.score || 0) - (a.score || 0));
 
   const getScoreBadgeClass = (score) => {
     if (score >= 85) return "score-excellent";
@@ -477,7 +491,27 @@ export default function DashboardNew() {
               />
               <div className="job-footer">
                 <span>{jobDescription.length} characters</span>
-                <button className="upload-link">Upload file</button>
+                <button 
+                  className="upload-link"
+                  onClick={() => {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.accept = ".pdf,.doc,.docx,.txt";
+                    input.onchange = (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setJobDescription(event.target?.result || "");
+                        };
+                        reader.readAsText(file);
+                      }
+                    };
+                    input.click();
+                  }}
+                >
+                  Upload file
+                </button>
               </div>
 
               {/* Visa Requirement & Job Location */}
@@ -485,6 +519,7 @@ export default function DashboardNew() {
                 <div className="filter-group">
                   <label>Visa Requirement</label>
                   <select
+
                     value={visaRequirement}
                     onChange={(e) => setVisaRequirement(e.target.value)}
                     className="filter-select"
@@ -583,6 +618,54 @@ export default function DashboardNew() {
                     className="filter-input"
                   />
                 </div>
+
+                <div className="filter-group">
+                  <label>Expected Salary</label>
+                  <select
+                    value={expectedSalary}
+                    onChange={(e) => setExpectedSalary(e.target.value)}
+                    className="filter-select"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#262639",
+                      color: "#fff",
+                    }}
+                  >
+                    <option value="">Select Salary Range</option>
+                    <option value="40000-60000">$40K - $60K</option>
+                    <option value="60000-80000">$60K - $80K</option>
+                    <option value="80000-100000">$80K - $100K</option>
+                    <option value="100000-120000">$100K - $120K</option>
+                    <option value="120000-150000">$120K - $150K</option>
+                    <option value="150000+">$150K+</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label>Notice Period</label>
+                  <select
+                    value={noticePeriod}
+                    onChange={(e) => setNoticePeriod(e.target.value)}
+                    className="filter-select"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#262639",
+                      color: "#fff",
+                    }}
+                  >
+                    <option value="">Select Notice Period</option>
+                    <option value="immediate">Immediate</option>
+                    <option value="1-week">1 Week</option>
+                    <option value="2-weeks">2 Weeks</option>
+                    <option value="1-month">1 Month</option>
+                    <option value="2-months">2 Months</option>
+                    <option value="3-months">3 Months</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -625,7 +708,7 @@ export default function DashboardNew() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="search-input"
                 />
-                <button className="filter-btn">Filters</button>
+                
                 <select className="sort-select">
                   <option>Show top candidates: All candidates</option>
                   <option>Top 5</option>
@@ -640,11 +723,13 @@ export default function DashboardNew() {
                 </select>
               </div>
 
-              {/* Results Header */}
-              <div className="results-header">
-                <h2>Matched Candidates</h2>
-                <span className="result-count">{filteredResumes.length} results</span>
-              </div>
+              {/* Results Header - Only show if resumes exist */}
+              {filteredResumes.length > 0 && (
+                <div className="results-header">
+                  <h2>Matched Candidates</h2>
+                  <span className="result-count">{filteredResumes.length} results</span>
+                </div>
+              )}
 
               {/* Resume Cards */}
               <div className="resume-list">
@@ -656,11 +741,6 @@ export default function DashboardNew() {
                         <div>
                           <h3 className="resume-name">{resume.name}</h3>
                         </div>
-                        {resume.score > 0 && (
-                          <div className={`score-badge ${getScoreBadgeClass(resume.score)}`}>
-                            ⭐ {resume.score.toFixed(1)}%
-                          </div>
-                        )}
                       </div>
                       <div className="resume-details">
                         {resume.email && (
@@ -690,12 +770,19 @@ export default function DashboardNew() {
                         </div>
                       )}
                     </div>
-                    <button 
-                      className="view-details-btn"
-                      onClick={() => handleViewDetails(resume)}
-                    >
-                      View Details →
-                    </button>
+                    <div className="resume-actions">
+                      {resume.score > 0 && (
+                        <div className={`score-badge ${getScoreBadgeClass(resume.score)}`}>
+                          ⭐ {resume.score.toFixed(1)}%
+                        </div>
+                      )}
+                      <button 
+                        className="view-details-btn"
+                        onClick={() => handleViewDetails(resume)}
+                      >
+                        View Details
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

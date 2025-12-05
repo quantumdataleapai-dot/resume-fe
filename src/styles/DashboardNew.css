@@ -662,6 +662,15 @@
   box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
 }
 
+/* Resume Actions Container */
+.resume-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
 /* AI Chat FAB */
 .ai-chat-fab {
   position: fixed;
