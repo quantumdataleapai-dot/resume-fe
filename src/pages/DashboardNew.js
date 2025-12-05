@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import AIChat from "../components/AIChat";
 import FileUpload from "../components/FileUpload";
 import apiService from "../services/apiService";
+import API_CONFIG from "../config/apiConfig";
 import "../styles/DashboardNew.css";
 
 // Sample data
@@ -280,7 +281,8 @@ export default function DashboardNew() {
     }
   };
 
-  const sourceResumes = resumes.length > 0 ? resumes : sampleResumes;
+  // Use resumes from backend; do not fall back to sample data so dashboard shows real data
+  const sourceResumes = resumes;
 
   const filteredResumes = sourceResumes.filter((resume) =>
     (resume.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -300,24 +302,45 @@ export default function DashboardNew() {
       setLoading(true);
       setError(null);
       try {
-        const data = await apiService.getResumes(1, 10);
-        let items = [];
-        if (!data) items = [];
-        else if (Array.isArray(data)) items = data;
-        else if (data.resumes && Array.isArray(data.resumes)) items = data.resumes;
-        else if (data.data && Array.isArray(data.data)) items = data.data;
+        const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RESUMES.LIST}`;
+        const resp = await fetch(url, { method: "GET" });
+        if (!resp.ok) {
+          const txt = await resp.text().catch(() => "");
+          throw new Error(`Failed to fetch resumes: ${resp.status} ${resp.statusText} ${txt}`);
+        }
 
-        const normalized = items.map((r, idx) => ({
-          id: r.id || r._id || idx + 1,
-          name: r.name || r.original_name || r.filename || "Unknown",
-          email: r.email || r.parsed_data?.email || "",
-          phone: r.phone || r.contact_number || r.parsed_data?.contact_number || "",
-          location: r.location || r.parsed_data?.location || "",
-          score: r.score || r.match_score || 0,
-          skills: r.skills || r.parsed_data?.skills || [],
-          experience: r.experience || r.experience_years || r.parsed_data?.experience_years || "",
-          avatar: (r.name || r.original_name) ? ((r.name || r.original_name).split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
-        }));
+        const data = await resp.json();
+
+        // API returns { success: true, data: { resumes: [...], pagination: {...} } }
+        let items = [];
+        if (Array.isArray(data)) {
+          items = data;
+        } else if (Array.isArray(data.resumes)) {
+          items = data.resumes;
+        } else if (data.data && Array.isArray(data.data.resumes)) {
+          items = data.data.resumes;
+        } else if (Array.isArray(data.data)) {
+          items = data.data;
+        } else if (Array.isArray(data.items)) {
+          items = data.items;
+        } else if (Array.isArray(data.results)) {
+          items = data.results;
+        }
+
+        const normalized = items.map((r, idx) => {
+          const p = r.parsed_data || {};
+          return {
+            id: r.id || r._id || idx + 1,
+            name: p.name || r.name || r.filename || "Unknown",
+            email: p.email || r.email || "",
+            phone: p.contact_number || r.contact_number || "",
+            location: p.location || p.description || r.location || "",
+            score: (r.match_score || r.score || 0) || 0,
+            skills: Array.isArray(p.skills) ? p.skills : (r.skills || []),
+            experience: p.experience_years || r.experience || "",
+            avatar: (p.name || r.name || r.filename) ? ((p.name || r.name || r.filename).split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
+          };
+        });
 
         if (mounted) setResumes(normalized);
       } catch (err) {
@@ -511,7 +534,6 @@ export default function DashboardNew() {
                       <div className="resume-top">
                         <div>
                           <h3 className="resume-name">{resume.name}</h3>
-                          <p className="resume-role">{resume.experience}</p>
                         </div>
                         <div className={`score-badge ${getScoreBadgeClass(resume.score)}`}>
                           ⭐ {resume.score}%
@@ -522,11 +544,7 @@ export default function DashboardNew() {
                         <span className="detail-item">📞 {resume.phone}</span>
                         <span className="detail-item">📍 {resume.location}</span>
                       </div>
-                      <div className="skills-section">
-                        {resume.skills.slice(0, 5).map((skill, i) => (
-                          <span key={i} className="skill-chip">{skill}</span>
-                        ))}
-                      </div>
+                      {/* skills and summary removed per request */}
                     </div>
                     <button className="view-details-btn">View Details →</button>
                   </div>

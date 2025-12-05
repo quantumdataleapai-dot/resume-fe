@@ -95,11 +95,7 @@ export default function DashboardNew() {
     (resume.skills || []).some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const stats = [
-    { label: "Total Resumes", value: sampleResumes.length, icon: "📄" },
-    { label: "Excellent Matches", value: sampleResumes.filter((r) => r.score >= 85).length, icon: "📈" },
-    { label: "Candidates Reviewed", value: sampleResumes.length, icon: "👥" },
-  ];
+ 
 
   const getScoreBadgeClass = (score) => {
     if (score >= 85) return "score-excellent";
