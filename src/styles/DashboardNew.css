@@ -1,21 +1,21 @@
-/* DashboardNew.css - Neon Dark Theme */
+/* DashboardNew.css - Light Theme */
 
 :root {
   --primary-color: #d946ef;
-  --secondary-color: #00d4ff;
-  --accent-color: #a855f7;
-  --dark-bg: #0f0f1e;
-  --card-bg: #1a1a2e;
-  --border-color: #2d2d44;
-  --text-primary: #ffffff;
-  --text-secondary: #b0b0c8;
-  --green-accent: #10b981;
+  --secondary-color: #0284c7;
+  --accent-color: #8b5cf6;
+  --dark-bg: #ffffff;
+  --card-bg: #f9fafb;
+  --border-color: #e5e7eb;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --green-accent: #16a34a;
 }
 
 /* Main Container */
 .dashboard-new-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+  background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, sans-serif;
@@ -36,8 +36,8 @@
 }
 
 .stat-card {
-  background: rgba(217, 70, 239, 0.08);
-  border: 1px solid rgba(217, 70, 239, 0.3);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -45,12 +45,14 @@
   gap: 16px;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .stat-card:hover {
-  background: rgba(217, 70, 239, 0.12);
-  border-color: rgba(217, 70, 239, 0.5);
+  background: #f9fafb;
+  border-color: #bfdbfe;
   transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.1);
 }
 
 .stat-icon {
@@ -103,12 +105,12 @@
 
 /* Job Card */
 .job-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 28px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .job-header {
@@ -260,12 +262,12 @@
 
 /* Upload Card */
 .upload-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 28px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .upload-header {
@@ -280,16 +282,17 @@
 }
 
 .upload-area {
-  border: 2px dashed rgba(217, 70, 239, 0.4);
+  border: 2px dashed #d1d5db;
   border-radius: 12px;
   padding: 32px 20px;
   text-align: center;
   transition: all 0.3s ease;
+  background: #f9fafb;
 }
 
 .upload-area:hover {
-  border-color: var(--secondary-color);
-  background: rgba(0, 212, 255, 0.05);
+  border-color: #0284c7;
+  background: #eff6ff;
 }
 
 .upload-area input[type="file"] {
@@ -331,12 +334,12 @@
 
 /* Results Card */
 .results-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 28px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 /* Search & Filter Bar */
@@ -519,8 +522,8 @@
   display: flex;
   gap: 16px;
   align-items: stretch;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(217, 70, 239, 0.2);
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 20px;
   transition: all 0.3s ease;
@@ -528,9 +531,9 @@
 }
 
 .resume-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(217, 70, 239, 0.4);
-  box-shadow: 0 4px 16px rgba(217, 70, 239, 0.1);
+  background: #ffffff;
+  border-color: #bfdbfe;
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.1);
 }
 
 .resume-avatar {
@@ -715,15 +718,15 @@
 
 /* AI Chat Content */
 .ai-chat-content {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   width: 90%;
   max-width: 520px;
   height: 600px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(217, 70, 239, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(10px);
 }
 

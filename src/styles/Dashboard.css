@@ -1,13 +1,13 @@
 .dashboard-container {
   min-height: 100vh;
-  background: #0a0015;
-  color: #e0e7ff;
+  background: #f5f5f5;
+  color: #1f2937;
 }
 
 /* Header Styles */
 .header {
-  background: linear-gradient(90deg,#0f0814 0%, #13061a 100%);
-  border-bottom: none;
+  background: linear-gradient(90deg,#ffffff 0%, #f9f9f9 100%);
+  border-bottom: 1px solid #e5e7eb;
   padding: 6px 0;
 }
 
@@ -28,7 +28,7 @@
 
 .logo i {
   font-size: 28px;
-  color: #4d0e57;
+  color: #d946ef;
 }
 
 .logo span {
@@ -52,19 +52,19 @@
 }
 
 .notification-icon:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .notification-icon i {
   font-size: 20px;
-  color: #e0e7ff;
+  color: #1f2937;
 }
 
 .notification-badge {
   position: absolute;
   top: -2px;
   right: -2px;
-  background: #a52b35;
+  background: #dc2626;
   color: white;
   border-radius: 50%;
   width: 20px;
@@ -79,7 +79,7 @@
 .menu-btn {
   background: none;
   border: none;
-  color: #e0e7ff;
+  color: #1f2937;
   font-size: 20px;
   cursor: pointer;
   padding: 8px;
@@ -88,7 +88,7 @@
 }
 
 .menu-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .user-profile {
@@ -99,23 +99,23 @@
   padding: 6px 10px;
   border-radius: 16px;
   transition: background-color 0.18s ease;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(217,70,239,0.06);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .user-profile:hover {
-  background: rgba(255,255,255,0.035);
+  background: rgba(0, 0, 0, 0.035);
 }
 
 .user-profile i {
   font-size: 14px;
-  color: #e9d8ff;
+  color: #1f2937;
 }
 
 .user-name {
   font-size: 13px;
   font-weight: 600;
-  color: #f3e8ff;
+  color: #1f2937;
 }
 
 .user-profile-container {
@@ -136,11 +136,11 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff;
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e5e7eb;
   min-width: 200px;
   z-index: 1000;
   margin-top: 8px;
@@ -158,21 +158,21 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  color: #333;
+  color: #1f2937;
   font-size: 14px;
 }
 
 .dropdown-item:hover {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(217, 70, 239, 0.08);
 }
 
 .dropdown-item.user-info {
   cursor: default;
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(217, 70, 239, 0.05);
 }
 
 .dropdown-item.user-info:hover {
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(217, 70, 239, 0.05);
 }
 
 .user-details {
@@ -183,33 +183,33 @@
 
 .user-display-name {
   font-weight: 600;
-  color: #333;
+  color: #1f2937;
   font-size: 14px;
 }
 
 .user-email {
   font-size: 12px;
-  color: #666;
+  color: #6b7280;
 }
 
 .dropdown-divider {
   border: none;
   height: 1px;
-  background: rgba(0, 0, 0, 0.1);
+  background: #e5e7eb;
   margin: 0;
 }
 
 .logout-btn {
-  color: #000 !important;
+  color: #1f2937 !important;
   font-weight: 500;
 }
 
 .logout-btn:hover {
-  background: rgba(231, 76, 60, 0.1);
+  background: rgba(220, 38, 38, 0.08);
 }
 
 .logout-btn i {
-  color: #000;
+  color: #dc2626;
   font-size: 16px;
 }
 
@@ -222,12 +222,11 @@
 
 .content-wrapper {
   display: grid;
-  /* Left column for job controls, right column for matched list */
   grid-template-columns: 500px 1fr;
   gap: 30px;
   padding-right: 100%;
   margin-bottom: 40px;
-  align-items:start;
+  align-items: start;
 }
 
 .section-header {
@@ -240,7 +239,7 @@
 .section-header h2 {
   font-size: 18px;
   font-weight: 600;
-  color: white;
+  color: #1f2937;
 }
 
 .arrow-indicator {
@@ -264,7 +263,7 @@
 }
 
 .section-subtitle {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.6);
   font-size: 14px;
   margin: 0;
   display: flex;
@@ -280,10 +279,10 @@
 
 /* Job Section */
 .job-input-container {
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
   border-radius: 12px;
   padding: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e5e7eb;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   grid-template-rows: auto auto auto;
@@ -298,12 +297,10 @@
   margin-top: 5px;
 }
 
-/* Reduce gap in job filters */
 .job-filters {
   grid-column: 1 / -1 !important;
 }
 
-/* Make job options take equal space */
 .job-option {
   flex: 1;
   min-width: 0;
@@ -311,17 +308,17 @@
 
 .job-input-area {
   position: relative;
-  margin-bottom: 200px;
+  margin-bottom: 28px;
 }
 
 .job-textarea {
   width: 100%;
-  min-height: 160px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 200px;
+  background: #f9f9f9;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 200px;
-  color: white;
+  padding: 18px;
+  color: #1f2937;
   font-size: 14px;
   resize: vertical;
   outline: none;
@@ -330,10 +327,11 @@
 
 .job-textarea:focus {
   border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .job-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .external-link-btn {
@@ -342,7 +340,7 @@
   right: 10px;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(0, 0, 0, 0.6);
   cursor: pointer;
   padding: 5px;
   border-radius: 4px;
@@ -350,11 +348,11 @@
 }
 
 .external-link-btn:hover {
-  color: white;
+  color: #1f2937;
 }
 
 .upload-job-btn {
-  background: linear-gradient(135deg,#d946ef 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%);
   color: #fff;
   border: none;
   padding: 12px 16px;
@@ -366,96 +364,29 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(217,70,239,0.12);
+  box-shadow: 0 8px 24px rgba(217, 70, 239, 0.15);
 }
 
 .upload-job-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(133,77,255,0.14);
+  box-shadow: 0 18px 40px rgba(217, 70, 239, 0.25);
 }
 
 /* Upload Section */
 .upload-container {
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e5e7eb;
   display: flex;
   justify-content: center;
 }
 
 .upload-container:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #f9f9f9;
+  border-color: #d1d5db;
 }
 
-.upload-container .upload-job-btn {
-  grid-column: 1 / -1;
-  justify-self: center;
-  margin-top: 5px;
-}
-
-.job-input-area {
-  position: relative;
-  margin-bottom: 28px;
-}
-
-.job-textarea {
-  width: 100%;
-  min-height: 200px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 18px;
-  color: white;
-  font-size: 14px;
-  resize: vertical;
-  outline: none;
-  transition: border-color 0.3s ease;
-}
-
-.job-textarea:focus {
-  border-color: #667eea;
-}
-
-.job-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.external-link-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 4px;
-  transition: color 0.3s ease;
-}
-
-.external-link-btn:hover {
-  color: white;
-}
-
-.upload-job-btn {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 5px 0;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 25%;
-}
-
-.upload-job-btn:hover {
-  background: #5a6fd8;
-}
-
-/* Choose files button */
 .choose-files-btn {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
@@ -464,7 +395,6 @@
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
-  font-style: -apple-system;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -472,50 +402,12 @@
 }
 
 .choose-files-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
-  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
 }
 
 .choose-files-btn i {
   font-size: 16px;
-}
-
-/* Upload container */
-.upload-container {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: start;
-}
-
-/* .upload-container:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  padding: 12px 40px 12px 15px;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  outline: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: all 0.3s ease;
-} */
-
-.custom-select:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.custom-select i {
-  color: rgba(255, 255, 255, 0.6);
-  transition: transform 0.3s ease;
-}
-
-.custom-select i.rotated {
-  transform: rotate(180deg);
 }
 
 /* Custom Dropdown Menu */
@@ -524,20 +416,19 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: #2a2a3e;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow: hidden;
   margin-top: 2px;
-  backdrop-filter: blur(10px);
 }
 
 .custom-dropdown-item {
   width: 100%;
   padding: 12px 15px;
-  color: rgba(255, 255, 255, 0.8);
+  color: #1f2937;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -548,115 +439,92 @@
 }
 
 .custom-dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 1);
+  background: rgba(217, 70, 239, 0.08);
+  color: #1f2937;
 }
 
 .custom-dropdown-item.selected {
-  background: rgba(102, 126, 234, 0.2);
-  color: #667eea;
+  background: rgba(217, 70, 239, 0.12);
+  color: #d946ef;
   font-weight: 600;
 }
 
 .custom-dropdown-item.selected:hover {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(217, 70, 239, 0.16);
 }
 
-/* Legacy select styles (keeping for fallback) */
+/* Select Styles */
 .upload-dropdown select {
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f9f9f9;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 12px 40px 12px 15px;
-  color: white;
+  color: #1f2937;
   font-size: 14px;
   cursor: pointer;
   outline: none;
   appearance: none;
 }
 
-/* Legacy icon positioning for select element */
-.upload-dropdown select + i {
-  position: absolute;
-  top: 50%;
-  right: 15px;
-  transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.6);
-  pointer-events: none;
-}
-
-.choose-files-btn {
-  background: transparent;
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.choose-files-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
+.upload-dropdown select:focus {
   border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.upload-dropdown select option {
+  background: #ffffff;
+  color: #1f2937;
 }
 
 /* Matched Resumes Section */
 .matched-resumes-section {
-  /* place matched list in the right/main column */
   grid-column: 2;
 }
 
-/* ensure job section stays in the left sidebar column */
 .job-section {
   grid-column: 1;
 }
 
 .resumes-table {
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
-/* constrain the matched list and enable scroll for long lists */
 .resumes-table .table-body {
   max-height: 68vh;
   overflow: auto;
 }
 
-/* thinner, themed scrollbar for matched list */
 .resumes-table .table-body::-webkit-scrollbar {
   width: 10px;
 }
+
 .resumes-table .table-body::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(217,70,239,0.18), rgba(134,70,255,0.12));
+  background: #d1d5db;
   border-radius: 8px;
-  border: 2px solid rgba(0,0,0,0.18);
+}
+
+.resumes-table .table-body::-webkit-scrollbar-track {
+  background: #f3f4f6;
 }
 
 .table-header {
   display: grid;
   gap: 20px;
   padding: 20px;
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.1),
-    rgba(118, 75, 162, 0.1)
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, #f3f4f6, #ffffff);
+  border-bottom: 1px solid #e5e7eb;
   font-weight: 600;
   font-size: 14px;
-  backdrop-filter: blur(10px);
 }
 
-/* 4-column layout for all resumes (with checkbox) */
 .table-header:not(.matched-layout) {
   grid-template-columns: 60px 2fr 1fr 120px;
 }
 
-/* 5-column layout for matched resumes (with checkbox) */
 .table-header.matched-layout {
   grid-template-columns: 60px 2fr 120px 1.5fr 120px;
 }
@@ -665,7 +533,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -680,48 +548,6 @@
   position: relative;
 }
 
-/* Table Column Alignment */
-.table-header .table-col {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  color: rgba(255, 255, 255, 0.9);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-/* Center align score and actions columns */
-.table-header.matched-layout .table-col:nth-child(2),
-.table-header.matched-layout .table-col:nth-child(4),
-.table-header:not(.matched-layout) .table-col:nth-child(3) {
-  justify-content: flex-start;
-}
-
-/* Resume Card Column Content Alignment */
-.resume-card .resume-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.resume-card .resume-score-column,
-.resume-card .resume-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.resume-card .resume-status {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 6px;
-  align-items: flex-end;
-}
-
 /* Resume Card */
 .resume-card {
   display: grid;
@@ -731,27 +557,26 @@
   margin-bottom: 14px;
   transition: all 0.22s ease;
   align-items: center;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(217,70,239,0.06);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
 }
 
-/* 4-column layout for all resumes (with checkbox) */
 .resume-card:not(.matched-layout) {
   grid-template-columns: 60px 2fr 1fr 120px;
 }
 
-/* 5-column layout for matched resumes (with checkbox) */
 .resume-card.matched-layout {
   grid-template-columns: 60px 2fr 120px 1.5fr 120px;
 }
 
 .resume-card:hover {
-  background: rgba(255, 255, 255, 0.04);
-  transform: translateY(-4px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  background: #f9f9f9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
 }
 
-/* Score badge (right-side green star + percentage) */
+/* Score Badge */
 .score-badge {
   display: flex;
   flex-direction: column;
@@ -766,24 +591,22 @@
   align-items: center;
   gap: 8px;
   font-weight: 800;
-  color: #00d88a;
+  color: #16a34a;
   font-size: 1.05rem;
-  text-shadow: 0 0 12px rgba(0, 216, 138, 0.12);
 }
 
 .score-badge .score-percent .fas.fa-star {
-  color: #00d88a;
+  color: #16a34a;
   font-size: 1.05rem;
-  text-shadow: 0 0 8px rgba(0,216,138,0.12);
 }
 
 .score-badge .score-label {
   font-size: 12px;
-  color: rgba(0, 216, 138, 0.9);
+  color: #6b7280;
   font-weight: 600;
 }
 
-/* Avatar and resume detail sizing */
+/* Avatar */
 .resume-avatar span {
   font-size: 1.35rem;
   width: 48px;
@@ -791,277 +614,85 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(217,70,239,0.06);
+  background: #f3f4f6;
   border-radius: 8px;
-  color: #e9d8ff;
+  color: #d946ef;
+  border: 2px solid #f0f0f0;
 }
 
 .resume-details .resume-name {
   font-size: 15px;
   font-weight: 700;
+  color: #1f2937;
 }
 
 .resume-details .resume-description {
   font-size: 13px;
   max-width: 520px;
+  color: #6b7280;
 }
 
-/* make each resume row a positioning context so badge can be absolute */
 .resume-item-wrapper {
   position: relative;
 }
 
-/* place the score badge at the top-right of each resume card */
-.resume-item-wrapper .score-badge {
-  position: absolute;
-  right: 20px;
-  top: 16px;
-  text-align: right;
-  min-width: 72px;
-}
-
-/* small purple view-details pill */
-.details-btn {
-  background: rgba(217,70,239,0.06);
-  border: 1px solid rgba(217,70,239,0.12);
-  color: #d9b8ff;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-weight: 600;
-}
-
-.details-btn:hover {
-  background: linear-gradient(90deg, rgba(217,70,239,0.12), rgba(139,92,246,0.06));
-  color: #fff;
-}
-
-/* Matched list container polish */
-.resumes-table {
-  padding: 18px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));
-  border-radius: 12px;
-  border: 1px solid rgba(217,70,239,0.04);
-}
-
-.resume-card.expanded {
-  grid-template-columns: 1fr;
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.resume-card.expanded .resume-info,
-.resume-card.expanded .resume-score,
-.resume-card.expanded .resume-description,
-.resume-card.expanded .resume-actions {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 20px;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.score-bar {
-  width: 60px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  overflow: hidden;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.score-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: all 0.3s ease;
-  background: linear-gradient(90deg, currentColor, currentColor);
-}
-
-.details-btn {
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  color: #667eea;
+/* Buttons */
+.details-btn,
+.download-btn,
+.action-btn {
   border-radius: 4px;
   padding: 6px 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-right: 8px;
+  border: 1px solid;
+  background: none;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.details-btn {
+  background: #f0f9ff;
+  border-color: #bfdbfe;
+  color: #0284c7;
 }
 
 .details-btn:hover {
-  background: rgba(102, 126, 234, 0.3);
-  border-color: rgba(102, 126, 234, 0.5);
+  background: #e0f2fe;
+  border-color: #7dd3fc;
 }
 
-/* Download Button */
 .download-btn {
-  background: rgba(76, 175, 80, 0.2);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  color: #4caf50;
-  border-radius: 4px;
-  padding: 6px 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #16a34a;
   margin-right: 8px;
 }
 
 .download-btn:hover {
-  background: rgba(76, 175, 80, 0.3);
-  border-color: rgba(76, 175, 80, 0.5);
+  background: #dcfce7;
+  border-color: #86efac;
   transform: translateY(-1px);
 }
 
-.download-btn:active {
-  transform: translateY(0);
-}
-
-/* Action Button (More options) */
 .action-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.7);
-  border-radius: 4px;
-  padding: 6px 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #4b5563;
 }
 
 .action-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* Enhanced Score Display */
-.score-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.score-container.no-score {
-  opacity: 0.6;
-}
-
-.score-value {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.score-value.prominent {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #00d88a;
-  text-shadow: 0 0 12px rgba(0, 216, 138, 0.12);
-}
-.score-label {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-@keyframes pulse-score {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-/* Resume Details Expanded */
-.resume-details-expanded {
-  grid-column: 1 / -1;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.detail-section {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.detail-section h4 {
-  color: #667eea;
-  font-size: 14px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.detail-section h4 i {
-  font-size: 12px;
-}
-
-.detail-section p {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.skills-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.skill-tag {
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  background: rgba(217,70,239,0.08);
-  color: #e9d8ff;
-  border: 1px solid rgba(217,70,239,0.12);
-}
-
-.skill-tag.matching {
-  background: linear-gradient(90deg, rgba(217,70,239,0.14), rgba(139,92,246,0.08));
-  color: #fff;
-  border: 1px solid rgba(217,70,239,0.18);
-}
-
-.skill-tag.missing {
-  background: rgba(244, 67, 54, 0.06);
-  color: #fca5a5;
-  border: 1px solid rgba(244, 67, 54, 0.08);
-}
-
-.points-list {
-  margin: 0;
-  padding-left: 16px;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.points-list li {
-  font-size: 13px;
-  line-height: 1.5;
-  margin-bottom: 4px;
+  background: #e5e7eb;
+  border-color: #9ca3af;
 }
 
 /* Filter Controls */
 .filter-controls {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.1),
-    rgba(118, 75, 162, 0.1)
-  );
+  background: linear-gradient(135deg, #f9fafb, #ffffff);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .filter-section {
@@ -1076,14 +707,14 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #ffffff;
   padding: 10px 15px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e5e7eb;
 }
 
 .filter-group label {
-  color: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
   font-size: 14px;
   font-weight: 600;
   display: flex;
@@ -1098,11 +729,11 @@
 }
 
 .filter-select {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
   padding: 8px 12px;
-  color: white;
+  color: #1f2937;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1113,71 +744,19 @@
 
 .filter-select:focus {
   border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .filter-select:hover {
-  background: rgba(255, 255, 255, 0.15);
+  border-color: #d1d5db;
 }
 
 .filter-select option {
-  background: #1a1a2e;
-  color: white;
-  padding: 8px;
-}
-
-/* Filter Controls Responsive */
-@media (max-width: 768px) {
-  .filter-section {
-    flex-direction: column;
-    gap: 15px;
-    align-items: stretch;
-  }
-
-  .filter-group {
-    justify-content: space-between;
-  }
-
-  .filter-select {
-    min-width: auto;
-    flex: 1;
-  }
-
-  .stats-info {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-  }
-
-  .stats-info .stat {
-    display: inline-flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 20px 24px;
-    min-width: 160px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(217,70,239,0.06), rgba(139,92,246,0.03));
-    border: 1px solid rgba(217,70,239,0.12);
-    color: #fff;
-    font-weight: 600;
-  }
-
-  .stats-info .stat i {
-    margin-right: 8px;
-    color: #d946ef;
-    font-size: 24px;
-  }
+  background: #ffffff;
+  color: #1f2937;
 }
 
 /* Header Controls */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
 .header-controls {
   display: flex;
   align-items: center;
@@ -1187,7 +766,7 @@
 .reset-btn,
 .load-btn,
 .download-all-btn {
-  background: #667eea;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -1197,44 +776,39 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: background-color 0.3s ease;
-}
-
-.download-all-btn {
-  background: #4caf50;
-}
-
-.download-all-btn:hover {
-  background: #45a049;
-}
-
-.download-all-btn:disabled {
-  background: rgba(76, 175, 80, 0.5);
-  cursor: not-allowed;
+  transition: box-shadow 0.3s ease;
 }
 
 .reset-btn:hover,
 .load-btn:hover {
-  background: #5a6fd8;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.download-all-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.download-all-btn:hover {
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.download-all-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
 }
 
 .loading-text {
   color: #667eea;
   font-size: 14px;
-  font-weight: normal;
 }
 
-/* Resume Item Wrapper with Rank */
-.resume-item-wrapper {
-  position: relative;
-}
-
+/* Rank Badge */
 .rank-badge {
   position: absolute;
   left: -30px;
   top: 50%;
   transform: translateY(-50%);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
   border-radius: 50%;
   width: 24px;
@@ -1252,7 +826,7 @@
 .empty-message {
   text-align: center;
   padding: 40px 20px;
-  color: rgba(255, 255, 255, 0.6);
+  color: #6b7280;
   font-size: 16px;
 }
 
@@ -1269,18 +843,12 @@
 }
 
 .empty-message {
-  background: rgba(255, 255, 255, 0.05);
+  background: #f9fafb;
   border-radius: 8px;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border: 1px dashed #d1d5db;
 }
 
-/* Enhanced Table Styles */
-.table-body {
-  padding: 10px;
-  position: relative;
-}
-
-/* Resume Card Score Column */
+/* Resume Score Column */
 .resume-score-column {
   display: flex;
   flex-direction: column;
@@ -1299,7 +867,6 @@
   padding: 10px;
 }
 
-/* Ensure proper column alignment for matched layout */
 .resume-card.matched-layout .resume-actions {
   width: 120px;
   justify-content: center;
@@ -1332,18 +899,13 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: #6b7280;
 }
 
 .experience-info i,
 .skills-preview i {
   color: #667eea;
   font-size: 10px;
-}
-
-.status-info {
-  display: flex;
-  justify-content: center;
 }
 
 .status-badge {
@@ -1356,30 +918,9 @@
 }
 
 .status-badge.active {
-  background: rgba(76, 175, 80, 0.2);
-  color: #4caf50;
-  border: 1px solid rgba(76, 175, 80, 0.3);
-}
-
-/* Job Description OR Layout */
-.job-option {
-  flex: 1;
-  min-width: 0;
-}
-
-.option-title {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.option-title i {
-  color: #667eea;
-  font-size: 14px;
+  background: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
 }
 
 /* OR Separator */
@@ -1394,22 +935,17 @@
 .or-line {
   width: 1px;
   height: 40px;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: #d1d5db;
 }
 
 .or-text {
-  background: #1a1a2e;
-  color: rgba(255, 255, 255, 0.7);
+  background: #ffffff;
+  color: #6b7280;
   font-weight: 600;
   font-size: 12px;
   padding: 8px 12px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #e5e7eb;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -1425,9 +961,9 @@
 .job-upload-area {
   width: 100%;
   height: 120px;
-  border: 2px dashed rgba(255,255,255,0.06);
+  border: 2px dashed #d1d5db;
   border-radius: 12px;
-  background: rgba(255,255,255,0.02);
+  background: #f9fafb;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1435,13 +971,13 @@
   gap: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: rgba(255, 255, 255, 0.7);
+  color: #6b7280;
 }
 
 .job-upload-area:hover {
-  border-color: rgba(217,70,239,0.28);
-  background: linear-gradient(180deg, rgba(217,70,239,0.02), rgba(134,70,255,0.02));
-  color: rgba(255, 255, 255, 0.95);
+  border-color: #bfdbfe;
+  background: #f0f9ff;
+  color: #1f2937;
 }
 
 .job-upload-area i {
@@ -1451,18 +987,19 @@
 
 .job-upload-area span {
   font-weight: 500;
+  color: #1f2937;
 }
 
 .job-upload-area small {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.5);
+  color: #9ca3af;
 }
 
 /* Uploaded File Info */
 .uploaded-file-info {
   width: 100%;
-  background: rgba(76, 175, 80, 0.1);
-  border: 1px solid rgba(76, 175, 80, 0.3);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
   border-radius: 8px;
   padding: 15px;
   display: flex;
@@ -1474,11 +1011,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
 }
 
 .file-details i {
-  color: #4caf50;
+  color: #16a34a;
   font-size: 18px;
 }
 
@@ -1492,13 +1029,13 @@
 
 .file-size {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: #6b7280;
 }
 
 .remove-file-btn {
-  background: rgba(244, 67, 54, 0.2);
-  border: 1px solid rgba(244, 67, 54, 0.3);
-  color: #f44336;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
   border-radius: 4px;
   padding: 6px 8px;
   cursor: pointer;
@@ -1506,53 +1043,39 @@
 }
 
 .remove-file-btn:hover {
-  background: rgba(244, 67, 54, 0.3);
-  border-color: rgba(244, 67, 54, 0.5);
+  background: #fecaca;
+  border-color: #f87171;
 }
 
-/* Disabled textarea */
 .job-textarea:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.02);
+  background: #f3f4f6;
 }
 
-/* Enhanced submit button */
 .upload-job-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.05);
 }
 
-/* Download Container with Dropdown */
+/* Download Container */
 .download-container {
   position: relative;
   display: flex;
 }
 
-.download-btn {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: none;
-}
-
 .download-options-btn {
-  background: rgba(76, 175, 80, 0.2);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  color: #4caf50;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  border-radius: 4px;
   padding: 6px 4px;
   cursor: pointer;
   transition: all 0.3s ease;
-  border-left: 1px solid rgba(76, 175, 80, 0.5);
 }
 
 .download-options-btn:hover {
-  background: rgba(76, 175, 80, 0.3);
-  border-color: rgba(76, 175, 80, 0.5);
+  background: #dcfce7;
 }
 
 .dropdown-menu {
@@ -1560,10 +1083,10 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: #2a2a3e;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow: hidden;
   margin-top: 2px;
@@ -1574,7 +1097,7 @@
   padding: 8px 12px;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: #1f2937;
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -1585,8 +1108,8 @@
 }
 
 .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 1);
+  background: #f9fafb;
+  color: #1f2937;
 }
 
 .dropdown-item i {
@@ -1596,11 +1119,11 @@
 
 .dropdown-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #e5e7eb;
   margin: 4px 0;
 }
 
-/* Select All Column and Checkbox Styles */
+/* Checkbox Styles */
 .select-col {
   display: flex;
   align-items: center;
@@ -1629,15 +1152,14 @@
   display: inline-block;
   width: 18px;
   height: 18px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background-color: #f3f4f6;
+  border: 2px solid #d1d5db;
   border-radius: 3px;
   transition: all 0.2s ease;
 }
 
 .checkbox-container:hover .checkmark {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: #9ca3af;
 }
 
 .checkbox-container input:checked ~ .checkmark {
@@ -1667,9 +1189,9 @@
 
 /* Download Selected Button */
 .download-selected-btn {
-  background: rgba(76, 175, 80, 0.2);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  color: #4caf50;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
   border-radius: 6px;
   padding: 6px 12px;
   cursor: pointer;
@@ -1682,30 +1204,8 @@
 }
 
 .download-selected-btn:hover {
-  background: rgba(76, 175, 80, 0.3);
-  border-color: rgba(76, 175, 80, 0.5);
+  background: #dcfce7;
   transform: translateY(-1px);
-}
-
-.download-selected-btn .btn-text {
-  font-weight: 600;
-}
-
-/* Resume Checkbox Column */
-.resume-checkbox {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-}
-
-/* Update table header column alignment for new checkbox column */
-.table-header.matched-layout .table-col:nth-child(1),
-.table-header.matched-layout .table-col:nth-child(3),
-.table-header.matched-layout .table-col:nth-child(5),
-.table-header:not(.matched-layout) .table-col:nth-child(1),
-.table-header:not(.matched-layout) .table-col:nth-child(4) {
-  justify-content: flex-start;
 }
 
 /* Responsive Design */
@@ -1729,111 +1229,19 @@
     gap: 10px;
   }
 
-  .table-header.matched-layout,
-  .resume-card.matched-layout {
-    grid-template-columns: 1fr !important;
-  }
-
-  .resume-score-column {
-    order: 2;
-    padding: 15px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .resume-status {
-    order: 3;
-  }
-
-  .resume-card {
-    padding: 15px;
-  }
-
-  .user-name {
-    display: none;
-  }
-
-  .ai-chat-btn {
-    bottom: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-  }
-
-  .ai-chat-btn i {
-    font-size: 18px;
-  }
-
-  .filter-controls {
+  .filter-section {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .stats-info {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-
   .header-controls {
     flex-direction: column;
-    gap: 10px;
     align-items: flex-end;
   }
 
-  .rank-badge {
-    left: -20px;
-    width: 20px;
-    height: 20px;
-    font-size: 10px;
-  }
-
-  /* Job Description Responsive */
   .job-input-container {
     grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto auto auto;
-    gap: 10px;
-  }
-
-  .or-separator {
-    flex-direction: row !important;
-    margin: 10px 0;
-  }
-
-  .or-line {
-    width: 60px !important;
-    height: 1px !important;
-  }
-
-  .job-option {
-    margin: 0;
-  }
-}
-
-/* Responsive adjustments for checkbox column */
-@media (max-width: 768px) {
-  .table-header:not(.matched-layout) {
-    grid-template-columns: 50px 1fr 1fr 100px;
-  }
-
-  .table-header.matched-layout {
-    grid-template-columns: 50px 1fr 100px 1fr 100px;
-  }
-
-  .resume-card:not(.matched-layout) {
-    grid-template-columns: 50px 1fr 1fr 100px;
-  }
-
-  .resume-card.matched-layout {
-    grid-template-columns: 50px 1fr 100px 1fr 100px;
-  }
-
-  .download-selected-btn .btn-text {
-    display: none;
-  }
-
-  .download-selected-btn {
-    padding: 6px 8px;
+    gap: 15px;
   }
 }
 
@@ -1842,841 +1250,59 @@
     grid-template-columns: 40px 1fr 80px;
   }
 
-  .table-header.matched-layout {
-    grid-template-columns: 40px 1fr 80px 80px;
-  }
-
   .resume-card:not(.matched-layout) {
     grid-template-columns: 40px 1fr 80px;
   }
 
-  .resume-card.matched-layout {
-    grid-template-columns: 40px 1fr 80px 80px;
-  }
-
-  /* Hide some columns on very small screens */
   .table-header:not(.matched-layout) .table-col:nth-child(3),
   .resume-card:not(.matched-layout) .resume-status {
     display: none;
   }
 
-  .table-header.matched-layout .table-col:nth-child(4),
-  .resume-card.matched-layout .resume-status {
+  .header-actions {
+    gap: 10px;
+  }
+
+  .user-name {
     display: none;
   }
 }
 
-/* Fix any alignment issues with responsive design */
-.resume-card .resume-info .resume-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: white;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.resume-card .resume-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.resume-card .resume-name {
-  font-weight: 600;
-  color: white;
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.resume-card .resume-description {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* Ensure actions column has proper width and spacing */
-.resume-actions {
-  min-width: 120px;
-  max-width: 120px;
-  padding: 0 10px;
-}
-
-.resume-actions .details-btn,
-.resume-actions .download-btn,
-.resume-actions .action-btn {
-  min-width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* URL Upload Section */
-
-.url-upload-info {
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  border-radius: 8px;
-  padding: 12px 15px;
-}
-
-.url-upload-info small {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  line-height: 1.5;
-}
-
-.url-upload-info i {
-  color: #667eea;
-  font-size: 14px;
-  margin-top: 2px;
-  flex-shrink: 0;
-}
-
-/* URL Upload Loading State */
-.upload-from-urls-btn.loading {
-  position: relative;
-  overflow: hidden;
-}
-
-.upload-from-urls-btn.loading::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-/* URL Validation Feedback */
-.url-validation-feedback {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.url-validation-feedback.success {
-  background: rgba(76, 175, 80, 0.1);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  color: #4caf50;
-}
-
-.url-validation-feedback.error {
-  background: rgba(244, 67, 54, 0.1);
-  border: 1px solid rgba(244, 67, 54, 0.3);
-  color: #f44336;
-}
-
-.url-validation-feedback.warning {
-  background: rgba(255, 193, 7, 0.1);
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  color: #ffc107;
-}
-
-/* Enhanced Download ZIP Button */
-.download-all-btn i,
-.download-selected-btn i {
-  animation: none;
-  transition: transform 0.3s ease;
-}
-
-.download-all-btn:hover i,
-.download-selected-btn:hover i {
-  transform: translateY(-2px);
-}
-
-/* Responsive Design for URL Upload */
-@media (max-width: 768px) {
-  .url-upload-section {
-    padding: 15px;
-    margin-top: 12px;
-  }
-
-  .url-textarea {
-    min-height: 100px;
-    padding: 12px;
-    font-size: 13px;
-  }
-
-  .url-upload-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .upload-from-urls-btn,
-  .clear-urls-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 14px 16px;
-  }
-
-  .url-upload-info {
-    padding: 10px 12px;
-  }
-
-  .url-upload-info small {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .url-upload-section {
-    padding: 12px;
-  }
-
-  .url-textarea {
-    min-height: 80px;
-    padding: 10px;
-    font-size: 12px;
-  }
-
-  .upload-from-urls-btn,
-  .clear-urls-btn {
-    padding: 12px 14px;
-    font-size: 13px;
-  }
-}
-
-/* =================================
-   ALTERNATING ROW COLORS
-   ================================= */
-
-/* Basic alternating row colors for resume table */
+/* Alternating Row Colors */
 .resume-item-wrapper.row-even {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.06),
-    rgba(102, 126, 234, 0.02)
-  );
-  border-left: 4px solid rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #f0f9ff, #eff6ff);
+  border-left: 4px solid #bfdbfe;
   border-radius: 0 8px 8px 0;
-  transition: all 0.3s ease;
   margin: 2px 0;
 }
 
 .resume-item-wrapper.row-odd {
-  background: linear-gradient(
-    135deg,
-    rgba(118, 75, 162, 0.06),
-    rgba(118, 75, 162, 0.02)
-  );
-  border-left: 4px solid rgba(118, 75, 162, 0.4);
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+  border-left: 4px solid #e5e7eb;
   border-radius: 0 8px 8px 0;
-  transition: all 0.3s ease;
-  margin: 2px 0;
-}
-
-/* Hover effects for alternating rows */
-.resume-item-wrapper.row-even:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.15),
-    rgba(102, 126, 234, 0.08)
-  );
-  border-left: 4px solid rgba(102, 126, 234, 0.7);
-  transform: translateX(8px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
-  border-radius: 0 12px 12px 0;
-}
-
-.resume-item-wrapper.row-odd:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(118, 75, 162, 0.15),
-    rgba(118, 75, 162, 0.08)
-  );
-  border-left: 4px solid rgba(118, 75, 162, 0.7);
-  transform: translateX(8px);
-  box-shadow: 0 6px 20px rgba(118, 75, 162, 0.2);
-  border-radius: 0 12px 12px 0;
-}
-
-/* Enhanced table styling */
-.resumes-table {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-/* Table body spacing */
-.table-body {
-  padding: 0 8px 8px 8px;
-}
-
-/* Content styling within alternating rows */
-.resume-item-wrapper.row-even .resume-card h3,
-.resume-item-wrapper.row-even .resume-card .resume-name {
-  color: #8fa4f3;
-  text-shadow: 0 1px 2px rgba(102, 126, 234, 0.1);
-}
-
-.resume-item-wrapper.row-odd .resume-card h3,
-.resume-item-wrapper.row-odd .resume-card .resume-name {
-  color: #9b7cb8;
-  text-shadow: 0 1px 2px rgba(118, 75, 162, 0.1);
-}
-
-/* Score display colors for alternating rows */
-.resume-item-wrapper.row-even .score-circle,
-.resume-item-wrapper.row-even .score-display {
-  border-color: rgba(102, 126, 234, 0.3) !important;
-}
-
-.resume-item-wrapper.row-odd .score-circle,
-.resume-item-wrapper.row-odd .score-display {
-  border-color: rgba(118, 75, 162, 0.3) !important;
-}
-
-/* Checkbox styling for alternating rows */
-.resume-item-wrapper.row-even .checkbox-container .checkmark {
-  border: 2px solid rgba(102, 126, 234, 0.4);
-}
-
-.resume-item-wrapper.row-odd .checkbox-container .checkmark {
-  border: 2px solid rgba(118, 75, 162, 0.4);
-}
-
-.resume-item-wrapper.row-even .checkbox-container input:checked ~ .checkmark {
-  background-color: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 1);
-}
-
-.resume-item-wrapper.row-odd .checkbox-container input:checked ~ .checkmark {
-  background-color: rgba(118, 75, 162, 0.8);
-  border-color: rgba(118, 75, 162, 1);
-}
-
-/* Responsive design for alternating row colors */
-@media (max-width: 768px) {
-  .resume-item-wrapper.row-even,
-  .resume-item-wrapper.row-odd {
-    margin: 4px 0;
-    border-radius: 0 6px 6px 0;
-    border-left-width: 3px;
-  }
-
-  .resume-item-wrapper.row-even:hover,
-  .resume-item-wrapper.row-odd:hover {
-    transform: translateX(4px);
-    border-radius: 0 8px 8px 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .resume-item-wrapper.row-even,
-  .resume-item-wrapper.row-odd {
-    border-left-width: 2px;
-    margin: 2px 0;
-  }
-
-  .resume-item-wrapper.row-even:hover,
-  .resume-item-wrapper.row-odd:hover {
-    transform: translateX(2px);
-  }
-}
-
-/* Alternating row colors for resume table */
-.resume-item-wrapper.row-even {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.06),
-    rgba(102, 126, 234, 0.02)
-  );
-  border-left: 4px solid rgba(102, 126, 234, 0.4);
-  border-radius: 0 8px 8px 0;
-  transition: all 0.3s ease;
-  margin: 2px 0;
-}
-
-.resume-item-wrapper.row-odd {
-  background: linear-gradient(
-    135deg,
-    rgba(118, 75, 162, 0.06),
-    rgba(118, 75, 162, 0.02)
-  );
-  border-left: 4px solid rgba(118, 75, 162, 0.4);
-  border-radius: 0 8px 8px 0;
-  transition: all 0.3s ease;
   margin: 2px 0;
 }
 
 .resume-item-wrapper.row-even:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.15),
-    rgba(102, 126, 234, 0.08)
-  );
-  border-left: 4px solid rgba(102, 126, 234, 0.7);
+  background: linear-gradient(135deg, #e0f2fe, #cffafe);
+  border-left: 4px solid #06b6d4;
   transform: translateX(8px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
-  border-radius: 0 12px 12px 0;
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.1);
 }
 
 .resume-item-wrapper.row-odd:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(118, 75, 162, 0.15),
-    rgba(118, 75, 162, 0.08)
-  );
-  border-left: 4px solid rgba(118, 75, 162, 0.7);
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  border-left: 4px solid #9ca3af;
   transform: translateX(8px);
-  box-shadow: 0 6px 20px rgba(118, 75, 162, 0.2);
-  border-radius: 0 12px 12px 0;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
 }
 
-/* Enhanced table styling */
-.resumes-table {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-/* Table body spacing */
-.table-body {
-  padding: 0 8px 8px 8px;
-}
-
-/* Content styling within alternating rows */
 .resume-item-wrapper.row-even .resume-card h3,
 .resume-item-wrapper.row-even .resume-card .resume-name {
-  color: #8fa4f3;
-  text-shadow: 0 1px 2px rgba(102, 126, 234, 0.1);
+  color: #0284c7;
 }
 
 .resume-item-wrapper.row-odd .resume-card h3,
 .resume-item-wrapper.row-odd .resume-card .resume-name {
-  color: #9b7cb8;
-  text-shadow: 0 1px 2px rgba(118, 75, 162, 0.1);
+  color: #1f2937;
 }
-
-/* Score display colors for alternating rows */
-.resume-item-wrapper.row-even .score-circle,
-.resume-item-wrapper.row-even .score-display {
-  border-color: rgba(102, 126, 234, 0.3) !important;
-}
-
-.resume-item-wrapper.row-odd .score-circle,
-.resume-item-wrapper.row-odd .score-display {
-  border-color: rgba(118, 75, 162, 0.3) !important;
-}
-
-/* Checkbox styling for alternating rows */
-.resume-item-wrapper.row-even .checkbox-container .checkmark {
-  border: 2px solid rgba(102, 126, 234, 0.4);
-}
-
-.resume-item-wrapper.row-odd .checkbox-container .checkmark {
-  border: 2px solid rgba(118, 75, 162, 0.4);
-}
-
-.resume-item-wrapper.row-even .checkbox-container input:checked ~ .checkmark {
-  background-color: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 1);
-}
-
-.resume-item-wrapper.row-odd .checkbox-container input:checked ~ .checkmark {
-  background-color: rgba(118, 75, 162, 0.8);
-  border-color: rgba(118, 75, 162, 1);
-}
-
-/* Responsive design for alternating row colors */
-@media (max-width: 768px) {
-  .resume-item-wrapper.row-even,
-  .resume-item-wrapper.row-odd {
-    margin: 4px 0;
-    border-radius: 0 6px 6px 0;
-    border-left-width: 3px;
-  }
-
-  .resume-item-wrapper.row-even:hover,
-  .resume-item-wrapper.row-odd:hover {
-    transform: translateX(4px);
-    border-radius: 0 8px 8px 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .resume-item-wrapper.row-even,
-  .resume-item-wrapper.row-odd {
-    border-left-width: 2px;
-    margin: 2px 0;
-  }
-
-  .resume-item-wrapper.row-even:hover,
-  .resume-item-wrapper.row-odd:hover {
-    transform: translateX(2px);
-  }
-}
-
-/* Alternating row colors for resume table */
-.resume-item-wrapper.row-even {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.06),
-    rgba(102, 126, 234, 0.02)
-  );
-  border-left: 4px solid rgba(102, 126, 234, 0.4);
-  border-radius: 0 8px 8px 0;
-  transition: all 0.3s ease;
-  margin: 2px 0;
-}
-
-.resume-item-wrapper.row-odd {
-  background: linear-gradient(
-    135deg,
-    rgba(118, 75, 162, 0.06),
-    rgba(118, 75, 162, 0.02)
-  );
-  border-left: 4px solid rgba(118, 75, 162, 0.4);
-  border-radius: 0 8px 8px 0;
-  transition: all 0.3s ease;
-  margin: 2px 0;
-}
-
-.resume-item-wrapper.row-even:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.15),
-    rgba(102, 126, 234, 0.08)
-  );
-  border-left: 4px solid rgba(102, 126, 234, 0.7);
-  transform: translateX(8px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
-  border-radius: 0 12px 12px 0;
-}
-
-.resume-item-wrapper.row-odd:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(118, 75, 162, 0.15),
-    rgba(118, 75, 162, 0.08)
-  );
-  border-left: 4px solid rgba(118, 75, 162, 0.7);
-  transform: translateX(8px);
-  box-shadow: 0 6px 20px rgba(118, 75, 162, 0.2);
-  border-radius: 0 12px 12px 0;
-}
-
-/* Enhanced table styling */
-.resumes-table {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-/* Table body spacing */
-.table-body {
-  padding: 0 8px 8px 8px;
-}
-
-/* Content styling within alternating rows */
-.resume-item-wrapper.row-even .resume-card h3,
-.resume-item-wrapper.row-even .resume-card .resume-name {
-  color: #8fa4f3;
-  text-shadow: 0 1px 2px rgba(102, 126, 234, 0.1);
-}
-
-.resume-item-wrapper.row-odd .resume-card h3,
-.resume-item-wrapper.row-odd .resume-card .resume-name {
-  color: #9b7cb8;
-  text-shadow: 0 1px 2px rgba(118, 75, 162, 0.1);
-}
-
-/* Score display colors for alternating rows */
-.resume-item-wrapper.row-even .score-circle,
-.resume-item-wrapper.row-even .score-display {
-  border-color: rgba(102, 126, 234, 0.3) !important;
-}
-
-.resume-item-wrapper.row-odd .score-circle,
-.resume-item-wrapper.row-odd .score-display {
-  border-color: rgba(118, 75, 162, 0.3) !important;
-}
-
-/* Checkbox styling for alternating rows */
-.resume-item-wrapper.row-even .checkbox-container .checkmark {
-  border: 2px solid rgba(102, 126, 234, 0.4);
-}
-
-.resume-item-wrapper.row-odd .checkbox-container .checkmark {
-  border: 2px solid rgba(118, 75, 162, 0.4);
-}
-
-.resume-item-wrapper.row-even .checkbox-container input:checked ~ .checkmark {
-  background-color: rgba(102, 126, 234, 0.8);
-  border-color: rgba(102, 126, 234, 1);
-}
-
-.resume-item-wrapper.row-odd .checkbox-container input:checked ~ .checkmark {
-  background-color: rgba(118, 75, 162, 0.8);
-  border-color: rgba(118, 75, 162, 1);
-}
-
-/* Responsive design for alternating row colors */
-@media (max-width: 768px) {
-  .resume-item-wrapper.row-even,
-  .resume-item-wrapper.row-odd {
-    margin: 4px 0;
-    border-radius: 0 6px 6px 0;
-    border-left-width: 3px;
-  }
-
-  .resume-item-wrapper.row-even:hover,
-  .resume-item-wrapper.row-odd:hover {
-    transform: translateX(4px);
-    border-radius: 0 8px 8px 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .resume-item-wrapper.row-even,
-  .resume-item-wrapper.row-odd {
-    border-left-width: 2px;
-    margin: 2px 0;
-  }
-
-  .resume-item-wrapper.row-even:hover,
-  .resume-item-wrapper.row-odd:hover {
-    transform: translateX(2px);
-  }
-}
-
-.filter-row {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 10px;
-  margin-top: 50px;
-}
-
-/* ===========================
-   NEON COLOR THEME OVERRIDES
-   =========================== */
-
-/* Dark background with neon accents */
-.dashboard-container {
-  background: #0a0015 !important;
-  color: #e0e7ff !important;
-}
-
-.job-section {
-  background: linear-gradient(180deg, rgba(26,10,46,0.85), rgba(26,10,46,0.6)) !important;
-  border: 1px solid rgba(217, 70, 239, 0.25) !important;
-  box-shadow: 0 10px 40px rgba(217,70,239,0.12) !important;
-}
-
-.job-textarea {
-  background: rgba(217, 70, 239, 0.08) !important;
-  border: 1px solid rgba(217, 70, 239, 0.3) !important;
-  color: #e0e7ff !important;
-}
-
-.job-textarea:focus {
-  border-color: #d946ef !important;
-  box-shadow: 0 0 15px rgba(217, 70, 239, 0.25) !important;
-}
-
-/* Buttons: Neon magenta with glow */
-.choose-files-btn,
-.upload-job-btn,
-.reset-btn,
-.load-btn,
-.download-all-btn {
-  background: linear-gradient(135deg, #d946ef 0%, #3a0f56 100%) !important;
-  color: #fff !important;
-  border: none !important;
-  box-shadow: 0 0 20px rgba(217, 70, 239, 0.3) !important;
-}
-
-.choose-files-btn:hover,
-.upload-job-btn:hover,
-.reset-btn:hover,
-.load-btn:hover,
-.download-all-btn:hover {
-  box-shadow: 0 0 30px rgba(217, 70, 239, 0.6) !important;
-}
-
-/* Form inputs */
-.filter-select,
-.job-visa-select,
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-  background: rgba(217, 70, 239, 0.08) !important;
-  border: 1px solid rgba(217, 70, 239, 0.25) !important;
-  color: #e0e7ff !important;
-}
-
-input::placeholder {
-  color: rgba(224, 231, 255, 0.4) !important;
-}
-
-.filter-select:focus,
-.job-visa-select:focus,
-input:focus {
-  border-color: #06b6d4 !important;
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.2) !important;
-}
-
-/* Resume cards: Dark with neon border */
-.resumes-table {
-  background: linear-gradient(180deg, rgba(26,10,46,0.6), rgba(26,10,46,0.4)) !important;
-  border: 1px solid rgba(217, 70, 239, 0.2) !important;
-  box-shadow: 0 10px 40px rgba(217,70,239,0.1) !important;
-}
-
-.resume-card,
-.table-header {
-  background: rgba(26,10,46,0.5) !important;
-  border: 1px solid rgba(217, 70, 239, 0.15) !important;
-  color: #e0e7ff !important;
-}
-
-.resume-card:hover {
-  background: rgba(26,10,46,0.7) !important;
-  box-shadow: 0 0 25px rgba(217, 70, 239, 0.25) !important;
-}
-
-/* Action buttons: Cyan accent */
-.details-btn {
-  background: rgba(6, 182, 212, 0.12) !important;
-  border: 1px solid rgba(6, 182, 212, 0.3) !important;
-  color: #06b6d4 !important;
-}
-
-.download-btn {
-  background: rgba(16, 185, 129, 0.15) !important;
-  border: 1px solid rgba(16, 185, 129, 0.3) !important;
-  color: #10b981 !important;
-}
-
-.action-btn {
-  background: rgba(217, 70, 239, 0.08) !important;
-  border: 1px solid rgba(217, 70, 239, 0.2) !important;
-  color: #e0e7ff !important;
-}
-
-/* Section text */
-.section-header h2,
-.section-title h2,
-.option-title {
-  color: #e0e7ff !important;
-}
-
-.section-subtitle {
-  color: rgba(224, 231, 255, 0.6) !important;
-}
-
-/* Links */
-.signup-btn,
-.forgot-password {
-  color: #06b6d4 !important;
-}
-
-.signup-btn:hover,
-.forgot-password:hover {
-  color: #22d3ee !important;
-}
-
-/* Checkboxes and form elements */
-.checkbox-container input:checked ~ .checkmark {
-  background-color: #216925 !important;
-  border-color: #d44be9 !important;
-}
-
-.pagination-btn {
-  color: #e0e7ff !important;
-}
-
-.pagination-btn:hover {
-  background: rgba(217, 70, 239, 0.15) !important;
-}
-
-/* Dropdown and menus */
-.user-dropdown,
-.custom-dropdown-menu {
-  background: #1a0a2e !important;
-  border: 1px solid rgba(217, 70, 239, 0.25) !important;
-}
-
-.dropdown-item:hover {
-  background: rgba(217, 70, 239, 0.15) !important;
-  color: #e0e7ff !important;
-}
-
-/* Loading and empty states */
-.loading-message,
-.empty-message {
-  color: rgba(224, 231, 255, 0.7) !important;
-}
-
-/* Filter controls */
-.filter-controls {
-  background: linear-gradient(180deg, rgba(217,70,239,0.08), rgba(6,182,212,0.04)) !important;
-  border: 1px solid rgba(217, 70, 239, 0.15) !important;
-}
-
-.filter-group {
-  background: rgba(217, 70, 239, 0.08) !important;
-  border: 1px solid rgba(217, 70, 239, 0.15) !important;
-}
-
-.filter-group label {
-  color: #e0e7ff !important;
-}
-
-/* Visa Requirement Dropdown */
-.job-visa-select {
-  background: #3d1b4e !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(74, 29, 83, 0.401) !important;
-}
-
-.job-visa-select:focus {
-  outline: none;
-  border-color: #d9e9eb !important;
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2) !important;
-}
-
-.job-visa-select option {
-  background: #000000;
-  color: #ffffff;
-}
-
-.job-visa-select option:hover {
-  background: #c779c9;
-}
-

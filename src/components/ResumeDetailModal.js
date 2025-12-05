@@ -101,9 +101,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
     left: 0,
     right: 0,
     bottom: 0,
-    background: "rgba(0, 0, 0, 0.95)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
+    background: "rgba(0, 0, 0, 0.4)",
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -116,14 +116,14 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
   };
 
   const modalStyles = {
-    background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+    background: "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
     borderRadius: "16px",
     width: "800px",
     maxWidth: "90vw",
     maxHeight: "90vh",
     overflow: "hidden",
-    boxShadow: "0 25px 50px rgba(0, 0, 0, 0.8)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    boxShadow: "0 25px 50px rgba(0, 0, 0, 0.15)",
+    border: "1px solid #e5e7eb",
     position: "relative",
     opacity: 1,
     transform: "none",
@@ -136,11 +136,11 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
 
   const headerStyles = {
     padding: "20px 30px",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+    borderBottom: "1px solid #e5e7eb",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    background: "transparent",
+    background: "linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)",
     transform: "none",
     transition: "none",
   };
@@ -149,7 +149,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
     padding: "30px",
     maxHeight: "calc(90vh - 200px)",
     overflowY: "auto",
-    background: "transparent",
+    background: "#ffffff",
     transform: "none",
     transition: "none",
     flex: 1,
@@ -159,10 +159,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
   };
 
   const sectionStyles = {
-    background: "rgba(255, 255, 255, 0.03)",
+    background: "#f9fafb",
     borderRadius: "12px",
     padding: "20px",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
+    border: "1px solid #e5e7eb",
     margin: "15px 0",
     transition: "none",
     transform: "none",
@@ -172,8 +172,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
     position: "absolute",
     top: "15px",
     right: "20px",
-    background: "rgba(244, 67, 54, 0.2)",
-    border: "1px solid rgba(244, 67, 54, 0.3)",
+    background: "#fee2e2",
+    border: "1px solid #fca5a5",
     borderRadius: "50%",
     width: "40px",
     height: "40px",
@@ -181,16 +181,16 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-    color: "rgba(255, 255, 255, 0.8)",
+    color: "#dc2626",
     fontSize: "16px",
-    transition: "none",
+    transition: "all 0.3s ease",
     transform: "none",
   };
 
   const footerStyles = {
     padding: "20px 30px",
-    borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-    background: "rgba(0, 0, 0, 0.2)",
+    borderTop: "1px solid #e5e7eb",
+    background: "#f9fafb",
     display: "flex",
     justifyContent: "flex-end",
     gap: "10px",
@@ -215,27 +215,30 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
 
   const primaryButtonStyles = {
     ...buttonStyles,
-    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    background: "linear-gradient(135deg, #667eea, #8b5cf6)",
     color: "white",
+    boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
   };
 
   const secondaryButtonStyles = {
     ...buttonStyles,
-    background: "rgba(255, 255, 255, 0.1)",
-    color: "rgba(255, 255, 255, 0.8)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
+    background: "#f3f4f6",
+    color: "#1f2937",
+    border: "1px solid #e5e7eb",
   };
 
   const successButtonStyles = {
     ...buttonStyles,
-    background: "linear-gradient(135deg, #4CAF50, #2E7D32)",
+    background: "linear-gradient(135deg, #16a34a, #15803d)",
     color: "white",
+    boxShadow: "0 4px 12px rgba(22, 163, 74, 0.3)",
   };
 
   const infoButtonStyles = {
     ...buttonStyles,
-    background: "linear-gradient(135deg, #2196F3, #0D47A1)",
+    background: "linear-gradient(135deg, #0284c7, #0369a1)",
     color: "white",
+    boxShadow: "0 4px 12px rgba(2, 132, 199, 0.3)",
   };
 
   const skillTagStyles = {
@@ -253,37 +256,37 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
 
   const matchingSkillStyles = {
     ...skillTagStyles,
-    background: "rgba(76, 175, 80, 0.2)",
-    color: "#4CAF50",
-    border: "1px solid rgba(76, 175, 80, 0.3)",
+    background: "#f0fdf4",
+    color: "#16a34a",
+    border: "1px solid #bbf7d0",
   };
 
   const missingSkillStyles = {
     ...skillTagStyles,
-    background: "rgba(244, 67, 54, 0.2)",
-    color: "#F44336",
-    border: "1px solid rgba(244, 67, 54, 0.3)",
+    background: "#fee2e2",
+    color: "#dc2626",
+    border: "1px solid #fca5a5",
   };
 
   // Helper function to get section background color (alternating)
   const getSectionBackground = (index) => {
     const colors = [
-      "rgba(102, 126, 234, 0.08)", // Blue
-      "rgba(118, 75, 162, 0.08)", // Purple
-      "rgba(255, 152, 0, 0.08)", // Orange
-      "rgba(76, 175, 80, 0.08)", // Green
-      "rgba(244, 67, 54, 0.08)", // Red
+      "#eff6ff", // Blue
+      "#f0f9ff", // Light Blue
+      "#fffbeb", // Orange
+      "#f0fdf4", // Green
+      "#fee2e2", // Red
     ];
     return colors[index % colors.length];
   };
 
   const getSectionBorderColor = (index) => {
     const colors = [
-      "rgba(102, 126, 234, 0.15)", // Blue
-      "rgba(118, 75, 162, 0.15)", // Purple
-      "rgba(255, 152, 0, 0.15)", // Orange
-      "rgba(76, 175, 80, 0.15)", // Green
-      "rgba(244, 67, 54, 0.15)", // Red
+      "#bfdbfe", // Blue
+      "#bfdbfe", // Light Blue
+      "#fde68a", // Orange
+      "#bbf7d0", // Green
+      "#fca5a5", // Red
     ];
     return colors[index % colors.length];
   };
@@ -305,7 +308,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   width: "60px",
                   height: "60px",
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #667eea, #764ba2)",
+                  background: "linear-gradient(135deg, #667eea, #8b5cf6)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -318,7 +321,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               <div>
                 <h2
                   style={{
-                    color: "#fff",
+                    color: "#1f2937",
                     fontSize: "24px",
                     fontWeight: "600",
                     margin: "0 0 8px 0",
@@ -330,7 +333,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   <div
                     style={{
                       fontSize: "14px",
-                      color: "rgba(255, 255, 255, 0.7)",
+                      color: "#6b7280",
                       margin: "0 0 6px 0",
                       display: "flex",
                       alignItems: "center",
@@ -347,7 +350,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   <div
                     style={{
                       fontSize: "13px",
-                      color: "rgba(255, 255, 255, 0.6)",
+                      color: "#9ca3af",
                       marginBottom: "6px",
                     }}
                   >
@@ -373,7 +376,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                     </span>
                     <span
                       style={{
-                        color: "rgba(255, 255, 255, 0.6)",
+                        color: "#6b7280",
                         fontSize: "14px",
                       }}
                     >
@@ -399,7 +402,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               >
                 <h3
                   style={{
-                    color: "#667eea",
+                    color: "#0284c7",
                     fontSize: "18px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -413,10 +416,14 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                 </h3>
                 <p
                   style={{
-                    color: "rgba(255, 255, 255, 0.9)",
+                    color: "#4b5563",
                     fontSize: "15px",
-                    lineHeight: "1.5",
+                    lineHeight: "1.6",
                     margin: 0,
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-word",
+                    whiteSpace: "pre-wrap",
                   }}
                 >
                   {resume.description}
@@ -428,13 +435,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
             <div
               style={{
                 ...sectionStyles,
-                background: getSectionBackground(1),
-                border: `1px solid ${getSectionBorderColor(1)}`,
+                background: "#f0f9ff",
+                border: "1px solid #bfdbfe",
               }}
             >
               <h3
                 style={{
-                  color: "#764ba2",
+                  color: "#0284c7",
                   fontSize: "18px",
                   fontWeight: "600",
                   margin: "0 0 15px 0",
@@ -457,16 +464,17 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   <div>
                     <div
                       style={{
-                        color: "#9575CD",
+                        color: "#0284c7",
                         fontSize: "14px",
                         marginBottom: "4px",
+                        fontWeight: "500",
                       }}
                     >
                       Location
                     </div>
                     <div
                       style={{
-                        color: "rgba(255,255,255,0.9)",
+                        color: "#1f2937",
                         fontSize: "15px",
                       }}
                     >
@@ -479,16 +487,17 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   <div>
                     <div
                       style={{
-                        color: "#9575CD",
+                        color: "#0284c7",
                         fontSize: "14px",
                         marginBottom: "4px",
+                        fontWeight: "500",
                       }}
                     >
                       Education
                     </div>
                     <div
                       style={{
-                        color: "rgba(255,255,255,0.9)",
+                        color: "#1f2937",
                         fontSize: "15px",
                       }}
                     >
@@ -501,16 +510,17 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   <div>
                     <div
                       style={{
-                        color: "#9575CD",
+                        color: "#0284c7",
                         fontSize: "14px",
                         marginBottom: "4px",
+                        fontWeight: "500",
                       }}
                     >
                       Email ID
                     </div>
                     <div
                       style={{
-                        color: "rgba(255,255,255,0.9)",
+                        color: "#1f2937",
                         fontSize: "15px",
                       }}
                     >
@@ -523,16 +533,17 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   <div>
                     <div
                       style={{
-                        color: "#9575CD",
+                        color: "#0284c7",
                         fontSize: "14px",
                         marginBottom: "4px",
+                        fontWeight: "500",
                       }}
                     >
                       Contact Number
                     </div>
                     <div
                       style={{
-                        color: "rgba(255,255,255,0.9)",
+                        color: "#1f2937",
                         fontSize: "15px",
                       }}
                     >
@@ -561,16 +572,17 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   <div>
                     <div
                       style={{
-                        color: "#9575CD",
+                        color: "#0284c7",
                         fontSize: "14px",
                         marginBottom: "4px",
+                        fontWeight: "500",
                       }}
                     >
                       VISA
                     </div>
                     <div
                       style={{
-                        color: "rgba(255,255,255,0.9)",
+                        color: "#1f2937",
                         fontSize: "15px",
                       }}
                     >
@@ -586,14 +598,14 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               <div
                 style={{
                   ...sectionStyles,
-                  background: "rgba(118, 75, 162, 0.15)",
-                  border: `1px solid rgba(118, 75, 162, 0.3)`,
+                  background: "#f9fafb",
+                  border: "1px solid #e5e7eb",
                   padding: "25px",
                 }}
               >
                 <h3
                   style={{
-                    color: "#9575CD",
+                    color: "#667eea",
                     fontSize: "20px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -606,7 +618,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                 </h3>
                 <p
                   style={{
-                    color: "rgba(255, 255, 255, 0.95)",
+                    color: "#1f2937",
                     fontSize: "16px",
                     lineHeight: "1.6",
                     margin: 0,
@@ -627,13 +639,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               <div
                 style={{
                   ...sectionStyles,
-                  background: getSectionBackground(2),
-                  border: `1px solid ${getSectionBorderColor(2)}`,
+                  background: "#fffbeb",
+                  border: "1px solid #fde68a",
                 }}
               >
                 <h3
                   style={{
-                    color: "#FF9800",
+                    color: "#d97706",
                     fontSize: "18px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -650,9 +662,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                       key={index}
                       style={{
                         ...skillTagStyles,
-                        background: "rgba(255, 152, 0, 0.2)",
-                        color: "#FF9800",
-                        border: "1px solid rgba(255, 152, 0, 0.3)",
+                        background: "#fef3c7",
+                        color: "#d97706",
+                        border: "1px solid #fde68a",
                       }}
                     >
                       {skill}
@@ -667,13 +679,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               <div
                 style={{
                   ...sectionStyles,
-                  background: getSectionBackground(3),
-                  border: `1px solid ${getSectionBorderColor(3)}`,
+                  background: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
                 }}
               >
                 <h3
                   style={{
-                    color: "#4CAF50",
+                    color: "#16a34a",
                     fontSize: "18px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -700,13 +712,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               <div
                 style={{
                   ...sectionStyles,
-                  background: getSectionBackground(3),
-                  border: `1px solid ${getSectionBorderColor(3)}`,
+                  background: "#fee2e2",
+                  border: "1px solid #fca5a5",
                 }}
               >
                 <h3
                   style={{
-                    color: "#4CAF50",
+                    color: "#dc2626",
                     fontSize: "18px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -734,13 +746,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               <div
                 style={{
                   ...sectionStyles,
-                  background: getSectionBackground(4),
-                  border: `1px solid ${getSectionBorderColor(4)}`,
+                  background: "#fee2e2",
+                  border: "1px solid #fca5a5",
                 }}
               >
                 <h3
                   style={{
-                    color: "#FF6B6B",
+                    color: "#dc2626",
                     fontSize: "18px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -758,14 +770,14 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                       style={{
                         padding: "12px",
                         borderRadius: "8px",
-                        background: "rgba(255, 107, 107, 0.1)",
-                        border: "1px solid rgba(255, 107, 107, 0.2)",
-                        color: "rgba(255, 255, 255, 0.9)",
+                        background: "#fecaca",
+                        border: "1px solid #fca5a5",
+                        color: "#1f2937",
                         fontSize: "14px",
                         lineHeight: "1.5",
                       }}
                     >
-                      <span style={{ marginRight: "8px", fontWeight: "bold", color: "#FF6B6B" }}>
+                      <span style={{ marginRight: "8px", fontWeight: "bold", color: "#dc2626" }}>
                         Q{index + 1}.
                       </span>
                       {question}
@@ -812,7 +824,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               <button
                 style={{
                   ...buttonStyles,
-                  background: "linear-gradient(135deg, #FF9800, #F57C00)",
+                  background: "linear-gradient(135deg, #d97706, #b45309)",
                   color: "white",
                 }}
                 onClick={() => setShowQuestions(true)}
@@ -838,10 +850,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               {/* Questions Modal Header */}
               <div style={headerStyles}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <MdHelpOutline style={{ fontSize: "24px", color: "#FF9800" }} />
+                  <MdHelpOutline style={{ fontSize: "24px", color: "#d97706" }} />
                   <h2
                     style={{
-                      color: "#fff",
+                      color: "#1f2937",
                       fontSize: "24px",
                       fontWeight: "600",
                       margin: 0,
@@ -861,12 +873,12 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                       ...sectionStyles,
                       background:
                         questionObj.type === "technical"
-                          ? "rgba(102, 126, 234, 0.1)"
-                          : "rgba(76, 175, 80, 0.1)",
+                          ? "#eff6ff"
+                          : "#f0fdf4",
                       border:
                         questionObj.type === "technical"
-                          ? "1px solid rgba(102, 126, 234, 0.3)"
-                          : "1px solid rgba(76, 175, 80, 0.3)",
+                          ? "1px solid #bfdbfe"
+                          : "1px solid #bbf7d0",
                       marginBottom: "15px",
                     }}
                   >
@@ -884,15 +896,14 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                           borderRadius: "50%",
                           background:
                             questionObj.type === "technical"
-                              ? "rgba(102, 126, 234, 0.3)"
-                              : "rgba(76, 175, 80, 0.3)",
-                          display: "flex",
-                          alignItems: "center",
+                              ? "#eff6ff"
+                              : "#f0fdf4",
+                          display: "flex\",\n                          alignItems: \"center",
                           justifyContent: "center",
                           color:
                             questionObj.type === "technical"
-                              ? "#667eea"
-                              : "#4CAF50",
+                              ? "#0284c7"
+                              : "#16a34a",
                           fontWeight: "bold",
                           fontSize: "18px",
                           flexShrink: 0,
@@ -903,7 +914,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                       <div style={{ flex: 1 }}>
                         <div
                           style={{
-                            color: "#fff",
+                            color: "#1f2937",
                             fontSize: "15px",
                             lineHeight: "1.6",
                             marginBottom: "10px",
@@ -920,12 +931,16 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                             fontWeight: "500",
                             background:
                               questionObj.type === "technical"
-                                ? "rgba(102, 126, 234, 0.3)"
-                                : "rgba(76, 175, 80, 0.3)",
+                                ? "#eff6ff"
+                                : "#f0fdf4",
                             color:
                               questionObj.type === "technical"
-                                ? "#667eea"
-                                : "#4CAF50",
+                                ? "#0284c7"
+                                : "#16a34a",
+                            border:
+                              questionObj.type === "technical"
+                                ? "1px solid #bfdbfe"
+                                : "1px solid #bbf7d0",
                             textTransform: "capitalize",
                           }}
                         >
@@ -966,10 +981,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
               {/* Resume Viewer Header */}
               <div style={headerStyles}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <MdPictureAsPdf style={{ fontSize: "24px", color: "#667eea" }} />
+                  <MdPictureAsPdf style={{ fontSize: "24px", color: "#0284c7" }} />
                   <h2
                     style={{
-                      color: "#fff",
+                      color: "#1f2937",
                       fontSize: "24px",
                       fontWeight: "600",
                       margin: 0,
@@ -987,7 +1002,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                     style={{
                       textAlign: "center",
                       padding: "60px 20px",
-                      color: "rgba(255, 255, 255, 0.6)",
+                      color: "#6b7280",
                       fontSize: "16px",
                       display: "flex",
                       flexDirection: "column",
@@ -1035,7 +1050,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                     style={{
                       textAlign: "center",
                       padding: "60px 20px",
-                      color: "rgba(255, 255, 255, 0.6)",
+                      color: "#6b7280",
                       fontSize: "16px",
                       display: "flex",
                       flexDirection: "column",
@@ -1044,9 +1059,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                       height: "100%",
                     }}
                   >
-                    <MdPictureAsPdf style={{ fontSize: "48px", marginBottom: "15px", color: "#667eea" }} />
+                    <MdPictureAsPdf style={{ fontSize: "48px", marginBottom: "15px", color: "#0284c7" }} />
                     <p>Resume could not be loaded</p>
-                    <small style={{ marginTop: "10px", color: "rgba(255, 255, 255, 0.5)" }}>
+                    <small style={{ marginTop: "10px", color: "#9ca3af" }}>
                       Check your internet connection and try again
                     </small>
                   </div>
@@ -1090,7 +1105,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                   <button
                     style={{
                       ...buttonStyles,
-                      background: "linear-gradient(135deg, #FF9800, #F57C00)",
+                      background: "linear-gradient(135deg, #d97706, #b45309)",
                       color: "white",
                     }}
                     onClick={() => {

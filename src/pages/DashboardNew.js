@@ -527,8 +527,8 @@ export default function DashboardNew() {
                       width: "100%",
                       padding: "10px",
                       borderRadius: "4px",
-                      backgroundColor: "#262639",
-                      color: "#fff",
+                      backgroundColor: "#ffffffff",
+                      color: "#160f0fff",
                     }}
                   >
                     <option value="all">All</option>
@@ -629,8 +629,8 @@ export default function DashboardNew() {
                       width: "100%",
                       padding: "10px",
                       borderRadius: "4px",
-                      backgroundColor: "#262639",
-                      color: "#fff",
+                      backgroundColor: "#ffffffff",
+                      color: "#000000ff",
                     }}
                   >
                     <option value="">Select Salary Range</option>
@@ -653,8 +653,8 @@ export default function DashboardNew() {
                       width: "100%",
                       padding: "10px",
                       borderRadius: "4px",
-                      backgroundColor: "#262639",
-                      color: "#fff",
+                      backgroundColor: "#ffffffff",
+                      color: "#000000ff",
                     }}
                   >
                     <option value="">Select Notice Period</option>
