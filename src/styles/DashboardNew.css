@@ -677,6 +677,22 @@
   flex-shrink: 0;
 }
 
+/* Three color variations for resume avatars */
+.resume-avatar.color-1 {
+  background: linear-gradient(135deg, #d946ef, #a855f7);
+  box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
+}
+
+.resume-avatar.color-2 {
+  background: linear-gradient(135deg, #0284c7, #06b6d4);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.resume-avatar.color-3 {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
 .resume-info {
   flex: 1;
   min-width: 0;
@@ -765,6 +781,25 @@
   border-radius: 16px;
   font-size: 12px;
   white-space: nowrap;
+}
+
+/* Color-matched skill chips for each card color */
+.resume-item:has(.resume-avatar.color-1) .skill-chip {
+  background: rgba(217, 70, 239, 0.15);
+  border: 1px solid rgba(217, 70, 239, 0.4);
+  color: #e879f9;
+}
+
+.resume-item:has(.resume-avatar.color-2) .skill-chip {
+  background: rgba(2, 132, 199, 0.15);
+  border: 1px solid rgba(2, 132, 199, 0.4);
+  color: #06b6d4;
+}
+
+.resume-item:has(.resume-avatar.color-3) .skill-chip {
+  background: rgba(22, 163, 74, 0.15);
+  border: 1px solid rgba(22, 163, 74, 0.4);
+  color: #22c55e;
 }
 
 /* View Details Button */

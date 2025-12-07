@@ -733,9 +733,9 @@ export default function DashboardNew() {
 
               {/* Resume Cards */}
               <div className="resume-list">
-                {filteredResumes.map((resume) => (
+                {filteredResumes.map((resume, index) => (
                   <div key={resume.id} className="resume-item">
-                    <div className="resume-avatar">{resume.avatar}</div>
+                    <div className={`resume-avatar color-${((index % 3) + 1)}`}>{resume.avatar}</div>
                     <div className="resume-info">
                       <div className="resume-top">
                         <div>
