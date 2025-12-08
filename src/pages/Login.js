@@ -38,8 +38,8 @@ const Login = () => {
         <div className="features-content">
           <div className="features-header">
             <div className="logo">
-              <i className="fas fa-file-alt"></i>
-              <span>ResumeMatch</span>
+              {/* <i className="fas fa-file-alt"></i>
+              <span>ResumeMatch</span> */}
             </div>
             <h1>
               AI-Powered<br />

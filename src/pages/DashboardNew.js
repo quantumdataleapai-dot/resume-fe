@@ -86,6 +86,7 @@ export default function DashboardNew() {
   const [jobLocation, setJobLocation] = useState("all");
   const [expectedSalary, setExpectedSalary] = useState("");
   const [noticePeriod, setNoticePeriod] = useState("");
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
   
   const handleViewDetails = (resume) => {
@@ -230,6 +231,7 @@ export default function DashboardNew() {
           };
         });
         setResumes(normalized);
+        setHasAnalyzed(true);
         // Clear search to ensure matched resumes are visible
         setSearchQuery("");
         // Clear uploaded files after successful analysis
@@ -723,8 +725,8 @@ export default function DashboardNew() {
                 </select>
               </div>
 
-              {/* Results Header - Only show if resumes exist */}
-              {filteredResumes.length > 0 && (
+              {/* Results Header - Only show if resumes exist and analysis has been performed */}
+              {hasAnalyzed && filteredResumes.length > 0 && (
                 <div className="results-header">
                   <h2>Matched Candidates</h2>
                   <span className="result-count">{filteredResumes.length} results</span>

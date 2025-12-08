@@ -812,7 +812,11 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
             )}
             {resume.contact_number && (
               <button
-                style={successButtonStyles}
+                style={{
+                  ...buttonStyles,
+                  background: "linear-gradient(135deg, rgb(33 207 210), rgb(133 173 167 / 87%))",
+                  color: "white",
+                }}
                 onClick={() =>
                   (window.location.href = `tel:${resume.contact_number}`)
                 }

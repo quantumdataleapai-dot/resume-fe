@@ -745,7 +745,7 @@
 
 .score-fair {
   background: rgba(100, 116, 139, 0.2);
-  color: #cbd5e1;
+  color: #727476;
   border: 1px solid rgba(100, 116, 139, 0.4);
 }
 
@@ -787,7 +787,7 @@
 .resume-item:has(.resume-avatar.color-1) .skill-chip {
   background: rgba(217, 70, 239, 0.15);
   border: 1px solid rgba(217, 70, 239, 0.4);
-  color: #e879f9;
+  color: #9322a5;
 }
 
 .resume-item:has(.resume-avatar.color-2) .skill-chip {
