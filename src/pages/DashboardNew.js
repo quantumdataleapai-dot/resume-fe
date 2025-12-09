@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
+import { MdEmail, MdPhone, MdLocationOn, MdDelete } from "react-icons/md";
 import Header from "../components/Header";
 import AIChat from "../components/AIChat";
 import FileUpload from "../components/FileUpload";
@@ -102,6 +102,36 @@ export default function DashboardNew() {
     navigate("/");
   };
 
+  const handleDeleteResume = async (resumeId, resumeName) => {
+    if (!window.confirm(`Are you sure you want to delete the resume for ${resumeName}?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://10.20.0.58:8000/api/resumes/${resumeId}/delete`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
+      }
+
+      // Remove the deleted resume from the list
+      setResumes(resumes.filter(r => r.id !== resumeId));
+      window.alert(`Resume for ${resumeName} deleted successfully`);
+    } catch (err) {
+      console.error("Delete error:", err);
+      setError(err.message || "Failed to delete resume");
+      window.alert("Error: " + (err.message || "Failed to delete resume"));
+    }
+  };
+
   const handleFilesSelected = (files) => {
     setUploadedFiles(files);
   };
@@ -141,7 +171,7 @@ export default function DashboardNew() {
 
         console.log("Uploading files for processing...");
         const response = await fetch(
-          "http://10.30.0.104:8006/api/jobs/process-file-and-match",
+          "http://10.20.0.58:8000/api/jobs/process-file-and-match",
           {
             method: "POST",
             body: formData,
@@ -168,7 +198,7 @@ export default function DashboardNew() {
 
         console.log("Sending text job description for processing...");
         const response = await fetch(
-          "http://10.30.0.104:8006/api/jobs/process-text-and-match",
+          "http://10.20.0.58:8000/api/jobs/process-text-and-match",
           {
             method: "POST",
             headers: {
@@ -227,6 +257,7 @@ export default function DashboardNew() {
             missingSkills: r.missingSkills || r.missing_skills || [],
             questionsToAsk: r.questionsToAsk || r.questions_to_ask || [],
             generated_questions: r.generated_questions || [],
+            questions: r.questions || null,
             avatar: name ? (name.split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
           };
         });
@@ -260,7 +291,7 @@ export default function DashboardNew() {
     try {
       setError(null);
       const response = await fetch(
-        "http://10.30.0.104:8006/api/resumes/download-all?format=zip",
+        "http://10.20.0.58:8000/api/resumes/download-all?format=zip",
         {
           method: "POST",
           headers: {
@@ -318,39 +349,64 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("http://10.30.0.104:8006/api/resumes/upload", {
+          const resp = await fetch("http://10.20.0.58:8000/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
 
-          if (!resp.ok) {
-            const txt = await resp.text();
-            console.error("Upload error response:", txt);
-            throw new Error(`Upload failed: ${resp.status} ${resp.statusText}`);
+          const responseData = await resp.json();
+
+          // Check both HTTP status AND response success field
+          if (!resp.ok || !responseData.success) {
+            const errorMessage = responseData.message || responseData.error?.details?.[0]?.reason || `Upload failed: ${resp.status} ${resp.statusText}`;
+            console.error("Upload error response:", responseData);
+            throw new Error(errorMessage);
           }
 
-          // On success, refresh resume list
-          const data = await apiService.getResumes(1, 10);
-          let items = [];
-          if (!data) items = [];
-          else if (Array.isArray(data)) items = data;
-          else if (data.resumes && Array.isArray(data.resumes)) items = data.resumes;
-          else if (data.data && Array.isArray(data.data)) items = data.data;
+          // Use the uploaded resumes from the response directly
+          let uploadedResumes = [];
+          if (responseData.data && responseData.data.resumes && Array.isArray(responseData.data.resumes)) {
+            uploadedResumes = responseData.data.resumes;
+          }
 
-          const normalized = items.map((r, idx) => ({
-            id: r.id || r._id || idx + 1,
-            name: r.name || r.original_name || r.filename || "Unknown",
-            email: r.email || r.parsed_data?.email || "",
-            phone: r.phone || r.contact_number || r.parsed_data?.contact_number || "",
-            location: r.location || r.parsed_data?.location || "",
-            score: r.score || r.match_score || 0,
-            skills: r.skills || r.parsed_data?.skills || [],
-            experience: r.experience || r.experience_years || r.parsed_data?.experience_years || "",
-            avatar: (r.name || r.original_name) ? ((r.name || r.original_name).split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
-          }));
+          // Get existing resumes from the current state
+          let allResumes = [...resumes];
 
-          setResumes(normalized);
-          window.alert("Upload successful");
+          // Add newly uploaded resumes
+          const normalized = uploadedResumes.map((r, idx) => {
+            const parsed = r.parsed_data || {};
+            const name = parsed.name || r.name || r.filename || "Unknown";
+            return {
+              id: r.id || r._id || `resume_${Date.now()}_${idx}`,
+              filename: r.filename || "",
+              upload_date: r.upload_date || new Date().toISOString().split('T')[0],
+              name: name,
+              email: parsed.email || r.email || "",
+              contact_number: parsed.contact_number || r.contact_number || "",
+              location: parsed.location || r.location || "",
+              score: r.score || r.match_score || 0,
+              skills: Array.isArray(parsed.skills) ? parsed.skills : (r.skills || []),
+              experience_years: parsed.experience_years || r.experience_years || r.experience || "",
+              description: parsed.description || r.description || "",
+              linkedin: parsed.linkedin || r.linkedin || "",
+              visa_type: parsed.visa_type || r.visa_type || "",
+              education: parsed.education || r.education || "",
+              matchingSkills: r.matchingSkills || r.matching_skills || [],
+              missingSkills: r.missingSkills || r.missing_skills || [],
+              questionsToAsk: r.questionsToAsk || r.questions_to_ask || [],
+              generated_questions: r.generated_questions || [],
+              questions: r.questions || null,
+              avatar: name ? (name.split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
+            };
+          });
+
+          // Combine with existing resumes (avoiding duplicates based on ID)
+          const existingIds = new Set(allResumes.map(r => r.id));
+          const newResumes = normalized.filter(r => !existingIds.has(r.id));
+          const combinedResumes = [...newResumes, ...allResumes];
+
+          setResumes(combinedResumes);
+          window.alert(`Upload successful! Added ${newResumes.length} new resume(s)`);
         } catch (uploadErr) {
           console.error("Upload failed:", uploadErr);
           window.alert("Upload failed: " + (uploadErr.message || "Unknown error"));
@@ -809,6 +865,7 @@ export default function DashboardNew() {
         resume={selectedResume}
         isOpen={showDetailModal}
         onClose={handleCloseModal}
+        onDelete={handleDeleteResume}
       />
     </div>
   );

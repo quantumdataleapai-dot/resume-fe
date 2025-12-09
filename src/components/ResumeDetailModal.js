@@ -1,5 +1,6 @@
 import ModalPortal from "./ModalPortal";
 import { IoIosClose } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
 import { GrUserExpert } from "react-icons/gr";
 import {
   FaBullseye,
@@ -21,7 +22,7 @@ import {
 import { useState } from "react";
 import axios from "axios";
 
-const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
+const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }) => {
   const [showQuestions, setShowQuestions] = useState(false);
   const [showResumeViewer, setShowResumeViewer] = useState(false);
   const [resumeUrl, setResumeUrl] = useState(null);
@@ -50,7 +51,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `http://10.30.0.104:8006/api/resumes/${resume.id}/download`,
+        `http://10.20.0.58:8000/api/resumes/${resume.id}/download`,
         {
           responseType: "blob",
           headers: {
@@ -295,10 +296,64 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
     <ModalPortal>
       <div style={overlayStyles} onClick={handleOverlayClick}>
         <div style={modalStyles}>
-          {/* Close Button */}
-          <button style={closeButtonStyles} onClick={onClose}>
-            <IoIosClose />
-          </button>
+          {/* Delete and Close Buttons Container */}
+          <div style={{ position: "absolute", top: "12px", right: "12px", display: "flex", gap: "8px", alignItems: "center", zIndex: 10 }}>
+            {onDelete && (
+              <button 
+                style={{
+                  background: "transparent",
+                  border: "1px solid rgba(220, 38, 38, 0.3)",
+                  color: "#dc2626",
+                  padding: "6px 8px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "18px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.3s ease",
+                  width: "36px",
+                  height: "36px",
+                  minWidth: "36px",
+                }}
+                onClick={() => {
+                  onDelete(resume.id, resume.name);
+                  onClose();
+                }}
+                title="Delete resume"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(220, 38, 38, 0.15)";
+                  e.currentTarget.style.boxShadow = "0 0 8px rgba(220, 38, 38, 0.3)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <MdDelete size={18} />
+              </button>
+            )}
+            <button 
+              style={{
+                background: "#fee2e2",
+                border: "1px solid #fca5a5",
+                borderRadius: "50%",
+                width: "36px",
+                height: "36px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "#dc2626",
+                fontSize: "18px",
+                transition: "all 0.3s ease",
+                padding: 0,
+              }} 
+              onClick={onClose}
+            >
+              <IoIosClose />
+            </button>
+          </div>
 
           {/* Modal Header */}
           <div style={headerStyles}>
@@ -824,7 +879,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                 Call Candidate
               </button>
             )}
-            {resume.generated_questions?.length > 0 && (
+            {(resume.generated_questions?.length > 0 || resume.questions?.hr_general_questions?.length > 0) && (
               <button
                 style={{
                   ...buttonStyles,
@@ -841,7 +896,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
         </div>
 
         {/* Questions Modal */}
-        {showQuestions && resume.generated_questions?.length > 0 && (
+        {showQuestions && (resume.generated_questions?.length > 0 || resume.questions?.hr_general_questions?.length > 0) && (
           <div style={overlayStyles} onClick={() => setShowQuestions(false)}>
             <div
               style={{
@@ -863,97 +918,173 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload }) => {
                       margin: 0,
                     }}
                   >
-                    Interview Questions - {resume.name}
+                    Interview Questions {resume.questions?.role && `- ${resume.questions.role}`} - {resume.name}
                   </h2>
                 </div>
               </div>
 
               {/* Questions Modal Body */}
               <div style={bodyStyles}>
-                {resume.generated_questions.map((questionObj, index) => (
-                  <div
-                    key={questionObj.id || index}
-                    style={{
-                      ...sectionStyles,
-                      background:
-                        questionObj.type === "technical"
-                          ? "#eff6ff"
-                          : "#f0fdf4",
-                      border:
-                        questionObj.type === "technical"
-                          ? "1px solid #bfdbfe"
-                          : "1px solid #bbf7d0",
-                      marginBottom: "15px",
-                    }}
-                  >
+                {/* Handle new format: hr_general_questions */}
+                {resume.questions?.hr_general_questions?.length > 0 ? (
+                  <>
+                    <div style={{ marginBottom: "10px" }}>
+                      <p style={{ color: "#6b7280", fontSize: "14px", margin: "0 0 10px 0" }}>
+                        Role: <strong>{resume.questions.role}</strong>
+                      </p>
+                    </div>
+                    {resume.questions.hr_general_questions.map((question, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          ...sectionStyles,
+                          background: "#f0fdf4",
+                          border: "1px solid #bbf7d0",
+                          marginBottom: "15px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: "15px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              minWidth: "40px",
+                              height: "40px",
+                              borderRadius: "50%",
+                              background: "#f0fdf4",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#16a34a",
+                              fontWeight: "bold",
+                              fontSize: "18px",
+                              flexShrink: 0,
+                            }}
+                          >
+                            {index + 1}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div
+                              style={{
+                                color: "#1f2937",
+                                fontSize: "15px",
+                                lineHeight: "1.6",
+                                marginBottom: "10px",
+                              }}
+                            >
+                              {question}
+                            </div>
+                            <div
+                              style={{
+                                display: "inline-block",
+                                padding: "4px 12px",
+                                borderRadius: "20px",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                background: "#f0fdf4",
+                                color: "#16a34a",
+                                border: "1px solid #bbf7d0",
+                              }}
+                            >
+                              HR General
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  /* Handle old format: generated_questions */
+                  resume.generated_questions.map((questionObj, index) => (
                     <div
+                      key={questionObj.id || index}
                       style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: "15px",
+                        ...sectionStyles,
+                        background:
+                          questionObj.type === "technical"
+                            ? "#eff6ff"
+                            : "#f0fdf4",
+                        border:
+                          questionObj.type === "technical"
+                            ? "1px solid #bfdbfe"
+                            : "1px solid #bbf7d0",
+                        marginBottom: "15px",
                       }}
                     >
                       <div
                         style={{
-                          minWidth: "40px",
-                          height: "40px",
-                          borderRadius: "50%",
-                          background:
-                            questionObj.type === "technical"
-                              ? "#eff6ff"
-                              : "#f0fdf4",
-                          display: "flex\",\n                          alignItems: \"center",
-                          justifyContent: "center",
-                          color:
-                            questionObj.type === "technical"
-                              ? "#0284c7"
-                              : "#16a34a",
-                          fontWeight: "bold",
-                          fontSize: "18px",
-                          flexShrink: 0,
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: "15px",
                         }}
                       >
-                        {index + 1}
-                      </div>
-                      <div style={{ flex: 1 }}>
                         <div
                           style={{
-                            color: "#1f2937",
-                            fontSize: "15px",
-                            lineHeight: "1.6",
-                            marginBottom: "10px",
-                          }}
-                        >
-                          {questionObj.question}
-                        </div>
-                        <div
-                          style={{
-                            display: "inline-block",
-                            padding: "4px 12px",
-                            borderRadius: "20px",
-                            fontSize: "12px",
-                            fontWeight: "500",
+                            minWidth: "40px",
+                            height: "40px",
+                            borderRadius: "50%",
                             background:
                               questionObj.type === "technical"
                                 ? "#eff6ff"
                                 : "#f0fdf4",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                             color:
                               questionObj.type === "technical"
                                 ? "#0284c7"
                                 : "#16a34a",
-                            border:
-                              questionObj.type === "technical"
-                                ? "1px solid #bfdbfe"
-                                : "1px solid #bbf7d0",
-                            textTransform: "capitalize",
+                            fontWeight: "bold",
+                            fontSize: "18px",
+                            flexShrink: 0,
                           }}
                         >
-                          {questionObj.type}
+                          {index + 1}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              color: "#1f2937",
+                              fontSize: "15px",
+                              lineHeight: "1.6",
+                              marginBottom: "10px",
+                            }}
+                          >
+                            {questionObj.question}
+                          </div>
+                          <div
+                            style={{
+                              display: "inline-block",
+                              padding: "4px 12px",
+                              borderRadius: "20px",
+                              fontSize: "12px",
+                              fontWeight: "500",
+                              background:
+                                questionObj.type === "technical"
+                                  ? "#eff6ff"
+                                  : "#f0fdf4",
+                              color:
+                                questionObj.type === "technical"
+                                  ? "#0284c7"
+                                  : "#16a34a",
+                              border:
+                                questionObj.type === "technical"
+                                  ? "1px solid #bfdbfe"
+                                  : "1px solid #bbf7d0",
+                              textTransform: "capitalize",
+                            }}
+                          >
+                            {questionObj.type}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
 
               {/* Questions Modal Footer */}
