@@ -925,17 +925,33 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
 
               {/* Questions Modal Body */}
               <div style={bodyStyles}>
-                {/* Handle new format: hr_general_questions */}
-                {resume.questions?.hr_general_questions?.length > 0 ? (
-                  <>
-                    <div style={{ marginBottom: "10px" }}>
-                      <p style={{ color: "#6b7280", fontSize: "14px", margin: "0 0 10px 0" }}>
-                        Role: <strong>{resume.questions.role}</strong>
-                      </p>
-                    </div>
+                {/* Display role */}
+                {resume.questions?.role && (
+                  <div style={{ marginBottom: "20px" }}>
+                    <p style={{ color: "#6b7280", fontSize: "14px", margin: "0 0 10px 0" }}>
+                      Role: <strong>{resume.questions.role}</strong>
+                    </p>
+                  </div>
+                )}
+
+                {/* HR General Questions Section */}
+                {resume.questions?.hr_general_questions?.length > 0 && (
+                  <div style={{ marginBottom: "30px" }}>
+                    <h3
+                      style={{
+                        color: "#1f2937",
+                        fontSize: "16px",
+                        fontWeight: "600",
+                        marginBottom: "15px",
+                        paddingBottom: "10px",
+                        borderBottom: "2px solid #16a34a",
+                      }}
+                    >
+                      HR General Questions
+                    </h3>
                     {resume.questions.hr_general_questions.map((question, index) => (
                       <div
-                        key={index}
+                        key={`hr-${index}`}
                         style={{
                           ...sectionStyles,
                           background: "#f0fdf4",
@@ -996,94 +1012,179 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
                         </div>
                       </div>
                     ))}
-                  </>
-                ) : (
-                  /* Handle old format: generated_questions */
-                  resume.generated_questions.map((questionObj, index) => (
-                    <div
-                      key={questionObj.id || index}
+                  </div>
+                )}
+
+                {/* Technical Questions Section */}
+                {resume.questions?.technical_questions?.length > 0 && (
+                  <div style={{ marginBottom: "30px" }}>
+                    <h3
                       style={{
-                        ...sectionStyles,
-                        background:
-                          questionObj.type === "technical"
-                            ? "#eff6ff"
-                            : "#f0fdf4",
-                        border:
-                          questionObj.type === "technical"
-                            ? "1px solid #bfdbfe"
-                            : "1px solid #bbf7d0",
+                        color: "#1f2937",
+                        fontSize: "16px",
+                        fontWeight: "600",
                         marginBottom: "15px",
+                        paddingBottom: "10px",
+                        borderBottom: "2px solid #0284c7",
                       }}
                     >
+                      Technical Questions
+                    </h3>
+                    {resume.questions.technical_questions.map((question, index) => (
                       <div
+                        key={`tech-${index}`}
                         style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: "15px",
+                          ...sectionStyles,
+                          background: "#eff6ff",
+                          border: "1px solid #bfdbfe",
+                          marginBottom: "15px",
                         }}
                       >
                         <div
                           style={{
-                            minWidth: "40px",
-                            height: "40px",
-                            borderRadius: "50%",
-                            background:
-                              questionObj.type === "technical"
-                                ? "#eff6ff"
-                                : "#f0fdf4",
                             display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color:
-                              questionObj.type === "technical"
-                                ? "#0284c7"
-                                : "#16a34a",
-                            fontWeight: "bold",
-                            fontSize: "18px",
-                            flexShrink: 0,
+                            alignItems: "flex-start",
+                            gap: "15px",
                           }}
                         >
-                          {index + 1}
-                        </div>
-                        <div style={{ flex: 1 }}>
                           <div
                             style={{
-                              color: "#1f2937",
-                              fontSize: "15px",
-                              lineHeight: "1.6",
-                              marginBottom: "10px",
+                              minWidth: "40px",
+                              height: "40px",
+                              borderRadius: "50%",
+                              background: "#eff6ff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#0284c7",
+                              fontWeight: "bold",
+                              fontSize: "18px",
+                              flexShrink: 0,
                             }}
                           >
-                            {questionObj.question}
+                            {index + 1}
                           </div>
+                          <div style={{ flex: 1 }}>
+                            <div
+                              style={{
+                                color: "#1f2937",
+                                fontSize: "15px",
+                                lineHeight: "1.6",
+                                marginBottom: "10px",
+                              }}
+                            >
+                              {question}
+                            </div>
+                            <div
+                              style={{
+                                display: "inline-block",
+                                padding: "4px 12px",
+                                borderRadius: "20px",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                background: "#eff6ff",
+                                color: "#0284c7",
+                                border: "1px solid #bfdbfe",
+                              }}
+                            >
+                              Technical
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Fallback for old format: generated_questions */}
+                {!resume.questions?.hr_general_questions && resume.generated_questions?.length > 0 && (
+                  <div>
+                    {resume.generated_questions.map((questionObj, index) => (
+                      <div
+                        key={questionObj.id || index}
+                        style={{
+                          ...sectionStyles,
+                          background:
+                            questionObj.type === "technical"
+                              ? "#eff6ff"
+                              : "#f0fdf4",
+                          border:
+                            questionObj.type === "technical"
+                              ? "1px solid #bfdbfe"
+                              : "1px solid #bbf7d0",
+                          marginBottom: "15px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: "15px",
+                          }}
+                        >
                           <div
                             style={{
-                              display: "inline-block",
-                              padding: "4px 12px",
-                              borderRadius: "20px",
-                              fontSize: "12px",
-                              fontWeight: "500",
+                              minWidth: "40px",
+                              height: "40px",
+                              borderRadius: "50%",
                               background:
                                 questionObj.type === "technical"
                                   ? "#eff6ff"
                                   : "#f0fdf4",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                               color:
                                 questionObj.type === "technical"
                                   ? "#0284c7"
                                   : "#16a34a",
-                              border:
-                                questionObj.type === "technical"
-                                  ? "1px solid #bfdbfe"
-                                  : "1px solid #bbf7d0",
-                              textTransform: "capitalize",
+                              fontWeight: "bold",
+                              fontSize: "18px",
+                              flexShrink: 0,
                             }}
                           >
-                            {questionObj.type}
+                            {index + 1}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div
+                              style={{
+                                color: "#1f2937",
+                                fontSize: "15px",
+                                lineHeight: "1.6",
+                                marginBottom: "10px",
+                              }}
+                            >
+                              {questionObj.question}
+                            </div>
+                            <div
+                              style={{
+                                display: "inline-block",
+                                padding: "4px 12px",
+                                borderRadius: "20px",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                background:
+                                  questionObj.type === "technical"
+                                    ? "#eff6ff"
+                                    : "#f0fdf4",
+                                color:
+                                  questionObj.type === "technical"
+                                    ? "#0284c7"
+                                    : "#16a34a",
+                                border:
+                                  questionObj.type === "technical"
+                                    ? "1px solid #bfdbfe"
+                                    : "1px solid #bbf7d0",
+                                textTransform: "capitalize",
+                              }}
+                            >
+                              {questionObj.type}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
 
