@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdEmail, MdPhone, MdLocationOn, MdDelete } from "react-icons/md";
+import mammoth from "mammoth";
 import Header from "../components/Header";
 import AIChat from "../components/AIChat";
 import FileUpload from "../components/FileUpload";
@@ -555,14 +556,37 @@ export default function DashboardNew() {
                     const input = document.createElement("input");
                     input.type = "file";
                     input.accept = ".pdf,.doc,.docx,.txt";
-                    input.onchange = (e) => {
+                    input.onchange = async (e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          setJobDescription(event.target?.result || "");
-                        };
-                        reader.readAsText(file);
+                        try {
+                          let text = "";
+                          
+                          // Handle different file types
+                          if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.endsWith(".docx")) {
+                            // Handle .docx files using mammoth
+                            const arrayBuffer = await file.arrayBuffer();
+                            const result = await mammoth.extractRawText({ arrayBuffer });
+                            text = result.value;
+                          } else if (file.type === "application/msword" || file.name.endsWith(".doc")) {
+                            // For .doc files, show a message since they need special handling
+                            window.alert("Legacy .doc format has limited support. Please use .docx or .txt files for best results.");
+                            return;
+                          } else {
+                            // Handle .txt and other text files
+                            text = await file.text();
+                          }
+                          
+                          if (text.trim()) {
+                            setJobDescription(text);
+                            console.log("File uploaded successfully, extracted text length:", text.length);
+                          } else {
+                            window.alert("The file appears to be empty or could not be read.");
+                          }
+                        } catch (error) {
+                          console.error("Error reading file:", error);
+                          window.alert("Error reading file: " + (error.message || "Unknown error"));
+                        }
                       }
                     };
                     input.click();
