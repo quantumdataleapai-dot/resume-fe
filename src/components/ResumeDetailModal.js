@@ -189,57 +189,62 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
   };
 
   const footerStyles = {
-    padding: "20px 30px",
+    padding: "16px 24px",
     borderTop: "1px solid #e5e7eb",
     background: "#f9fafb",
     display: "flex",
     justifyContent: "flex-end",
-    gap: "10px",
+    gap: "8px",
     transform: "none",
     transition: "none",
     flexShrink: 0,
+    flexWrap: "wrap",
+    alignItems: "center",
   };
 
   const buttonStyles = {
-    padding: "10px 20px",
-    borderRadius: "8px",
+    padding: "8px 16px",
+    borderRadius: "6px",
     border: "none",
-    fontSize: "14px",
-    fontWeight: "500",
+    fontSize: "13px",
+    fontWeight: "600",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    gap: "8px",
-    transition: "none",
+    gap: "6px",
+    transition: "all 0.2s ease",
     transform: "none",
+    whiteSpace: "nowrap",
+    textDecoration: "none",
   };
 
   const primaryButtonStyles = {
     ...buttonStyles,
     background: "linear-gradient(135deg, #667eea, #8b5cf6)",
     color: "white",
-    boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
+    boxShadow: "0 2px 8px rgba(102, 126, 234, 0.25)",
   };
 
   const secondaryButtonStyles = {
     ...buttonStyles,
-    background: "#f3f4f6",
-    color: "#1f2937",
-    border: "1px solid #e5e7eb",
+    background: "#ffffff",
+    color: "#4b5563",
+    border: "1px solid #d1d5db",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
   };
 
   const successButtonStyles = {
     ...buttonStyles,
     background: "linear-gradient(135deg, #16a34a, #15803d)",
     color: "white",
-    boxShadow: "0 4px 12px rgba(22, 163, 74, 0.3)",
+    boxShadow: "0 2px 8px rgba(22, 163, 74, 0.25)",
   };
 
   const infoButtonStyles = {
     ...buttonStyles,
     background: "linear-gradient(135deg, #0284c7, #0369a1)",
     color: "white",
-    boxShadow: "0 4px 12px rgba(2, 132, 199, 0.3)",
+    boxShadow: "0 2px 8px rgba(2, 132, 199, 0.25)",
   };
 
   const skillTagStyles = {
@@ -845,9 +850,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
 
           {/* Modal Footer */}
           <div style={footerStyles}>
-            <button style={secondaryButtonStyles} onClick={onClose}>
+            {/* <button style={secondaryButtonStyles} onClick={onClose}>
               Close
-            </button>
+            </button> */}
             <button
               style={primaryButtonStyles}
               onClick={handleViewResume}
@@ -883,7 +888,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
               <button
                 style={{
                   ...buttonStyles,
-                  background: "linear-gradient(135deg, #d97706, #b45309)",
+                  background: "linear-gradient(135deg, #e0a7edff, #7b09b4b8)",
                   color: "white",
                 }}
                 onClick={() => setShowQuestions(true)}
