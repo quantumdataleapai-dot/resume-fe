@@ -302,7 +302,7 @@
 
 /* Analyze Button */
 .analyze-btn {
-  background: linear-gradient(135deg, #d946ef, #a855f7);
+  background: linear-gradient(135deg, #317e65, #0284c7);
   border: none;
   border-radius: 12px;
   padding: 16px 24px;
@@ -311,14 +311,14 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 24px rgba(217, 70, 239, 0.3);
+  box-shadow: 0 8px 24px rgba(70, 180, 239, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .analyze-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(217, 70, 239, 0.4);
+  box-shadow: 0 12px 32px rgba(70, 180, 239, 0.3);
 }
 
 .analyze-btn:disabled {
@@ -666,7 +666,7 @@
   min-width: 56px;
   min-height: 56px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #d946ef, #a855f7);
+  background: linear-gradient(135deg, #317e65, #0284c7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -679,17 +679,17 @@
 
 /* Three color variations for resume avatars */
 .resume-avatar.color-1 {
-  background: linear-gradient(135deg, #d946ef, #a855f7);
+  background: linear-gradient(135deg, #1f57ab, #d06aff);
   box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
 }
-
+ 
 .resume-avatar.color-2 {
-  background: linear-gradient(135deg, #0284c7, #06b6d4);
+  background: linear-gradient(135deg, #1f57ab, #55e4f7);
   box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 }
-
+ 
 .resume-avatar.color-3 {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
+  background: linear-gradient(135deg, #1f8eab, #55f799);
   box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
 }
 
@@ -740,7 +740,7 @@
 .score-good {
   background: rgba(217, 70, 239, 0.2);
   color: #d946ef;
-  border: 1px solid rgba(217, 70, 239, 0.4);
+  border: 1px solid rgb(72 87 194);
 }
 
 .score-fair {
@@ -785,9 +785,9 @@
 
 /* Color-matched skill chips for each card color */
 .resume-item:has(.resume-avatar.color-1) .skill-chip {
-  background: rgba(217, 70, 239, 0.15);
-  border: 1px solid rgba(217, 70, 239, 0.4);
-  color: #9322a5;
+  background: #4f46ef26;
+  border: 1px solid rgb(72 87 194);
+  color: #7956dd;
 }
 
 .resume-item:has(.resume-avatar.color-2) .skill-chip {
@@ -866,19 +866,19 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #d946ef, #a855f7);
+  background: linear-gradient(135deg, #1f81a7, #196377df);
+  border: 1px solid #7474c4;
   border: none;
   color: white;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(217, 70, 239, 0.4);
+  box-shadow: 0 8px 24px #4b90a3df;
   transition: all 0.3s ease;
   z-index: 40;
 }
 
 .ai-chat-fab:hover {
   transform: scale(1.1);
-  box-shadow: 0 12px 32px rgba(217, 70, 239, 0.5);
 }
 
 .ai-chat-fab:active {
@@ -1038,7 +1038,7 @@
 }
 
 .chat-input-container button {
-  background: linear-gradient(135deg, #d946ef, #a855f7);
+  background: linear-gradient(135deg, #317e65, #0284c7);
   border: none;
   border-radius: 50%;
   width: 40px;
