@@ -87,6 +87,7 @@ export default function DashboardNew() {
   const [jobLocation, setJobLocation] = useState("all");
   const [expectedSalary, setExpectedSalary] = useState("");
   const [noticePeriod, setNoticePeriod] = useState("");
+  const [willingnessToRelocate, setWillingnessToRelocate] = useState("");
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
   
@@ -599,7 +600,7 @@ export default function DashboardNew() {
               {/* Visa Requirement & Job Location */}
               <div className="job-filters-section">
                 <div className="filter-group">
-                  <label>Visa Requirement</label>
+                  <label>Work Authorization</label>
                   <select
 
                     value={visaRequirement}
@@ -616,13 +617,13 @@ export default function DashboardNew() {
                     <option value="all">All</option>
                     <optgroup label="Citizens and Permanent Residents">
                       <option value="us-citizen">US Citizen</option>
-                      <option value="us-citizenship">US Citizenship</option>
+                      {/* <option value="us-citizenship">US Citizenship</option> */}
                       <option value="us-authorized">US Authorized</option>
                       <option value="canadian-citizen">Canadian Citizen</option>
                       <option value="canada-authorized">
                         Canada Authorized
                       </option>
-                      <option value="citizen">Citizen</option>
+                      {/* <option value="citizen">Citizen</option> */}
                     </optgroup>
                     <optgroup label="Green Card and EAD">
                       <option value="green-card">Green Card</option>
@@ -722,6 +723,7 @@ export default function DashboardNew() {
                     <option value="100000-120000">$100K - $120K</option>
                     <option value="120000-150000">$120K - $150K</option>
                     <option value="150000+">$150K+</option>
+                    <option value="others">Others</option>
                   </select>
                 </div>
 
@@ -746,6 +748,26 @@ export default function DashboardNew() {
                     <option value="1-month">1 Month</option>
                     <option value="2-months">2 Months</option>
                     <option value="3-months">3 Months</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label>Willingness to Relocate</label>
+                  <select
+                    value={willingnessToRelocate}
+                    onChange={(e) => setWillingnessToRelocate(e.target.value)}
+                    className="filter-select"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#ffffffff",
+                      color: "#000000ff",
+                    }}
+                  >
+                    <option value="">Any</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
                   </select>
                 </div>
               </div>
