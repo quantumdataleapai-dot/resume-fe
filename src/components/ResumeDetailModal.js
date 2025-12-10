@@ -883,7 +883,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
               <button
                 style={{
                   ...buttonStyles,
-                  background: "linear-gradient(135deg, #d97706, #b45309)",
+                  background: "linear-gradient(135deg, #e0a7edff, #7b09b4b8)",
                   color: "white",
                 }}
                 onClick={() => setShowQuestions(true)}

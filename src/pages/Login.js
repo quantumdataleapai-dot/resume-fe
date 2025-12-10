@@ -1,161 +1,326 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../utils/AuthContext";
-import SignupModal from "../components/SignupModal";
-import "../styles/Login.css";
 
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const { login } = useAuth();
+const LoginPage = () => {
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showScores, setShowScores] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const result = await login(email, password);
-
-    if (result.success) {
-      navigate("/dashboard");
-    } else {
-      setError(result.error);
+    
+    if (!username || !password) {
+      alert("Please fill in all fields");
+      return;
     }
 
-    setLoading(false);
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 2000);
+  };
+
+  const robotStyle = {
+    animation: "float 3s ease-in-out infinite",
+  };
+
+  const getScoreCardAnimation = (delay) => {
+    return `slideIn 0.6s ease-out ${delay}s forwards, float 3s ease-in-out ${delay}s infinite`;
   };
 
   return (
-    <div className="login-container">
-      {/* Left side: Branding and Features */}
-      <div className="login-features">
-        <div className="features-content">
-          <div className="features-header">
-            <div className="logo">
-              {/* <i className="fas fa-file-alt"></i>
-              <span>ResumeMatch</span> */}
+    <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1fr 1fr", backgroundColor: "#fff" }}>
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(-50%); }
+          50% { transform: translateY(-70%); }
+        }
+        
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes scan {
+          0% { opacity: 0.5; }
+          50% { opacity: 1; }
+          100% { opacity: 0.5; }
+        }
+        
+        @keyframes paperMove {
+          0% { transform: translate(0px, 0px) rotate(-2deg); }
+          50% { transform: translate(-8px, -6px) rotate(2deg); }
+          100% { transform: translate(0px, 0px) rotate(-2deg); }
+        }
+
+        @keyframes scanline {
+          0% { transform: translateX(-120%); opacity: 0.6; }
+          50% { transform: translateX(0%); opacity: 1; }
+          100% { transform: translateX(120%); opacity: 0.6; }
+        }
+      `}</style>
+
+      {/* Left Panel - Features */}
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px", backgroundColor: "#f8fafb", overflow: "hidden" }}>
+        <div style={{ maxWidth: "500px", textAlign: "center", zIndex: 10 }}>
+          <h1 style={{ fontSize: "32px", fontWeight: "800", lineHeight: 1.2, marginBottom: "48px", color: "#0f1724" }}>
+            Fully Scalable, Fully Integrated<br />Applicant Tracking System
+          </h1>
+
+          {/* Illustration Area */}
+          <div style={{ position: "relative", width: "100%", height: "320px", marginBottom: "32px" }}>
+            {/* Badge */}
+            <div style={{ 
+              position: "absolute", 
+              top: 0, 
+              left: 16, 
+              background: "#fff", 
+              borderRadius: "9999px", 
+              padding: "8px 16px", 
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)", 
+              border: "1px solid #e5e7eb", 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "8px",
+              animation: showScores ? "scan 1.5s ease-in-out infinite" : "none"
+            }}>
+              <div style={{ width: 20, height: 20, background: "rgba(255,107,53,0.2)", borderRadius: "4px" }}></div>
+              <span style={{ fontSize: "14px", fontWeight: 500, color: "#0f1724" }}>AI Resume Match</span>
             </div>
-            <h1>
-              AI-Powered<br />
-              <span>Resume Analysis</span>
-            </h1>
+
+            {/* Score Card 1 - Top Right */}
+            <div style={{ 
+              position: "absolute", 
+              top: 32, 
+              right: 80,
+              opacity: showScores ? 1 : 0,
+              animation: getScoreCardAnimation(0),
+            }}>
+              <div style={{ background: "#fff", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "12px", border: "1px solid #e5e7eb" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#ff6b35", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" }}>👤</div>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontSize: "12px", color: "#60708a" }}>Match</div>
+                    <div style={{ fontSize: "12px", fontWeight: "bold", color: "#ff6b35" }}>85%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Score Card 2 - Left Center */}
+            <div style={{ 
+              position: "absolute", 
+              left: 32, 
+              top: 96,
+              opacity: showScores ? 1 : 0,
+              animation: getScoreCardAnimation(0.3),
+            }}>
+              <div style={{ background: "#fff", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "12px", border: "1px solid #e5e7eb" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" }}>👤</div>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontSize: "12px", color: "#60708a" }}>Skills</div>
+                    <div style={{ fontSize: "12px", fontWeight: "bold", color: "#16a34a" }}>92%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Score Card 3 - Bottom Left */}
+            <div style={{ 
+              position: "absolute", 
+              left: 64, 
+              bottom: 64,
+              opacity: showScores ? 1 : 0,
+              animation: getScoreCardAnimation(0.6),
+            }}>
+              <div style={{ background: "#fff", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "12px", border: "1px solid #e5e7eb" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#eab308", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px" }}>🤖</div>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontSize: "12px", color: "#60708a" }}>AI Score</div>
+                    <div style={{ fontSize: "12px", fontWeight: "bold", color: "#ca8a04" }}>78%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Small resume/text paper */}
+            <div style={{
+              position: "absolute",
+              right: "160px",
+              top: "58%",
+              transform: "translateY(-50%)",
+              width: "80px",
+              height: "100px",
+              borderRadius: "4px",
+              background: "#fff",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              border: "1px solid #ddd",
+              padding: "8px",
+              zIndex: 5,
+              animation: "paperMove 3.5s ease-in-out infinite"
+            }}>
+              <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: "2px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px" }}>
+                  <div style={{ height: "6px", background: "#e0e0e0", borderRadius: "2px", width: "90%" }}></div>
+                  <div style={{ height: "4px", background: "#f0f0f0", borderRadius: "2px", width: "100%" }}></div>
+                  <div style={{ height: "4px", background: "#f0f0f0", borderRadius: "2px", width: "95%" }}></div>
+                  <div style={{ height: "4px", background: "#f0f0f0", borderRadius: "2px", width: "85%" }}></div>
+                  <div style={{ height: "4px", background: "#f0f0f0", borderRadius: "2px", width: "90%" }}></div>
+                </div>
+                <div style={{ position: "absolute", left: "-120%", top: 0, bottom: 0, width: "120%", background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(11,95,255,0.1) 50%, rgba(255,255,255,0) 100%)", animation: "scanline 1.6s linear 0.25s infinite" }}></div>
+              </div>
+            </div>
+
+            {/* Robot - Floating */}
+            <div style={{ 
+              position: "absolute", 
+              right: 48, 
+              top: "50%", 
+              transform: "translateY(-50%)", 
+              fontSize: "80px",
+              ...robotStyle
+            }}>🤖</div>
           </div>
-          <p className="features-subtitle">
-            Upload resumes, match against job descriptions, and let AI help you find the perfect candidates faster than ever.
+
+          <h2 style={{ fontSize: "24px", fontWeight: "700", color: "#0b5fff", marginBottom: "16px" }}>AI Matching & Ranking</h2>
+          <p style={{ fontSize: "15px", lineHeight: 1.6, color: "#60708a", maxWidth: "400px", margin: "0 auto" }}>
+             AI enables better candidate sourcing for recruiters. AI Matching lets recruiters source suitable candidates and rank the candidate's skill set with the job requirements.
           </p>
-          <div className="features-list">
-            <div className="feature-item">
-              <i className="fas fa-bolt"></i>
-              <span>Instant resume scoring & ranking</span>
-            </div>
-            <div className="feature-item">
-              <i className="fas fa-brain"></i>
-              <span>AI-powered skill matching</span>
-            </div>
-            <div className="feature-item">
-              <i className="fas fa-boxes"></i>
-              <span>Bulk resume processing</span>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Right side: Login Form */}
-      <div className="login-card">
-        <div className="login-header">
-          <h2>Welcome Back</h2>
-          <p>Sign in to your account</p>
-        </div>
-
-        <form className="login-form" onSubmit={handleSubmit}>
-          {error && <div className="error-message">{error}</div>}
-
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="demo@fisecglobal.net"
-            />
+      {/* Right Panel - Login Form */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "32px", backgroundColor: "#fff" }}>
+        <div style={{ width: "100%", maxWidth: "360px" }}>
+          {/* Logo */}
+          <div style={{ textAlign: "center", marginBottom: "32px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
+              <div style={{ display: "flex", gap: "4px" }}>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff6b35" }}></div>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff0b0bff" }}></div>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff3535ff" }}></div>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#0b5fff" }}></div>
+              </div>
+              <span style={{ fontSize: "20px", fontWeight: "700", color: "#0b5fff" }}>FiSec Global</span>
+            </div>
+            <span style={{ fontSize: "12px", color: "#d32f2f", fontWeight: 600 }}>ATS</span>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="password"
-            />
-          </div>
+          <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f1724", marginBottom: "8px" }}>Sign In</h2>
+          <p style={{ fontSize: "13px", color: "#60708a", marginBottom: "32px" }}>
+            Don't have an account yet?{" "}
+            <button style={{ background: "none", border: "none", color: "#0b5fff", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>
+              Sign Up
+            </button>
+          </p>
 
-          <div className="form-options">
-            <label className="checkbox-container">
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div>
               <input
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="User Name"
+                disabled={isLoading}
+                style={{ width: "100%", padding: "12px", height: "48px", border: "1px solid #e6eefc", borderRadius: "8px", fontSize: "15px", background: "#fff", color: "#0f1724", boxSizing: "border-box", opacity: isLoading ? 0.6 : 1, cursor: isLoading ? "not-allowed" : "text" }}
               />
-              <span className="checkmark"></span>
-              Remember me
-            </label>
+            </div>
+
+            <div style={{ position: "relative" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                disabled={isLoading}
+                style={{ width: "100%", padding: "12px 48px 12px 12px", height: "48px", border: "1px solid #e6eefc", borderRadius: "8px", fontSize: "15px", background: "#fff", color: "#0f1724", boxSizing: "border-box", opacity: isLoading ? 0.6 : 1, cursor: isLoading ? "not-allowed" : "text" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={isLoading}
+                style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: isLoading ? "not-allowed" : "pointer", color: "#60708a", opacity: isLoading ? 0.6 : 1 }}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <input
+                  type="checkbox"
+                  id="remember"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={isLoading}
+                  style={{ width: 16, height: 16, cursor: isLoading ? "not-allowed" : "pointer", accentColor: "#0b5fff", opacity: isLoading ? 0.6 : 1 }}
+                />
+                <label htmlFor="remember" style={{ fontSize: "13px", color: "#0f1724", cursor: isLoading ? "not-allowed" : "pointer", opacity: isLoading ? 0.6 : 1 }}>
+                  Remember me
+                </label>
+              </div>
+              <button type="button" disabled={isLoading} style={{ background: "none", border: "none", color: "#0b5fff", fontSize: "13px", cursor: isLoading ? "not-allowed" : "pointer", textDecoration: "underline", opacity: isLoading ? 0.6 : 1 }}>
+                Forgot Credentials?
+              </button>
+            </div>
+
             <button
-              type="button"
-              className="forgot-password"
-              onClick={() =>
-                alert("Forgot password functionality would be implemented here")
-              }
+              type="submit"
+              disabled={isLoading}
+              style={{ width: "100%", height: "48px", padding: "12px", background: isLoading ? "#5b8dff" : "linear-gradient(135deg, #0b5fff 0%, #0950d1 100%)", color: "#fff", border: "none", borderRadius: "8px", fontSize: "15px", fontWeight: 700, cursor: isLoading ? "not-allowed" : "pointer", textTransform: "uppercase", letterSpacing: "0.05em", opacity: isLoading ? 0.8 : 1 }}
             >
-              Forgot Password?
+              {isLoading ? "SIGNING IN..." : "SIGN IN"}
             </button>
-          </div>
 
-          <button type="submit" className="login-btn" disabled={loading}>
-            {loading ? "Signing In..." : "Sign In"}
-          </button>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
+              <button type="button" disabled={isLoading} style={{ background: "none", border: "none", color: "#0b5fff", cursor: isLoading ? "not-allowed" : "pointer", textDecoration: "underline", opacity: isLoading ? 0.6 : 1 }}>
+                Unable to Login?
+              </button>
+              <button type="button" disabled={isLoading} style={{ background: "none", border: "none", color: "#0b5fff", cursor: isLoading ? "not-allowed" : "pointer", textDecoration: "underline", opacity: isLoading ? 0.6 : 1 }}>
+                Unblock
+              </button>
+            </div>
 
-          <div className="divider">
-            <span>or continue with</span>
-          </div>
+            <div style={{ position: "relative", margin: "24px 0" }}>
+              <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: "1px", background: "#e6eefc" }}></div>
+              <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+                <span style={{ background: "#fff", padding: "0 16px", color: "#9aa6bd", fontSize: "13px" }}>or Sign in with</span>
+              </div>
+            </div>
 
-          <button type="button" className="google-btn">
-            <i className="fab fa-google"></i>
-            Continue with Google
-          </button>
-
-          <div className="signup-link">
-            Don't have an account?
-            <button
-              type="button"
-              className="signup-btn"
-              onClick={() => setShowSignup(true)}
-            >
-              Sign up
-            </button>
-          </div>
-
-          <div className="demo-credentials">
-            <small>Demo: email: demo@fisecglobal.net, password: password</small>
-          </div>
-        </form>
+            {/* Social Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <button type="button" disabled={isLoading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
+                <span>Google</span>
+              </button>
+              <button type="button" disabled={isLoading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
+                <span>LinkedIn</span>
+              </button>
+              <button type="button" disabled={isLoading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
+                <span>Office 365</span>
+              </button>
+              <button type="button" disabled={isLoading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
+                <span>Azure</span>
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-
-      {showSignup && (
-        <SignupModal isOpen={showSignup} onClose={() => setShowSignup(false)} />
-      )}
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;
