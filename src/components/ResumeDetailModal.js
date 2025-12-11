@@ -54,7 +54,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `http://10.20.0.58:8000/api/resumes/${resume.id}/download`,
+        `http://10.30.0.104:8006/api/resumes/${resume.id}/download`,
         {
           responseType: "blob",
           headers: {
