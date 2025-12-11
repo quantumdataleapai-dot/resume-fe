@@ -22,12 +22,15 @@ import {
 import { useState } from "react";
 import axios from "axios";
 
-const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }) => {
+const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, jdId }) => {
   const [showQuestions, setShowQuestions] = useState(false);
   const [showResumeViewer, setShowResumeViewer] = useState(false);
   const [resumeUrl, setResumeUrl] = useState(null);
   const [loadingResume, setLoadingResume] = useState(false);
   const [resumeBlob, setResumeBlob] = useState(null);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+  const [questionsError, setQuestionsError] = useState(null);
+  const [generatedQuestions, setGeneratedQuestions] = useState(null);
 
   if (!isOpen || !resume) return null;
 
@@ -92,6 +95,56 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
       alert("Error loading resume: " + error.message);
     } finally {
       setLoadingResume(false);
+    }
+  };
+
+  const handleGenerateQuestions = async () => {
+    if (!jdId || !resume?.id) {
+      setQuestionsError("Missing required information to generate questions");
+      return;
+    }
+
+    setLoadingQuestions(true);
+    setQuestionsError(null);
+
+    try {
+      const response = await fetch(
+        "http://10.20.0.58:8000/api/jobs/generate-questions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jd_id: jdId,
+            candidate_id: resume.id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error("API error response:", errorData);
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("Questions response:", result);
+
+      // Store the generated questions in local state
+      if (result.data && result.data.questions) {
+        setGeneratedQuestions(result.data.questions);
+        setShowQuestions(true);
+      } else if (result.questions) {
+        setGeneratedQuestions(result.questions);
+        setShowQuestions(true);
+      }
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      setQuestionsError(error.message || "Failed to generate questions");
+      alert("Error: " + (error.message || "Failed to generate questions"));
+    } finally {
+      setLoadingQuestions(false);
     }
   };
 
@@ -896,12 +949,25 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
                 <MdHelpOutline /> Questions
               </button>
             )}
+            {!resume.questions && jdId && (
+              <button
+                style={{
+                  ...buttonStyles,
+                  background: "linear-gradient(135deg, #e0a7edff, #7b09b4b8)",
+                  color: "white",
+                }}
+                onClick={handleGenerateQuestions}
+                disabled={loadingQuestions}
+              >
+                <MdHelpOutline /> {loadingQuestions ? "Generating..." : "Generate Questions"}
+              </button>
+            )}
             <button style={successButtonStyles}>Schedule Interview</button>
           </div>
         </div>
 
         {/* Questions Modal */}
-        {showQuestions && (resume.generated_questions?.length > 0 || resume.questions?.hr_general_questions?.length > 0) && (
+        {showQuestions && (resume.generated_questions?.length > 0 || resume.questions?.hr_general_questions?.length > 0 || generatedQuestions) && (
           <div style={overlayStyles} onClick={() => setShowQuestions(false)}>
             <div
               style={{
@@ -923,7 +989,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
                       margin: 0,
                     }}
                   >
-                    Interview Questions {resume.questions?.role && `- ${resume.questions.role}`} - {resume.name}
+                    Interview Questions {(generatedQuestions?.role || resume.questions?.role) && `- ${generatedQuestions?.role || resume.questions?.role}`} - {resume.name}
                   </h2>
                 </div>
               </div>
@@ -931,16 +997,16 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
               {/* Questions Modal Body */}
               <div style={bodyStyles}>
                 {/* Display role */}
-                {resume.questions?.role && (
+                {(generatedQuestions?.role || resume.questions?.role) && (
                   <div style={{ marginBottom: "20px" }}>
                     <p style={{ color: "#6b7280", fontSize: "14px", margin: "0 0 10px 0" }}>
-                      Role: <strong>{resume.questions.role}</strong>
+                      Role: <strong>{generatedQuestions?.role || resume.questions?.role}</strong>
                     </p>
                   </div>
                 )}
 
                 {/* HR General Questions Section */}
-                {resume.questions?.hr_general_questions?.length > 0 && (
+                {(generatedQuestions?.hr_general_questions?.length > 0 || resume.questions?.hr_general_questions?.length > 0) && (
                   <div style={{ marginBottom: "30px" }}>
                     <h3
                       style={{
@@ -954,7 +1020,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
                     >
                       HR General Questions
                     </h3>
-                    {resume.questions.hr_general_questions.map((question, index) => (
+                    {(generatedQuestions?.hr_general_questions || resume.questions?.hr_general_questions || []).map((question, index) => (
                       <div
                         key={`hr-${index}`}
                         style={{
@@ -1021,7 +1087,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
                 )}
 
                 {/* Technical Questions Section */}
-                {resume.questions?.technical_questions?.length > 0 && (
+                {(generatedQuestions?.technical_questions?.length > 0 || resume.questions?.technical_questions?.length > 0) && (
                   <div style={{ marginBottom: "30px" }}>
                     <h3
                       style={{
@@ -1035,7 +1101,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
                     >
                       Technical Questions
                     </h3>
-                    {resume.questions.technical_questions.map((question, index) => (
+                    {(generatedQuestions?.technical_questions || resume.questions?.technical_questions || []).map((question, index) => (
                       <div
                         key={`tech-${index}`}
                         style={{
@@ -1102,7 +1168,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
                 )}
 
                 {/* Fallback for old format: generated_questions */}
-                {!resume.questions?.hr_general_questions && resume.generated_questions?.length > 0 && (
+                {!generatedQuestions?.hr_general_questions && !resume.questions?.hr_general_questions && resume.generated_questions?.length > 0 && (
                   <div>
                     {resume.generated_questions.map((questionObj, index) => (
                       <div
