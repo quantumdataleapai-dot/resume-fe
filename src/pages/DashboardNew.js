@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdEmail, MdPhone, MdLocationOn, MdDelete } from "react-icons/md";
+import mammoth from "mammoth";
 import Header from "../components/Header";
 import AIChat from "../components/AIChat";
 import FileUpload from "../components/FileUpload";
@@ -86,6 +87,7 @@ export default function DashboardNew() {
   const [jobLocation, setJobLocation] = useState("all");
   const [expectedSalary, setExpectedSalary] = useState("");
   const [noticePeriod, setNoticePeriod] = useState("");
+  const [willingnessToRelocate, setWillingnessToRelocate] = useState("");
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
   
@@ -109,7 +111,7 @@ export default function DashboardNew() {
 
     try {
       const response = await fetch(
-        `http://10.20.0.58:8000/api/resumes/${resumeId}/delete`,
+        `http://10.30.0.104:8006/api/resumes/${resumeId}/delete`,
         {
           method: "DELETE",
           headers: {
@@ -171,7 +173,7 @@ export default function DashboardNew() {
 
         console.log("Uploading files for processing...");
         const response = await fetch(
-          "http://10.20.0.58:8000/api/jobs/process-file-and-match",
+          "http://10.30.0.104:8006/api/jobs/process-file-and-match",
           {
             method: "POST",
             body: formData,
@@ -198,7 +200,7 @@ export default function DashboardNew() {
 
         console.log("Sending text job description for processing...");
         const response = await fetch(
-          "http://10.20.0.58:8000/api/jobs/process-text-and-match",
+          "http://10.30.0.104:8006/api/jobs/process-text-and-match",
           {
             method: "POST",
             headers: {
@@ -291,7 +293,7 @@ export default function DashboardNew() {
     try {
       setError(null);
       const response = await fetch(
-        "http://10.20.0.58:8000/api/resumes/download-all?format=zip",
+        "http://10.30.0.104:8006/api/resumes/download-all?format=zip",
         {
           method: "POST",
           headers: {
@@ -349,7 +351,7 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("http://10.20.0.58:8000/api/resumes/upload", {
+          const resp = await fetch("http://10.30.0.104:8006/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
@@ -555,14 +557,37 @@ export default function DashboardNew() {
                     const input = document.createElement("input");
                     input.type = "file";
                     input.accept = ".pdf,.doc,.docx,.txt";
-                    input.onchange = (e) => {
+                    input.onchange = async (e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          setJobDescription(event.target?.result || "");
-                        };
-                        reader.readAsText(file);
+                        try {
+                          let text = "";
+                          
+                          // Handle different file types
+                          if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.endsWith(".docx")) {
+                            // Handle .docx files using mammoth
+                            const arrayBuffer = await file.arrayBuffer();
+                            const result = await mammoth.extractRawText({ arrayBuffer });
+                            text = result.value;
+                          } else if (file.type === "application/msword" || file.name.endsWith(".doc")) {
+                            // For .doc files, show a message since they need special handling
+                            window.alert("Legacy .doc format has limited support. Please use .docx or .txt files for best results.");
+                            return;
+                          } else {
+                            // Handle .txt and other text files
+                            text = await file.text();
+                          }
+                          
+                          if (text.trim()) {
+                            setJobDescription(text);
+                            console.log("File uploaded successfully, extracted text length:", text.length);
+                          } else {
+                            window.alert("The file appears to be empty or could not be read.");
+                          }
+                        } catch (error) {
+                          console.error("Error reading file:", error);
+                          window.alert("Error reading file: " + (error.message || "Unknown error"));
+                        }
                       }
                     };
                     input.click();
@@ -575,7 +600,7 @@ export default function DashboardNew() {
               {/* Visa Requirement & Job Location */}
               <div className="job-filters-section">
                 <div className="filter-group">
-                  <label>Visa Requirement</label>
+                  <label>Work Authorization</label>
                   <select
 
                     value={visaRequirement}
@@ -592,13 +617,13 @@ export default function DashboardNew() {
                     <option value="all">All</option>
                     <optgroup label="Citizens and Permanent Residents">
                       <option value="us-citizen">US Citizen</option>
-                      <option value="us-citizenship">US Citizenship</option>
+                      {/* <option value="us-citizenship">US Citizenship</option> */}
                       <option value="us-authorized">US Authorized</option>
                       <option value="canadian-citizen">Canadian Citizen</option>
                       <option value="canada-authorized">
                         Canada Authorized
                       </option>
-                      <option value="citizen">Citizen</option>
+                      {/* <option value="citizen">Citizen</option> */}
                     </optgroup>
                     <optgroup label="Green Card and EAD">
                       <option value="green-card">Green Card</option>
@@ -698,6 +723,7 @@ export default function DashboardNew() {
                     <option value="100000-120000">$100K - $120K</option>
                     <option value="120000-150000">$120K - $150K</option>
                     <option value="150000+">$150K+</option>
+                    <option value="others">Others</option>
                   </select>
                 </div>
 
@@ -722,6 +748,26 @@ export default function DashboardNew() {
                     <option value="1-month">1 Month</option>
                     <option value="2-months">2 Months</option>
                     <option value="3-months">3 Months</option>
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label>Willingness to Relocate</label>
+                  <select
+                    value={willingnessToRelocate}
+                    onChange={(e) => setWillingnessToRelocate(e.target.value)}
+                    className="filter-select"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#ffffffff",
+                      color: "#000000ff",
+                    }}
+                  >
+                    <option value="">Any</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
                   </select>
                 </div>
               </div>

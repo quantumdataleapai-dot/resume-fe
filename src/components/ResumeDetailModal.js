@@ -51,7 +51,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `http://10.20.0.58:8000/api/resumes/${resume.id}/download`,
+        `http://10.30.0.104:8006/api/resumes/${resume.id}/download`,
         {
           responseType: "blob",
           headers: {
@@ -189,57 +189,62 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
   };
 
   const footerStyles = {
-    padding: "20px 30px",
+    padding: "16px 24px",
     borderTop: "1px solid #e5e7eb",
     background: "#f9fafb",
     display: "flex",
     justifyContent: "flex-end",
-    gap: "10px",
+    gap: "8px",
     transform: "none",
     transition: "none",
     flexShrink: 0,
+    flexWrap: "wrap",
+    alignItems: "center",
   };
 
   const buttonStyles = {
-    padding: "10px 20px",
-    borderRadius: "8px",
+    padding: "8px 16px",
+    borderRadius: "6px",
     border: "none",
-    fontSize: "14px",
-    fontWeight: "500",
+    fontSize: "13px",
+    fontWeight: "600",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    gap: "8px",
-    transition: "none",
+    gap: "6px",
+    transition: "all 0.2s ease",
     transform: "none",
+    whiteSpace: "nowrap",
+    textDecoration: "none",
   };
 
   const primaryButtonStyles = {
     ...buttonStyles,
     background: "linear-gradient(135deg, #667eea, #8b5cf6)",
     color: "white",
-    boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
+    boxShadow: "0 2px 8px rgba(102, 126, 234, 0.25)",
   };
 
   const secondaryButtonStyles = {
     ...buttonStyles,
-    background: "#f3f4f6",
-    color: "#1f2937",
-    border: "1px solid #e5e7eb",
+    background: "#ffffff",
+    color: "#4b5563",
+    border: "1px solid #d1d5db",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
   };
 
   const successButtonStyles = {
     ...buttonStyles,
     background: "linear-gradient(135deg, #16a34a, #15803d)",
     color: "white",
-    boxShadow: "0 4px 12px rgba(22, 163, 74, 0.3)",
+    boxShadow: "0 2px 8px rgba(22, 163, 74, 0.25)",
   };
 
   const infoButtonStyles = {
     ...buttonStyles,
     background: "linear-gradient(135deg, #0284c7, #0369a1)",
     color: "white",
-    boxShadow: "0 4px 12px rgba(2, 132, 199, 0.3)",
+    boxShadow: "0 2px 8px rgba(2, 132, 199, 0.25)",
   };
 
   const skillTagStyles = {
@@ -845,9 +850,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
 
           {/* Modal Footer */}
           <div style={footerStyles}>
-            <button style={secondaryButtonStyles} onClick={onClose}>
+            {/* <button style={secondaryButtonStyles} onClick={onClose}>
               Close
-            </button>
+            </button> */}
             <button
               style={primaryButtonStyles}
               onClick={handleViewResume}
@@ -925,17 +930,33 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
 
               {/* Questions Modal Body */}
               <div style={bodyStyles}>
-                {/* Handle new format: hr_general_questions */}
-                {resume.questions?.hr_general_questions?.length > 0 ? (
-                  <>
-                    <div style={{ marginBottom: "10px" }}>
-                      <p style={{ color: "#6b7280", fontSize: "14px", margin: "0 0 10px 0" }}>
-                        Role: <strong>{resume.questions.role}</strong>
-                      </p>
-                    </div>
+                {/* Display role */}
+                {resume.questions?.role && (
+                  <div style={{ marginBottom: "20px" }}>
+                    <p style={{ color: "#6b7280", fontSize: "14px", margin: "0 0 10px 0" }}>
+                      Role: <strong>{resume.questions.role}</strong>
+                    </p>
+                  </div>
+                )}
+
+                {/* HR General Questions Section */}
+                {resume.questions?.hr_general_questions?.length > 0 && (
+                  <div style={{ marginBottom: "30px" }}>
+                    <h3
+                      style={{
+                        color: "#1f2937",
+                        fontSize: "16px",
+                        fontWeight: "600",
+                        marginBottom: "15px",
+                        paddingBottom: "10px",
+                        borderBottom: "2px solid #16a34a",
+                      }}
+                    >
+                      HR General Questions
+                    </h3>
                     {resume.questions.hr_general_questions.map((question, index) => (
                       <div
-                        key={index}
+                        key={`hr-${index}`}
                         style={{
                           ...sectionStyles,
                           background: "#f0fdf4",
@@ -996,94 +1017,179 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete }
                         </div>
                       </div>
                     ))}
-                  </>
-                ) : (
-                  /* Handle old format: generated_questions */
-                  resume.generated_questions.map((questionObj, index) => (
-                    <div
-                      key={questionObj.id || index}
+                  </div>
+                )}
+
+                {/* Technical Questions Section */}
+                {resume.questions?.technical_questions?.length > 0 && (
+                  <div style={{ marginBottom: "30px" }}>
+                    <h3
                       style={{
-                        ...sectionStyles,
-                        background:
-                          questionObj.type === "technical"
-                            ? "#eff6ff"
-                            : "#f0fdf4",
-                        border:
-                          questionObj.type === "technical"
-                            ? "1px solid #bfdbfe"
-                            : "1px solid #bbf7d0",
+                        color: "#1f2937",
+                        fontSize: "16px",
+                        fontWeight: "600",
                         marginBottom: "15px",
+                        paddingBottom: "10px",
+                        borderBottom: "2px solid #0284c7",
                       }}
                     >
+                      Technical Questions
+                    </h3>
+                    {resume.questions.technical_questions.map((question, index) => (
                       <div
+                        key={`tech-${index}`}
                         style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: "15px",
+                          ...sectionStyles,
+                          background: "#eff6ff",
+                          border: "1px solid #bfdbfe",
+                          marginBottom: "15px",
                         }}
                       >
                         <div
                           style={{
-                            minWidth: "40px",
-                            height: "40px",
-                            borderRadius: "50%",
-                            background:
-                              questionObj.type === "technical"
-                                ? "#eff6ff"
-                                : "#f0fdf4",
                             display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color:
-                              questionObj.type === "technical"
-                                ? "#0284c7"
-                                : "#16a34a",
-                            fontWeight: "bold",
-                            fontSize: "18px",
-                            flexShrink: 0,
+                            alignItems: "flex-start",
+                            gap: "15px",
                           }}
                         >
-                          {index + 1}
-                        </div>
-                        <div style={{ flex: 1 }}>
                           <div
                             style={{
-                              color: "#1f2937",
-                              fontSize: "15px",
-                              lineHeight: "1.6",
-                              marginBottom: "10px",
+                              minWidth: "40px",
+                              height: "40px",
+                              borderRadius: "50%",
+                              background: "#eff6ff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "#0284c7",
+                              fontWeight: "bold",
+                              fontSize: "18px",
+                              flexShrink: 0,
                             }}
                           >
-                            {questionObj.question}
+                            {index + 1}
                           </div>
+                          <div style={{ flex: 1 }}>
+                            <div
+                              style={{
+                                color: "#1f2937",
+                                fontSize: "15px",
+                                lineHeight: "1.6",
+                                marginBottom: "10px",
+                              }}
+                            >
+                              {question}
+                            </div>
+                            <div
+                              style={{
+                                display: "inline-block",
+                                padding: "4px 12px",
+                                borderRadius: "20px",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                background: "#eff6ff",
+                                color: "#0284c7",
+                                border: "1px solid #bfdbfe",
+                              }}
+                            >
+                              Technical
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Fallback for old format: generated_questions */}
+                {!resume.questions?.hr_general_questions && resume.generated_questions?.length > 0 && (
+                  <div>
+                    {resume.generated_questions.map((questionObj, index) => (
+                      <div
+                        key={questionObj.id || index}
+                        style={{
+                          ...sectionStyles,
+                          background:
+                            questionObj.type === "technical"
+                              ? "#eff6ff"
+                              : "#f0fdf4",
+                          border:
+                            questionObj.type === "technical"
+                              ? "1px solid #bfdbfe"
+                              : "1px solid #bbf7d0",
+                          marginBottom: "15px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: "15px",
+                          }}
+                        >
                           <div
                             style={{
-                              display: "inline-block",
-                              padding: "4px 12px",
-                              borderRadius: "20px",
-                              fontSize: "12px",
-                              fontWeight: "500",
+                              minWidth: "40px",
+                              height: "40px",
+                              borderRadius: "50%",
                               background:
                                 questionObj.type === "technical"
                                   ? "#eff6ff"
                                   : "#f0fdf4",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                               color:
                                 questionObj.type === "technical"
                                   ? "#0284c7"
                                   : "#16a34a",
-                              border:
-                                questionObj.type === "technical"
-                                  ? "1px solid #bfdbfe"
-                                  : "1px solid #bbf7d0",
-                              textTransform: "capitalize",
+                              fontWeight: "bold",
+                              fontSize: "18px",
+                              flexShrink: 0,
                             }}
                           >
-                            {questionObj.type}
+                            {index + 1}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div
+                              style={{
+                                color: "#1f2937",
+                                fontSize: "15px",
+                                lineHeight: "1.6",
+                                marginBottom: "10px",
+                              }}
+                            >
+                              {questionObj.question}
+                            </div>
+                            <div
+                              style={{
+                                display: "inline-block",
+                                padding: "4px 12px",
+                                borderRadius: "20px",
+                                fontSize: "12px",
+                                fontWeight: "500",
+                                background:
+                                  questionObj.type === "technical"
+                                    ? "#eff6ff"
+                                    : "#f0fdf4",
+                                color:
+                                  questionObj.type === "technical"
+                                    ? "#0284c7"
+                                    : "#16a34a",
+                                border:
+                                  questionObj.type === "technical"
+                                    ? "1px solid #bfdbfe"
+                                    : "1px solid #bbf7d0",
+                                textTransform: "capitalize",
+                              }}
+                            >
+                              {questionObj.type}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
 

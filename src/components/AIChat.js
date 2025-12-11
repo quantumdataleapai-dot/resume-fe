@@ -41,7 +41,7 @@ const AIChat = ({ isOpen, onClose }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="ai-chat-content" onClick={(e) => e.stopPropagation()}>
         <div className="ai-chat-header">
-          <h3 style={{ color: "#fff" }}>AI Assistant</h3>
+          <h3 style={{ color: "#000000" }}>AI Assistant</h3>
           <span className="close" onClick={onClose}>
             &times;
           </span>

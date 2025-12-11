@@ -1,7 +1,7 @@
 /* DashboardNew.css - Light Theme */
 
 :root {
-  --primary-color: #d946ef;
+  --primary-color: #317e65;
   --secondary-color: #0284c7;
   --accent-color: #8b5cf6;
   --dark-bg: #ffffff;
@@ -108,7 +108,7 @@
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 28px;
+  padding: 18px;
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
@@ -128,7 +128,7 @@
   width: 100%;
   min-height: 200px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(217, 70, 239, 0.3);
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 16px;
   color: var(--text-primary);
@@ -153,7 +153,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 16px;
+  margin-top: 1px;
   font-size: 13px;
   color: var(--text-secondary);
 }
@@ -177,9 +177,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
+  margin-top: 12px;
+  padding-top: 12px;
 }
 
 .filter-group {
@@ -302,7 +301,7 @@
 
 /* Analyze Button */
 .analyze-btn {
-  background: linear-gradient(135deg, #486dbd, #3d21b6);
+  background: linear-gradient(135deg, #317e65, #0284c7);
   border: none;
   border-radius: 12px;
   padding: 16px 24px;
@@ -318,7 +317,7 @@
 
 .analyze-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(58, 109, 218, 0.8);
+  box-shadow: 0 12px 32px rgba(70, 180, 239, 0.3);
 }
 
 .analyze-btn:disabled {
@@ -381,11 +380,11 @@
 }
 
 .action-btn {
-  background: rgba(0, 212, 255, 0.1);
-  border: 1px solid rgba(0, 212, 255, 0.3);
+      background: #d0f5ee40;
+    border: 1px solid #a8e6dd;
+    color: #0000009c;
   border-radius: 8px;
   padding: 10px 16px;
-  color: var(--secondary-color);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -394,39 +393,39 @@
 }
 
 .action-btn:hover {
-  background: rgba(0, 212, 255, 0.2);
-  border-color: var(--secondary-color);
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+   background: #d0f5ee70;
+  border-color: #99e7dc;
+  box-shadow: 0 2px 8px rgba(190, 24, 93, 0.15);
 }
 
 .download-btn {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 212, 255, 0.1));
-  border: 1px solid rgba(19, 20, 19, 0.4);
-  color: var(--green-accent);
+      background: #d0f5ee40;
+    border: 1px solid #a8e6dd;
+    color: #0000009c;
 }
 
 .download-btn:hover {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(0, 212, 255, 0.15));
-  border-color: var(--green-accent);
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  background: #d0f5ee70;
+  border-color: #99e7dc;
+  box-shadow: 0 2px 8px rgba(190, 24, 93, 0.15);
 }
 
 .upload-resume-btn {
-  background: rgba(217, 70, 239, 0.1);
-  border: 1px solid rgba(217, 70, 239, 0.3);
-  color: var(--primary-color);
+  background: #d0f5ee40;
+    border: 1px solid #a8e6dd;
+    color: #0000009c;
 }
 
 .upload-resume-btn:hover {
-  background: rgba(217, 70, 239, 0.2);
-  border-color: var(--primary-color);
-  box-shadow: 0 0 12px rgba(217, 70, 239, 0.2);
+  background: #d0f5ee70;
+  border-color: #99e7dc;
+  box-shadow: 0 2px 8px rgba(190, 24, 93, 0.15);
 }
 
 /* Sort Select */
 .sort-select {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(217, 70, 239, 0.3);
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 10px 12px;
   color: var(--text-primary);
@@ -485,18 +484,23 @@
 }
 
 .header-content {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .user-profile-container {
@@ -633,12 +637,12 @@
 }
 
 .resume-list::-webkit-scrollbar-thumb {
-  background: rgba(217, 70, 239, 0.3);
+  background: #317e652e;
   border-radius: 4px;
 }
 
 .resume-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(217, 70, 239, 0.5);
+  background: #317e6548;
 }
 
 /* Resume Item */
@@ -666,7 +670,7 @@
   min-width: 56px;
   min-height: 56px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #d946ef, #a855f7);
+  background: linear-gradient(135deg, #317e65, #0284c7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -679,17 +683,17 @@
 
 /* Three color variations for resume avatars */
 .resume-avatar.color-1 {
-  background: linear-gradient(135deg, #1b4b95, #a855f7);
+  background: linear-gradient(135deg, #1f57ab, #d06aff);
   box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
 }
-
+ 
 .resume-avatar.color-2 {
-  background: linear-gradient(135deg, #35a00b, #06b6d4);
+  background: linear-gradient(135deg, #1f57ab, #55e4f7);
   box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 }
-
+ 
 .resume-avatar.color-3 {
-  background: linear-gradient(135deg, #13774c, #22c55e);
+  background: linear-gradient(135deg, #1f8eab, #55f799);
   box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
 }
 
@@ -740,7 +744,7 @@
 .score-good {
   background: rgba(217, 70, 239, 0.2);
   color: #d946ef;
-  border: 1px solid rgba(217, 70, 239, 0.4);
+  border: 1px solid rgb(72 87 194);
 }
 
 .score-fair {
@@ -785,9 +789,9 @@
 
 /* Color-matched skill chips for each card color */
 .resume-item:has(.resume-avatar.color-1) .skill-chip {
-  background: rgba(166, 70, 239, 0.15);
-  border: 1px solid rgba(217, 70, 239, 0.4);
-  color: #9322a5;
+  background: #4f46ef26;
+  border: 1px solid rgb(72 87 194);
+  color: #7956dd;
 }
 
 .resume-item:has(.resume-avatar.color-2) .skill-chip {
@@ -868,17 +872,17 @@
   border-radius: 50%;
   background: linear-gradient(135deg, #1f81a7, #196377df);
   border: 1px solid #7474c4;
+  border: none;
   color: white;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(217, 70, 239, 0.4);
+  /* box-shadow: 0 8px 24px #4b90a3df; */
   transition: all 0.3s ease;
   z-index: 40;
 }
 
 .ai-chat-fab:hover {
   transform: scale(1.1);
-  box-shadow: 0 12px 32px rgba(217, 70, 239, 0.5);
 }
 
 .ai-chat-fab:active {
@@ -920,7 +924,7 @@
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid var(--border-color);
-  background: linear-gradient(135deg, rgba(217, 70, 239, 0.1), rgba(0, 212, 255, 0.05));
+  background: linear-gradient(135deg, #317e652e, #0284c745);
 }
 
 .ai-chat-header h3 {
@@ -969,19 +973,19 @@
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(217, 70, 239, 0.3);
+  background: #317e652e;
   border-radius: 3px;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-  background: rgba(217, 70, 239, 0.5);
+  background: #317e6548;
 }
 
 .ai-message,
 .user-message {
   display: flex;
   gap: 12px;
-  padding: 12px 16px;
+  /* padding: 12px 16px; */
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.4;
@@ -989,9 +993,8 @@
 }
 
 .ai-message {
-  background: rgba(217, 70, 239, 0.15);
+  /* background: linear-gradient(135deg, #317e652e, #0284c714); */
   color: var(--text-primary);
-  border-left: 2px solid var(--primary-color);
 }
 
 .ai-message i {
@@ -1002,9 +1005,8 @@
 
 .user-message {
   align-self: flex-end;
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1));
+  /* background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1)); */
   color: var(--text-primary);
-  border-left: 2px solid var(--secondary-color);
 }
 
 .chat-input-container {
@@ -1018,7 +1020,7 @@
 .chat-input-container input {
   flex: 1;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(217, 70, 239, 0.3);
+  border: 1px solid #317e65;
   border-radius: 24px;
   padding: 10px 16px;
   color: var(--text-primary);
@@ -1038,7 +1040,7 @@
 }
 
 .chat-input-container button {
-  background: linear-gradient(135deg, #d946ef, #a855f7);
+  background: linear-gradient(135deg, #317e65, #0284c7);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -1055,7 +1057,7 @@
 
 .chat-input-container button:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(217, 70, 239, 0.4);
+  box-shadow: 1px 1px 1px  #0284c7
 }
 
 .chat-input-container button:active {
