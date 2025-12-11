@@ -173,12 +173,13 @@ const LoginPage = () => {
               animation: "paperMove 3.5s ease-in-out infinite"
             }}>
               <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: "2px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px" }}>
-                  <div style={{ height: "6px", background: "#e0e0e0", borderRadius: "2px", width: "90%" }}></div>
-                  <div style={{ height: "4px", background: "#f0f0f0", borderRadius: "2px", width: "100%" }}></div>
-                  <div style={{ height: "4px", background: "#f0f0f0", borderRadius: "2px", width: "95%" }}></div>
-                  <div style={{ height: "4px", background: "#f0f0f0", borderRadius: "2px", width: "85%" }}></div>
-                  <div style={{ height: "4px", background: "#f0f0f0", borderRadius: "2px", width: "90%" }}></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px", color: "#444", fontSize: 10, lineHeight: 1.2 }}>
+                  <div style={{ fontWeight: 700, color: "#222", fontSize: 7 }}>John Doe</div>
+                  <div style={{ color: "#6b7280" , fontSize: 8}}>Software Engineer</div>
+                  <div style={{ height: "2px" }}></div>
+                  <div style={{ color: "#9ca3af" , fontSize: 9}}>Experienced in React, Node.js, and cloud integrations.</div>
+                  <div style={{ color: "#e5e7eb", fontSize: 9}}>──────────────────────────</div>
+                  <div style={{ color: "#9ca3af", fontSize: 9}}>Contact: john.doe@example.com</div>
                 </div>
                 <div style={{ position: "absolute", left: "-120%", top: 0, bottom: 0, width: "120%", background: "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(11,95,255,0.1) 50%, rgba(255,255,255,0) 100%)", animation: "scanline 1.6s linear 0.25s infinite" }}></div>
               </div>
