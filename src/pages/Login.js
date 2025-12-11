@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -18,11 +19,8 @@ const LoginPage = () => {
       return;
     }
 
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 2000);
+    // Navigate directly to dashboard without delay
+    navigate("/dashboard");
   };
 
   const robotStyle = {
@@ -209,15 +207,9 @@ const LoginPage = () => {
           {/* Logo */}
           <div style={{ textAlign: "center", marginBottom: "32px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
-              <div style={{ display: "flex", gap: "4px" }}>
-                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff6b35" }}></div>
-                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff0b0bff" }}></div>
-                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff3535ff" }}></div>
-                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#0b5fff" }}></div>
-              </div>
-              <span style={{ fontSize: "20px", fontWeight: "700", color: "#0b5fff" }}>FiSec Global</span>
+              {/* <img src="/logo.png" alt="FiSec Logo" style={{ width: "32px", height: "32px", objectFit: "contain" }} /> */}
+              <span style={{ fontSize: "20px", fontWeight: "700", color: "#000000ff" }}>FiSec Global</span>
             </div>
-            <span style={{ fontSize: "12px", color: "#d32f2f", fontWeight: 600 }}>ATS</span>
           </div>
 
           <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f1724", marginBottom: "8px" }}>Sign In</h2>
@@ -253,9 +245,9 @@ const LoginPage = () => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
-                style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: isLoading ? "not-allowed" : "pointer", color: "#60708a", opacity: isLoading ? 0.6 : 1 }}
+                style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: isLoading ? "not-allowed" : "pointer", color: "#60708a", opacity: isLoading ? 0.6 : 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
               >
-                {showPassword ? "🙈" : "👁️"}
+                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
               </button>
             </div>
 
@@ -286,14 +278,7 @@ const LoginPage = () => {
               {isLoading ? "SIGNING IN..." : "SIGN IN"}
             </button>
 
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-              <button type="button" disabled={isLoading} style={{ background: "none", border: "none", color: "#0b5fff", cursor: isLoading ? "not-allowed" : "pointer", textDecoration: "underline", opacity: isLoading ? 0.6 : 1 }}>
-                Unable to Login?
-              </button>
-              <button type="button" disabled={isLoading} style={{ background: "none", border: "none", color: "#0b5fff", cursor: isLoading ? "not-allowed" : "pointer", textDecoration: "underline", opacity: isLoading ? 0.6 : 1 }}>
-                Unblock
-              </button>
-            </div>
+            
 
             <div style={{ position: "relative", margin: "24px 0" }}>
               <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: "1px", background: "#e6eefc" }}></div>
