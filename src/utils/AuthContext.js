@@ -30,22 +30,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // For demo purposes, keep the demo login
-      if (email === "demo@fisecglobal.net" && password === "password") {
-        const userData = {
-          id: 1,
-          name: "Demo User",
-          email: email,
-        };
-
-        localStorage.setItem("token", "demo-token");
-        localStorage.setItem("user", JSON.stringify(userData));
-
-        setIsAuthenticated(true);
-        setUser(userData);
-        return { success: true };
-      }
-
       // Use ApiService for authentication
       const response = await ApiService.login({ email, password });
 

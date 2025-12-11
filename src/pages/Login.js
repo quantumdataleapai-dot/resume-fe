@@ -10,6 +10,10 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showScores, setShowScores] = useState(true);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  const [signupName, setSignupName] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +25,73 @@ const LoginPage = () => {
 
     // Navigate directly to dashboard without delay
     navigate("/dashboard");
+  };
+
+  // Sign-up helpers
+  const GOOGLE_FORM_URL = "https://forms.gle/YOUR_GOOGLE_FORM_LINK"; // replace with your Google Form URL
+
+  const openSignup = () => {
+    // clear any previous values and open modal
+    setSignupName("");
+    setSignupEmail("");
+    setSignupPassword("");
+    setShowSignupModal(true);
+  };
+
+  const closeSignup = () => {
+    // clear values when closing as well
+    setSignupName("");
+    setSignupEmail("");
+    setSignupPassword("");
+    setShowSignupModal(false);
+  };
+
+  const handleSignupSubmit = (e) => {
+    e.preventDefault();
+    if (!signupName || !signupEmail || !signupPassword) {
+      alert("Please fill in all sign-up fields.");
+      return;
+    }
+
+    // Simulate sign-up — replace with API call / OAuth flow in production
+    alert("Sign-up successful (simulated). Redirecting to dashboard...");
+    setShowSignupModal(false);
+    navigate("/dashboard");
+  };
+
+  const openExternal = (url) => {
+    try {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      // fallback
+      window.location.href = url;
+    }
+  };
+
+  const handleOAuthPlaceholder = (provider) => {
+    // These are placeholders — real OAuth requires client_id, redirect_uri and server-side handling.
+    const origin = window?.location?.origin || "";
+    const redirect = `${origin}/auth/callback`;
+    let url = "#";
+    switch (provider) {
+      case "google":
+        url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=${encodeURIComponent(redirect)}&response_type=code&scope=profile%20email`;
+        break;
+      case "linkedin":
+        url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=${encodeURIComponent(redirect)}&scope=r_liteprofile%20r_emailaddress`;
+        break;
+      case "office365":
+        url = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&scope=openid%20profile%20email`;
+        break;
+      case "azure":
+        url = `https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=${encodeURIComponent(redirect)}`;
+        break;
+      default:
+        url = "#";
+    }
+
+    alert(`${provider} sign-up will open in a new tab. Replace the placeholder client IDs with your app credentials.`);
+    openExternal(url);
   };
 
   const robotStyle = {
@@ -67,6 +138,28 @@ const LoginPage = () => {
           50% { transform: translateX(0%); opacity: 1; }
           100% { transform: translateX(120%); opacity: 0.6; }
         }
+        /* Modal styles for Sign Up */
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 36, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+        .modal-card {
+          width: 420px;
+          max-width: calc(100% - 32px);
+          background: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 12px 30px rgba(2,6,23,0.12);
+          padding: 20px;
+          border: 1px solid #e6eefc;
+        }
+        .modal-actions { display:flex; gap:8px; margin-top:12px; }
+        .modal-social { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px }
+        .btn-ghost { background:#fff; border:1px solid #e6eefc; padding:10px; border-radius:8px; cursor:pointer }
       `}</style>
 
       {/* Left Panel - Features */}
@@ -172,7 +265,7 @@ const LoginPage = () => {
             }}>
               <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: "2px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px", padding: "6px", color: "#444", fontSize: 10, lineHeight: 1.2 }}>
-                  <div style={{ fontWeight: 700, color: "#222", fontSize: 7 }}>John Doe</div>
+                  <div style={{ fontWeight: 700, color: "#222", fontSize: 7 }}>...</div>
                   <div style={{ color: "#6b7280" , fontSize: 8}}>Software Engineer</div>
                   <div style={{ height: "2px" }}></div>
                   <div style={{ color: "#9ca3af" , fontSize: 9}}>Experienced in React, Node.js, and cloud integrations.</div>
@@ -215,7 +308,7 @@ const LoginPage = () => {
           <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f1724", marginBottom: "8px" }}>Sign In</h2>
           <p style={{ fontSize: "13px", color: "#60708a", marginBottom: "32px" }}>
             Don't have an account yet?{" "}
-            <button style={{ background: "none", border: "none", color: "#0b5fff", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>
+            <button onClick={openSignup} style={{ background: "none", border: "none", color: "#0b5fff", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>
               Sign Up
             </button>
           </p>
@@ -287,22 +380,39 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Social Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-              <button type="button" disabled={isLoading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
-                <span>Google</span>
-              </button>
-              <button type="button" disabled={isLoading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
-                <span>LinkedIn</span>
-              </button>
-              <button type="button" disabled={isLoading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
-                <span>Office 365</span>
-              </button>
-              <button type="button" disabled={isLoading} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
-                <span>Azure</span>
+            {/* Social Grid - only Google (others removed per request) */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
+              <button type="button" disabled={isLoading} onClick={() => handleOAuthPlaceholder('google')} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "#fff", border: "1px solid #e6eefc", padding: "12px", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", fontSize: "14px", fontWeight: 500, opacity: isLoading ? 0.6 : 1 }}>
+                <span>Sign in with Google</span>
               </button>
             </div>
           </form>
+          {/* Sign Up Modal */}
+          {showSignupModal && (
+            <div className="modal-overlay" onClick={closeSignup}>
+              <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+                <h3 style={{ margin: 0, marginBottom: 8 }}>Create an account</h3>
+                <p style={{ margin: 0, marginBottom: 12, color: '#6b7280', fontSize: 13 }}>Use the form below or sign up with Google.</p>
+                <form autoComplete="off" onSubmit={handleSignupSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <input autoComplete="name" value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="Full name" style={{ padding: 10, borderRadius: 8, border: '1px solid #e6eefc' }} />
+                  <input autoComplete="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="Email" type="email" style={{ padding: 10, borderRadius: 8, border: '1px solid #e6eefc' }} />
+                  <input autoComplete="new-password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="Password" type="password" style={{ padding: 10, borderRadius: 8, border: '1px solid #e6eefc' }} />
+                  <div className="modal-actions">
+                    <button type="submit" style={{ flex: 1, padding: 10, background: 'linear-gradient(135deg, #0b5fff 0%, #0950d1 100%)', color: '#fff', borderRadius: 8, border: 'none', cursor: 'pointer' }}>Sign up</button>
+                    <button type="button" onClick={closeSignup} className="btn-ghost">Cancel</button>
+                  </div>
+                </form>
+
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontSize: 13, color: '#9aa6bd' }}>Or use a form / social account</div>
+                  <div className="modal-actions" style={{ marginTop: 8 }}>
+                    <button type="button" className="btn-ghost" onClick={() => handleOAuthPlaceholder('google')}>Google Account</button>
+                  </div>
+                  {/* Only Google sign-up options are available per request */}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
