@@ -34,6 +34,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
   if (!isOpen || !resume) return null;
 
+  console.log("ResumeDetailModal - jdId prop:", jdId);
+  console.log("ResumeDetailModal - resume.questions:", resume.questions);
+  console.log("ResumeDetailModal - generatedQuestions:", generatedQuestions);
+
   const getScoreColor = (score) => {
     if (score >= 80) return "#4CAF50"; // Green
     if (score >= 60) return "#FF9800"; // Orange
@@ -54,7 +58,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `http://10.30.0.104:8006/api/resumes/${resume.id}/download`,
+        `http://10.20.0.107:8000/api/resumes/${resume.id}/download`,
         {
           responseType: "blob",
           headers: {
@@ -99,8 +103,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
   };
 
   const handleGenerateQuestions = async () => {
+    // Always call API to get fresh questions for this specific candidate
     if (!jdId || !resume?.id) {
       setQuestionsError("Missing required information to generate questions");
+      alert("Missing JD ID or Resume ID. Please ensure job description is processed first.");
       return;
     }
 
@@ -109,7 +115,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
     try {
       const response = await fetch(
-        "http://10.20.0.58:8000/api/jobs/generate-questions",
+        "http://10.20.0.107:8000/api/jobs/generate-questions",
         {
           method: "POST",
           headers: {
@@ -117,7 +123,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
           },
           body: JSON.stringify({
             jd_id: jdId,
-            candidate_id: resume.id,
+            resume_id: resume.id,
           }),
         }
       );
@@ -129,15 +135,18 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       }
 
       const result = await response.json();
-      console.log("Questions response:", result);
+      console.log("Questions response for resume:", resume.id, result);
 
       // Store the generated questions in local state
-      if (result.data && result.data.questions) {
-        setGeneratedQuestions(result.data.questions);
+      // API returns { data: { role, technical_questions, general_questions } }
+      if (result.data) {
+        setGeneratedQuestions(result.data);
         setShowQuestions(true);
       } else if (result.questions) {
         setGeneratedQuestions(result.questions);
         setShowQuestions(true);
+      } else {
+        throw new Error("No questions data in response");
       }
     } catch (error) {
       console.error("Error generating questions:", error);
@@ -788,7 +797,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
             )}
 
             {/* Matching Skills Section */}
-            {resume.matchingSkills?.length > 0 && (
+            {/* {resume.matchingSkills?.length > 0 && (
               <div
                 style={{
                   ...sectionStyles,
@@ -818,10 +827,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Missing Skills Section */}
-            {resume.missingSkills?.length > 0 && (
+            {/* {resume.missingSkills?.length > 0 && (
               <div
                 style={{
                   ...sectionStyles,
@@ -852,7 +861,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Questions to Ask Section */}
             {resume.questionsToAsk?.length > 0 && (
@@ -937,37 +946,24 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                 Call Candidate
               </button>
             )}
-            {(resume.generated_questions?.length > 0 || resume.questions?.hr_general_questions?.length > 0) && (
-              <button
-                style={{
-                  ...buttonStyles,
-                  background: "linear-gradient(135deg, #e0a7edff, #7b09b4b8)",
-                  color: "white",
-                }}
-                onClick={() => setShowQuestions(true)}
-              >
-                <MdHelpOutline /> Questions
-              </button>
-            )}
-            {!resume.questions && jdId && (
-              <button
-                style={{
-                  ...buttonStyles,
-                  background: "linear-gradient(135deg, #e0a7edff, #7b09b4b8)",
-                  color: "white",
-                }}
-                onClick={handleGenerateQuestions}
-                disabled={loadingQuestions}
-              >
-                <MdHelpOutline /> {loadingQuestions ? "Generating..." : "Generate Questions"}
-              </button>
-            )}
+            <button
+              style={{
+                ...buttonStyles,
+                background: "linear-gradient(135deg, #e0a7edff, #7b09b4b8)",
+                color: "white",
+                opacity: loadingQuestions ? 0.7 : 1,
+              }}
+              onClick={handleGenerateQuestions}
+              disabled={loadingQuestions}
+            >
+              <MdHelpOutline /> {loadingQuestions ? "Generating..." : "Questions"}
+            </button>
             <button style={successButtonStyles}>Schedule Interview</button>
           </div>
         </div>
 
         {/* Questions Modal */}
-        {showQuestions && (resume.generated_questions?.length > 0 || resume.questions?.hr_general_questions?.length > 0 || generatedQuestions) && (
+        {showQuestions && (generatedQuestions || resume.questions || resume.generated_questions?.length > 0) && (
           <div style={overlayStyles} onClick={() => setShowQuestions(false)}>
             <div
               style={{
@@ -996,265 +992,429 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
               {/* Questions Modal Body */}
               <div style={bodyStyles}>
-                {/* Display role */}
-                {(generatedQuestions?.role || resume.questions?.role) && (
-                  <div style={{ marginBottom: "20px" }}>
-                    <p style={{ color: "#6b7280", fontSize: "14px", margin: "0 0 10px 0" }}>
-                      Role: <strong>{generatedQuestions?.role || resume.questions?.role}</strong>
-                    </p>
-                  </div>
-                )}
-
-                {/* HR General Questions Section */}
-                {(generatedQuestions?.hr_general_questions?.length > 0 || resume.questions?.hr_general_questions?.length > 0) && (
+                {/* New Format: Technical Questions Section */}
+                {generatedQuestions?.technical_questions && (
                   <div style={{ marginBottom: "30px" }}>
                     <h3
                       style={{
                         color: "#1f2937",
-                        fontSize: "16px",
-                        fontWeight: "600",
-                        marginBottom: "15px",
-                        paddingBottom: "10px",
-                        borderBottom: "2px solid #16a34a",
-                      }}
-                    >
-                      HR General Questions
-                    </h3>
-                    {(generatedQuestions?.hr_general_questions || resume.questions?.hr_general_questions || []).map((question, index) => (
-                      <div
-                        key={`hr-${index}`}
-                        style={{
-                          ...sectionStyles,
-                          background: "#f0fdf4",
-                          border: "1px solid #bbf7d0",
-                          marginBottom: "15px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: "15px",
-                          }}
-                        >
-                          <div
-                            style={{
-                              minWidth: "40px",
-                              height: "40px",
-                              borderRadius: "50%",
-                              background: "#f0fdf4",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: "#16a34a",
-                              fontWeight: "bold",
-                              fontSize: "18px",
-                              flexShrink: 0,
-                            }}
-                          >
-                            {index + 1}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <div
-                              style={{
-                                color: "#1f2937",
-                                fontSize: "15px",
-                                lineHeight: "1.6",
-                                marginBottom: "10px",
-                              }}
-                            >
-                              {question}
-                            </div>
-                            <div
-                              style={{
-                                display: "inline-block",
-                                padding: "4px 12px",
-                                borderRadius: "20px",
-                                fontSize: "12px",
-                                fontWeight: "500",
-                                background: "#f0fdf4",
-                                color: "#16a34a",
-                                border: "1px solid #bbf7d0",
-                              }}
-                            >
-                              HR General
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Technical Questions Section */}
-                {(generatedQuestions?.technical_questions?.length > 0 || resume.questions?.technical_questions?.length > 0) && (
-                  <div style={{ marginBottom: "30px" }}>
-                    <h3
-                      style={{
-                        color: "#1f2937",
-                        fontSize: "16px",
-                        fontWeight: "600",
-                        marginBottom: "15px",
-                        paddingBottom: "10px",
-                        borderBottom: "2px solid #0284c7",
+                        fontSize: "18px",
+                        fontWeight: "700",
+                        marginBottom: "20px",
+                        paddingBottom: "12px",
+                        borderBottom: "3px solid #0284c7",
                       }}
                     >
                       Technical Questions
                     </h3>
-                    {(generatedQuestions?.technical_questions || resume.questions?.technical_questions || []).map((question, index) => (
-                      <div
-                        key={`tech-${index}`}
-                        style={{
-                          ...sectionStyles,
-                          background: "#eff6ff",
-                          border: "1px solid #bfdbfe",
-                          marginBottom: "15px",
-                        }}
-                      >
-                        <div
+
+                    {/* Project-Based Questions */}
+                    {generatedQuestions.technical_questions.project_based?.length > 0 && (
+                      <div style={{ marginBottom: "25px" }}>
+                        <h4
                           style={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: "15px",
+                            color: "#0284c7",
+                            fontSize: "15px",
+                            fontWeight: "600",
+                            marginBottom: "15px",
+                            marginLeft: "10px",
                           }}
                         >
-                          <div
-                            style={{
-                              minWidth: "40px",
-                              height: "40px",
-                              borderRadius: "50%",
-                              background: "#eff6ff",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: "#0284c7",
-                              fontWeight: "bold",
-                              fontSize: "18px",
-                              flexShrink: 0,
-                            }}
-                          >
-                            {index + 1}
-                          </div>
-                          <div style={{ flex: 1 }}>
+                          🎯 Project-Based Questions
+                        </h4>
+                        {generatedQuestions.technical_questions.project_based.map((project, projectIdx) => (
+                          <div key={projectIdx} style={{ marginBottom: "20px", marginLeft: "20px" }}>
                             <div
                               style={{
-                                color: "#1f2937",
-                                fontSize: "15px",
-                                lineHeight: "1.6",
-                                marginBottom: "10px",
-                              }}
-                            >
-                              {question}
-                            </div>
-                            <div
-                              style={{
-                                display: "inline-block",
-                                padding: "4px 12px",
-                                borderRadius: "20px",
-                                fontSize: "12px",
-                                fontWeight: "500",
                                 background: "#eff6ff",
-                                color: "#0284c7",
-                                border: "1px solid #bfdbfe",
+                                border: "2px solid #0284c7",
+                                borderRadius: "8px",
+                                padding: "12px 15px",
+                                marginBottom: "12px",
                               }}
                             >
-                              Technical
+                              <p
+                                style={{
+                                  color: "#0284c7",
+                                  fontSize: "14px",
+                                  fontWeight: "600",
+                                  margin: 0,
+                                }}
+                              >
+                                {project.project_name}
+                              </p>
                             </div>
+                            {project.questions.map((question, qIdx) => (
+                              <div
+                                key={`project-${projectIdx}-${qIdx}`}
+                                style={{
+                                  ...sectionStyles,
+                                  background: "#f0f9ff",
+                                  border: "1px solid #bfdbfe",
+                                  marginBottom: "12px",
+                                  marginLeft: "10px",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "flex-start",
+                                    gap: "12px",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      minWidth: "30px",
+                                      height: "30px",
+                                      borderRadius: "50%",
+                                      background: "#0284c7",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      color: "white",
+                                      fontWeight: "bold",
+                                      fontSize: "14px",
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    {qIdx + 1}
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <p
+                                      style={{
+                                        color: "#1f2937",
+                                        fontSize: "14px",
+                                        lineHeight: "1.6",
+                                        margin: 0,
+                                      }}
+                                    >
+                                      {question}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+
+                    {/* Experience-Based Questions */}
+                    {generatedQuestions.technical_questions.experience_based?.length > 0 && (
+                      <div>
+                        <h4
+                          style={{
+                            color: "#0284c7",
+                            fontSize: "15px",
+                            fontWeight: "600",
+                            marginBottom: "15px",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          💼 Experience-Based Questions
+                        </h4>
+                        {generatedQuestions.technical_questions.experience_based.map((exp, expIdx) => (
+                          <div key={expIdx} style={{ marginBottom: "20px", marginLeft: "20px" }}>
+                            <div
+                              style={{
+                                background: "#eff6ff",
+                                border: "2px solid #0284c7",
+                                borderRadius: "8px",
+                                padding: "12px 15px",
+                                marginBottom: "12px",
+                              }}
+                            >
+                              <p
+                                style={{
+                                  color: "#0284c7",
+                                  fontSize: "14px",
+                                  fontWeight: "600",
+                                  margin: 0,
+                                }}
+                              >
+                                {exp.role}
+                              </p>
+                            </div>
+                            {exp.questions.map((question, qIdx) => (
+                              <div
+                                key={`exp-${expIdx}-${qIdx}`}
+                                style={{
+                                  ...sectionStyles,
+                                  background: "#f0f9ff",
+                                  border: "1px solid #bfdbfe",
+                                  marginBottom: "12px",
+                                  marginLeft: "10px",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "flex-start",
+                                    gap: "12px",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      minWidth: "30px",
+                                      height: "30px",
+                                      borderRadius: "50%",
+                                      background: "#0284c7",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      color: "white",
+                                      fontWeight: "bold",
+                                      fontSize: "14px",
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    {qIdx + 1}
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <p
+                                      style={{
+                                        color: "#1f2937",
+                                        fontSize: "14px",
+                                        lineHeight: "1.6",
+                                        margin: 0,
+                                      }}
+                                    >
+                                      {question}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* Fallback for old format: generated_questions */}
-                {!generatedQuestions?.hr_general_questions && !resume.questions?.hr_general_questions && resume.generated_questions?.length > 0 && (
+                {/* New Format: General Questions Section */}
+                {generatedQuestions?.general_questions && (
                   <div>
-                    {resume.generated_questions.map((questionObj, index) => (
-                      <div
-                        key={questionObj.id || index}
-                        style={{
-                          ...sectionStyles,
-                          background:
-                            questionObj.type === "technical"
-                              ? "#eff6ff"
-                              : "#f0fdf4",
-                          border:
-                            questionObj.type === "technical"
-                              ? "1px solid #bfdbfe"
-                              : "1px solid #bbf7d0",
-                          marginBottom: "15px",
-                        }}
-                      >
-                        <div
+                    <h3
+                      style={{
+                        color: "#1f2937",
+                        fontSize: "18px",
+                        fontWeight: "700",
+                        marginBottom: "20px",
+                        paddingBottom: "12px",
+                        borderBottom: "3px solid #16a34a",
+                      }}
+                    >
+                      General & HR Questions
+                    </h3>
+
+                    {/* Visa and Work Authorization */}
+                    {generatedQuestions.general_questions.visa_and_work_authorization?.length > 0 && (
+                      <div style={{ marginBottom: "20px" }}>
+                        <h4
                           style={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: "15px",
+                            color: "#16a34a",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            marginBottom: "12px",
+                            marginLeft: "10px",
                           }}
                         >
+                          📋 Visa & Work Authorization
+                        </h4>
+                        {generatedQuestions.general_questions.visa_and_work_authorization.map((question, idx) => (
                           <div
+                            key={`visa-${idx}`}
                             style={{
-                              minWidth: "40px",
-                              height: "40px",
-                              borderRadius: "50%",
-                              background:
-                                questionObj.type === "technical"
-                                  ? "#eff6ff"
-                                  : "#f0fdf4",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color:
-                                questionObj.type === "technical"
-                                  ? "#0284c7"
-                                  : "#16a34a",
-                              fontWeight: "bold",
-                              fontSize: "18px",
-                              flexShrink: 0,
+                              ...sectionStyles,
+                              background: "#f0fdf4",
+                              border: "1px solid #bbf7d0",
+                              marginBottom: "12px",
+                              marginLeft: "10px",
                             }}
                           >
-                            {index + 1}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <div
-                              style={{
-                                color: "#1f2937",
-                                fontSize: "15px",
-                                lineHeight: "1.6",
-                                marginBottom: "10px",
-                              }}
-                            >
-                              {questionObj.question}
-                            </div>
-                            <div
-                              style={{
-                                display: "inline-block",
-                                padding: "4px 12px",
-                                borderRadius: "20px",
-                                fontSize: "12px",
-                                fontWeight: "500",
-                                background:
-                                  questionObj.type === "technical"
-                                    ? "#eff6ff"
-                                    : "#f0fdf4",
-                                color:
-                                  questionObj.type === "technical"
-                                    ? "#0284c7"
-                                    : "#16a34a",
-                                border:
-                                  questionObj.type === "technical"
-                                    ? "1px solid #bfdbfe"
-                                    : "1px solid #bbf7d0",
-                                textTransform: "capitalize",
-                              }}
-                            >
-                              {questionObj.type}
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                              <div
+                                style={{
+                                  minWidth: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                  background: "#16a34a",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  fontSize: "14px",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {idx + 1}
+                              </div>
+                              <p style={{ color: "#1f2937", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
+                                {question}
+                              </p>
                             </div>
                           </div>
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+
+                    {/* Location and Relocation */}
+                    {generatedQuestions.general_questions.location_and_relocation?.length > 0 && (
+                      <div style={{ marginBottom: "20px" }}>
+                        <h4
+                          style={{
+                            color: "#16a34a",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            marginBottom: "12px",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          📍 Location & Relocation
+                        </h4>
+                        {generatedQuestions.general_questions.location_and_relocation.map((question, idx) => (
+                          <div
+                            key={`location-${idx}`}
+                            style={{
+                              ...sectionStyles,
+                              background: "#f0fdf4",
+                              border: "1px solid #bbf7d0",
+                              marginBottom: "12px",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                              <div
+                                style={{
+                                  minWidth: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                  background: "#16a34a",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  fontSize: "14px",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {idx + 1}
+                              </div>
+                              <p style={{ color: "#1f2937", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
+                                {question}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Salary Expectations */}
+                    {generatedQuestions.general_questions.salary_expectations?.length > 0 && (
+                      <div style={{ marginBottom: "20px" }}>
+                        <h4
+                          style={{
+                            color: "#16a34a",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            marginBottom: "12px",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          💰 Salary Expectations
+                        </h4>
+                        {generatedQuestions.general_questions.salary_expectations.map((question, idx) => (
+                          <div
+                            key={`salary-${idx}`}
+                            style={{
+                              ...sectionStyles,
+                              background: "#f0fdf4",
+                              border: "1px solid #bbf7d0",
+                              marginBottom: "12px",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                              <div
+                                style={{
+                                  minWidth: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                  background: "#16a34a",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  fontSize: "14px",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {idx + 1}
+                              </div>
+                              <p style={{ color: "#1f2937", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
+                                {question}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Notice Period and Availability */}
+                    {generatedQuestions.general_questions.notice_period_and_availability?.length > 0 && (
+                      <div>
+                        <h4
+                          style={{
+                            color: "#16a34a",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            marginBottom: "12px",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          ⏰ Notice Period & Availability
+                        </h4>
+                        {generatedQuestions.general_questions.notice_period_and_availability.map((question, idx) => (
+                          <div
+                            key={`notice-${idx}`}
+                            style={{
+                              ...sectionStyles,
+                              background: "#f0fdf4",
+                              border: "1px solid #bbf7d0",
+                              marginBottom: "12px",
+                              marginLeft: "10px",
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                              <div
+                                style={{
+                                  minWidth: "30px",
+                                  height: "30px",
+                                  borderRadius: "50%",
+                                  background: "#16a34a",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  fontSize: "14px",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {idx + 1}
+                              </div>
+                              <p style={{ color: "#1f2937", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
+                                {question}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

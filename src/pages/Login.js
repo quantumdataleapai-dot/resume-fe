@@ -165,9 +165,9 @@ const LoginPage = () => {
       {/* Left Panel - Features */}
       <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px", backgroundColor: "#f8fafb", overflow: "hidden" }}>
         <div style={{ maxWidth: "500px", textAlign: "center", zIndex: 10 }}>
-          <h1 style={{ fontSize: "32px", fontWeight: "800", lineHeight: 1.2, marginBottom: "48px", color: "#0f1724" }}>
+          {/* <h1 style={{ fontSize: "32px", fontWeight: "800", lineHeight: 1.2, marginBottom: "48px", color: "#0f1724" }}>
             Fully Scalable, Fully Integrated<br />Applicant Tracking System
-          </h1>
+          </h1> */}
 
           {/* Illustration Area */}
           <div style={{ position: "relative", width: "100%", height: "320px", marginBottom: "32px" }}>
@@ -187,7 +187,7 @@ const LoginPage = () => {
               animation: showScores ? "scan 1.5s ease-in-out infinite" : "none"
             }}>
               <div style={{ width: 20, height: 20, background: "rgba(255,107,53,0.2)", borderRadius: "4px" }}></div>
-              <span style={{ fontSize: "14px", fontWeight: 500, color: "#0f1724" }}>AI Resume Match</span>
+              <span style={{ fontSize: "14px", fontWeight: 500, color: "#0f1724" }}>Resume Match</span>
             </div>
 
             {/* Score Card 1 - Top Right */}
@@ -301,7 +301,7 @@ const LoginPage = () => {
           <div style={{ textAlign: "center", marginBottom: "32px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
               {/* <img src="/logo.png" alt="FiSec Logo" style={{ width: "32px", height: "32px", objectFit: "contain" }} /> */}
-              <span style={{ fontSize: "20px", fontWeight: "700", color: "#000000ff" }}>FiSec Global</span>
+              <span style={{ fontSize: "20px", fontWeight: "700", color: "#000000ff" }}>Welcome Back</span>
             </div>
           </div>
 

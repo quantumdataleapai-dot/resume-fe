@@ -6,7 +6,7 @@
   --accent-color: #8b5cf6;
   --dark-bg: #ffffff;
   --card-bg: #f9fafb;
-  --border-color: #c0c4cd;
+  --border-color: #e5e7eb;
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
   --green-accent: #16a34a;
@@ -606,7 +606,6 @@
   font-size: 16px;
 }
 
-
 .results-header h2 {
   font-size: 20px;
   font-weight: 600;
@@ -1063,3 +1062,5 @@
 .chat-input-container button:active {
   transform: scale(0.95);
 }
+
+

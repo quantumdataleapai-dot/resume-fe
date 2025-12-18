@@ -89,6 +89,7 @@ export default function DashboardNew() {
   const [noticePeriod, setNoticePeriod] = useState("");
   const [willingnessToRelocate, setWillingnessToRelocate] = useState("");
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
+  const [jdId, setJdId] = useState(null);
 
   
   const handleViewDetails = (resume) => {
@@ -111,7 +112,7 @@ export default function DashboardNew() {
 
     try {
       const response = await fetch(
-        `http://10.30.0.104:8006/api/resumes/${resumeId}/delete`,
+        `http://10.20.0.107:8000/api/resumes/${resumeId}/delete`,
         {
           method: "DELETE",
           headers: {
@@ -173,7 +174,7 @@ export default function DashboardNew() {
 
         console.log("Uploading files for processing...");
         const response = await fetch(
-          "http://10.30.0.104:8006/api/jobs/process-file-and-match",
+          "http://10.20.0.107:8000/api/jobs/process-file-and-match",
           {
             method: "POST",
             body: formData,
@@ -200,7 +201,7 @@ export default function DashboardNew() {
 
         console.log("Sending text job description for processing...");
         const response = await fetch(
-          "http://10.30.0.104:8006/api/jobs/process-text-and-match",
+          "http://10.20.0.107:8000/api/jobs/process-text-and-match",
           {
             method: "POST",
             headers: {
@@ -237,6 +238,16 @@ export default function DashboardNew() {
       }
 
       if (items.length > 0) {
+
+        // Store the jd_id from the response - it's nested under job_analysis
+        if (result.data && result.data.job_analysis && result.data.job_analysis.jd_id) {
+          setJdId(result.data.job_analysis.jd_id);
+          console.log("JD ID from response:", result.data.job_analysis.jd_id);
+        } else if (result.data && result.data.jd_id) {
+          // Fallback for alternate response format
+          setJdId(result.data.jd_id);
+          console.log("JD ID from response (fallback):", result.data.jd_id);
+        }
         const normalized = items.map((r, idx) => {
           const parsed = r.parsed_data || {};
           const name = r.name || parsed.name || r.original_name || r.filename || r.title || "Unknown";
@@ -293,7 +304,7 @@ export default function DashboardNew() {
     try {
       setError(null);
       const response = await fetch(
-        "http://10.30.0.104:8006/api/resumes/download-all?format=zip",
+        "http://10.20.0.107:8000/api/resumes/download-all?format=zip",
         {
           method: "POST",
           headers: {
@@ -351,7 +362,7 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("http://10.30.0.104:8006/api/resumes/upload", {
+          const resp = await fetch("http://10.20.0.107:8000/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
@@ -765,7 +776,6 @@ export default function DashboardNew() {
                       color: "#000000ff",
                     }}
                   >
-                    <option value="">Any</option>
                     <option value="yes">Yes</option>
                     <option value="no">No</option>
                   </select>
@@ -912,6 +922,7 @@ export default function DashboardNew() {
         isOpen={showDetailModal}
         onClose={handleCloseModal}
         onDelete={handleDeleteResume}
+        jdId={jdId}
       />
     </div>
   );
