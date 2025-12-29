@@ -257,7 +257,7 @@ export default function DashboardNew() {
             upload_date: r.upload_date || "",
             name: name,
             email: parsed.email || r.email || r.contact_email || "",
-            contact_number: parsed.contact_number || r.phone || r.contact_number || "",
+            contact_number: parsed.mobile_no || parsed.contact_number || r.phone || r.contact_number || "",
             location: parsed.location || r.location || r.city || "",
             score: r.match_score || r.score || r.similarity || 0,
             skills: parsed.skills || r.skills || r.tags || [],
