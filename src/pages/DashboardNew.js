@@ -70,6 +70,150 @@ const sampleResumes = [
   },
 ];
 
+// Location hierarchy data
+const locationData = {
+  "Canada": {
+    "Alberta": ["Calgary", "Edmonton", "Red Deer", "Lethbridge", "Fort McMurray"],
+    "British Columbia": ["Vancouver", "Victoria", "Surrey", "Burnaby", "Kelowna"],
+    "Manitoba": ["Winnipeg", "Brandon", "Missoula"],
+    "New Brunswick": ["Saint John", "Fredericton", "Moncton"],
+    "Newfoundland and Labrador": ["St. John's", "Corner Brook", "Gander"],
+    "Northwest Territories": ["Yellowknife", "Hay River"],
+    "Nova Scotia": ["Halifax", "Cape Breton", "Sydney"],
+    "Nunavut": ["Iqaluit", "Rankin Inlet"],
+    "Ontario": ["Toronto", "Ottawa", "Mississauga", "Brampton", "Hamilton", "London", "Kingston"],
+    "Prince Edward Island": ["Charlottetown", "Summerside"],
+    "Quebec": ["Montreal", "Quebec City", "Laval", "Gatineau", "Sherbrooke", "Trois-Rivières"],
+    "Saskatchewan": ["Regina", "Saskatoon", "Prince Albert"],
+    "Yukon": ["Whitehorse", "Dawson City"],
+    "Other": ["Other Cities"]
+  },
+  "Mexico": {
+    "Aguascalientes": ["Aguascalientes City", "Jesús María", "San Francisco de los Romo"],
+    "Baja California": ["Tijuana", "Mexicali", "Ensenada", "Rosarito"],
+    "Baja California Sur": ["La Paz", "Los Cabos", "Puerto Vallarta"],
+    "Campeche": ["Campeche City", "Ciudad del Carmen"],
+    "Chiapas": ["Tuxtla Gutiérrez", "San Cristóbal de las Casas", "Comitán"],
+    "Chihuahua": ["Chihuahua City", "Ciudad Juárez", "Delicias"],
+    "Mexico City": ["Downtown", "Polanco", "Santa Fe", "Roma", "Condesa"],
+    "Durango": ["Durango City", "Gómez Palacio", "Lerdo"],
+    "Guanajuato": ["Guanajuato City", "León", "Irapuato", "Querétaro"],
+    "Guerrero": ["Acapulco", "Zihuatanejo", "Chilpancingo"],
+    "Hidalgo": ["Pachuca", "Tulancingo", "Tula"],
+    "Jalisco": ["Guadalajara", "Puerto Vallarta", "Zapopan", "Tonalá"],
+    "Mexico State": ["Toluca", "Ecatepec", "Naucalpán", "Tlalnepantla"],
+    "Michoacán": ["Morelia", "Uruapan", "Zamora"],
+    "Morelos": ["Cuernavaca", "Jiutepec", "Emiliano Zapata"],
+    "Nayarit": ["Tepic", "Puerto Vallarta", "Sayulita"],
+    "Nuevo León": ["Monterrey", "San Pedro Garza García", "Santa Catarina"],
+    "Oaxaca": ["Oaxaca City", "Puerto Escondido", "Huatulco"],
+    "Puebla": ["Puebla City", "Cholula", "Tehuacán"],
+    "Querétaro": ["Querétaro City", "San Juan del Río"],
+    "Quintana Roo": ["Cancún", "Playa del Carmen", "Tulum", "Cozumel"],
+    "San Luis Potosí": ["San Luis Potosí City", "Matehuala"],
+    "Sinaloa": ["Culiacán", "Mazatlán", "Los Mochis"],
+    "Sonora": ["Hermosillo", "Ciudad Obregón", "Nogales"],
+    "Tabasco": ["Villahermosa", "Cárdenas"],
+    "Tamaulipas": ["Ciudad Victoria", "Tampico", "Nuevo Laredo"],
+    "Tlaxcala": ["Tlaxcala City", "Apizaco"],
+    "Veracruz": ["Veracruz City", "Xalapa", "Coatzacoalcos"],
+    "Yucatán": ["Mérida", "Cancún", "Chetumal"],
+    "Zacatecas": ["Zacatecas City", "Fresnillo"],
+    "Other": ["Other Cities"]
+  },
+  "United States": {
+    "California": ["San Francisco", "Los Angeles", "San Diego", "San Jose", "Sacramento"],
+    "Texas": ["Houston", "Dallas", "Austin", "San Antonio", "Fort Worth"],
+    "New York": ["New York City", "Buffalo", "Rochester", "Yonkers"],
+    "Florida": ["Miami", "Orlando", "Tampa", "Jacksonville"],
+    "Illinois": ["Chicago", "Aurora", "Rockford"],
+    "Washington": ["Seattle", "Spokane", "Tacoma"],
+    "Other": ["Other Cities"]
+  },
+
+  "United Kingdom": {
+    "England": ["London", "Manchester", "Birmingham", "Leeds"],
+    "Scotland": ["Edinburgh", "Glasgow"],
+    "Wales": ["Cardiff"],
+    "Other": ["Other Cities"]
+  },
+  "India": {
+    "Bangalore": ["Bangalore"],
+    "Mumbai": ["Mumbai"],
+    "Delhi": ["Delhi", "Noida"],
+    "Hyderabad": ["Hyderabad"],
+    "Pune": ["Pune"],
+    "Other": ["Other Cities"]
+  }
+};
+
+const visaOptions = [
+  { category: "Citizens and Permanent Residents", options: ["US Citizen", "US Authorized", "Canadian Citizen", "Canada Authorized"] },
+  { category: "Green Card and EAD", options: ["Green Card", "Green Card Holder", "GC", "GC-EAD", "Employment Auth Document", "OPT-EAD", "H4-EAD", "L2-EAD"] },
+  { category: "H1 Related", options: ["H1 Visa", "H1-B", "Have H1", "Have H1 Visa", "Need H1", "Need H1 Visa", "Need H1 Visa Sponsor"] },
+  { category: "Other Visas", options: ["B1", "L1-A", "L2-B", "TN Visa", "TN Permit Holder", "E3 Visa", "E3 (Australian Citizens)"] },
+  { category: "Work Authorization", options: ["Can work for any employer", "Current Employer Only", "Sponsorship Required", "France Authorized", "India Authorized", "Kazakhstan Authorized", "United Kingdom Authorized", "Venezuela Authorized", "Unspecified Work Authorization"] },
+  { category: "Other", options: ["Not Specified", "Unspecified"] }
+];
+
+const skillsList = [
+  "React", "Vue.js", "Angular", "JavaScript", "TypeScript", "Python", "Java", "C++", "C#",
+  "Node.js", "Express.js", "Django", "Flask", "Spring Boot", "ASP.NET",
+  "MongoDB", "PostgreSQL", "MySQL", "Firebase", "Redis",
+  "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes",
+  "HTML", "CSS", "SASS", "Tailwind CSS", "Bootstrap",
+  "REST APIs", "GraphQL", "Git", "CI/CD", "Jenkins",
+  "React Native", "Flutter", "Swift", "Kotlin",
+  "Machine Learning", "TensorFlow", "PyTorch", "Data Science",
+  "Figma", "Adobe XD", "UI Design", "UX Design",
+  "Agile", "Scrum", "Jira", "DevOps"
+];
+
+const jobTitles = [
+  "Frontend Developer",
+  "Backend Developer",
+  "Full Stack Developer",
+  "Mobile Developer",
+  "Senior Developer",
+  "Lead Developer",
+  "Junior Developer",
+  "React Developer",
+  "Node.js Developer",
+  "Python Developer",
+  "Java Developer",
+  "DevOps Engineer",
+  "Data Engineer",
+  "Data Scientist",
+  "ML Engineer",
+  "QA Engineer",
+  "Software Engineer",
+  "Solutions Architect",
+  "Technical Lead",
+  "Project Manager",
+  "Product Manager",
+  "UI/UX Designer"
+];
+
+const experienceLevels = [
+  { value: "", label: "Select Experience Level" },
+  { value: "0-1", label: "0-1 Years (Fresher)" },
+  { value: "1-3", label: "1-3 Years (Junior)" },
+  { value: "3-5", label: "3-5 Years (Mid-Level)" },
+  { value: "5-8", label: "5-8 Years (Senior)" },
+  { value: "8-10", label: "8-10 Years (Lead/Architect)" },
+  { value: "10+", label: "10+ Years (Principal/Director)" }
+];
+
+const recentSearchTimeframes = [
+  { value: "", label: "Select Recent Activity" },
+  { value: "7", label: "Last 7 Days" },
+  { value: "30", label: "Last 30 Days" },
+  { value: "60", label: "Last 60 Days" },
+  { value: "90", label: "Last 90 Days" },
+  { value: "180", label: "Last 6 Months" },
+  { value: "365", label: "Last 1 Year" }
+];
+
 export default function DashboardNew() {
   const navigate = useNavigate();
   const [jobDescription, setJobDescription] = useState("");
@@ -83,13 +227,24 @@ export default function DashboardNew() {
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [visaRequirement, setVisaRequirement] = useState("H1 Visa");
-  const [jobLocation, setJobLocation] = useState("all");
+  const [visaRequirement, setVisaRequirement] = useState([]);
+  const [jobLocation, setJobLocation] = useState([]);
   const [expectedSalary, setExpectedSalary] = useState("");
   const [noticePeriod, setNoticePeriod] = useState("");
   const [willingnessToRelocate, setWillingnessToRelocate] = useState("");
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [jdId, setJdId] = useState(null);
+  const [showVisaDropdown, setShowVisaDropdown] = useState(false);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [locationDistance, setLocationDistance] = useState("");
+  const [requiredSkills, setRequiredSkills] = useState([]);
+  const [jobTitle, setJobTitle] = useState("");
+  const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
+  const [skillsSearchInput, setSkillsSearchInput] = useState("");
+  const [jobTitleSearchInput, setJobTitleSearchInput] = useState("");
+  const [showJobTitleDropdown, setShowJobTitleDropdown] = useState(false);
+  const [experienceLevel, setExperienceLevel] = useState("");
+  const [recentSearchDays, setRecentSearchDays] = useState("");
 
   
   const handleViewDetails = (resume) => {
@@ -451,6 +606,27 @@ export default function DashboardNew() {
     return "score-fair";
   };
 
+  // Close dropdowns when clicking outside
+  React.useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (showVisaDropdown && !e.target.closest('.multi-select-container')) {
+        setShowVisaDropdown(false);
+      }
+      if (showLocationDropdown && !e.target.closest('.multi-select-container')) {
+        setShowLocationDropdown(false);
+      }
+      if (showSkillsDropdown && !e.target.closest('.multi-select-container')) {
+        setShowSkillsDropdown(false);
+      }
+      if (showJobTitleDropdown && !e.target.closest('.multi-select-container')) {
+        setShowJobTitleDropdown(false);
+      }
+    };
+
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, [showVisaDropdown, showLocationDropdown, showSkillsDropdown, showJobTitleDropdown]);
+
   // Fetch resumes from backend when dashboard loads
   React.useEffect(() => {
     let mounted = true;
@@ -608,112 +784,284 @@ export default function DashboardNew() {
                 </button>
               </div>
 
+              
+
               {/* Visa Requirement & Job Location */}
               <div className="job-filters-section">
+                {/* Work Authorization Multi-Select */}
+                  {/* Job Title Filter */}
                 <div className="filter-group">
-                  <label>Work Authorization</label>
-                  <select
-
-                    value={visaRequirement}
-                    onChange={(e) => setVisaRequirement(e.target.value)}
-                    className="filter-select"
-                      style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      backgroundColor: "#ffffffff",
-                      color: "#160f0fff",
-                    }}
-                  >
-                    <option value="all">All</option>
-                    <optgroup label="Citizens and Permanent Residents">
-                      <option value="us-citizen">US Citizen</option>
-                      {/* <option value="us-citizenship">US Citizenship</option> */}
-                      <option value="us-authorized">US Authorized</option>
-                      <option value="canadian-citizen">Canadian Citizen</option>
-                      <option value="canada-authorized">
-                        Canada Authorized
-                      </option>
-                      {/* <option value="citizen">Citizen</option> */}
-                    </optgroup>
-                    <optgroup label="Green Card and EAD">
-                      <option value="green-card">Green Card</option>
-                      <option value="green-card-holder">
-                        Green Card Holder
-                      </option>
-                      <option value="gc">GC</option>
-                      <option value="gc-ead">GC-EAD</option>
-                      <option value="employment-auth-document">
-                        Employment Auth Document
-                      </option>
-                      <option value="opt-ead">OPT-EAD</option>
-                      <option value="h4-ead">H4-EAD</option>
-                      <option value="l2-ead">L2-EAD</option>
-                    </optgroup>
-                    <optgroup label="H1 Related">
-                      <option value="h1-visa">H1 Visa</option>
-                      <option value="h1b">H1-B</option>
-                      <option value="have-h1">Have H1</option>
-                      <option value="have-h1-visa">Have H1 Visa</option>
-                      <option value="need-h1">Need H1</option>
-                      <option value="need-h1-visa">Need H1 Visa</option>
-                      <option value="need-h1-visa-sponsor">
-                        Need H1 Visa Sponsor
-                      </option>
-                    </optgroup>
-                    <optgroup label="Other Visas">
-                      <option value="b1">B1</option>
-                      <option value="l1a">L1-A</option>
-                      <option value="l2b">L2-B</option>
-                      <option value="tn-visa">TN Visa</option>
-                      <option value="tn-permit-holder">TN Permit Holder</option>
-                    </optgroup>
-                    <optgroup label="Work Authorization">
-                      <option value="can-work-for-any-employer">
-                        Can work for any employer
-                      </option>
-                      <option value="current-employer-only">
-                        Current Employer Only
-                      </option>
-                      <option value="sponsorship-required">
-                        Sponsorship Required
-                      </option>
-                      <option value="france-authorized">
-                        France Authorized
-                      </option>
-                      <option value="india-authorized">India Authorized</option>
-                      <option value="kazakhstan-authorized">
-                        Kazakhstan Authorized
-                      </option>
-                      <option value="united-kingdom-authorized">
-                        United Kingdom Authorized
-                      </option>
-                      <option value="venezuela-authorized">
-                        Venezuela Authorized
-                      </option>
-                      <option value="unspecified-work-authorization">
-                        Unspecified Work Authorization
-                      </option>
-                    </optgroup>
-                    <optgroup label="Other">
-                      <option value="not-specified">Not Specified</option>
-                      <option value="unspecified">Unspecified</option>
-                    </optgroup>
-                  </select>
+                  <label>Job Title</label>
+                  <div className="multi-select-container">
+                    <div className="search-input-wrapper">
+                      <input
+                        type="text"
+                        value={jobTitleSearchInput}
+                        onChange={(e) => setJobTitleSearchInput(e.target.value)}
+                        onFocus={() => setShowJobTitleDropdown(true)}
+                        placeholder={jobTitle || "Search job titles..."}
+                        className="search-filter-input"
+                      />
+                      {jobTitle && (
+                        <button
+                          className="clear-input-btn"
+                          onClick={() => {
+                            setJobTitle("");
+                            setJobTitleSearchInput("");
+                          }}
+                          type="button"
+                          title="Clear selection"
+                        >
+                          ×
+                        </button>
+                      )}
+                      <span className="dropdown-arrow">▼</span>
+                    </div>
+                    
+                    {showJobTitleDropdown && (
+                      <div className="multi-select-dropdown job-title-dropdown">
+                        {jobTitles
+                          .filter((title) =>
+                            title.toLowerCase().includes(jobTitleSearchInput.toLowerCase())
+                          )
+                          .map((title) => (
+                            <div
+                              key={title}
+                              className={`dropdown-item ${jobTitle === title ? 'selected' : ''}`}
+                              onClick={() => {
+                                setJobTitle(title);
+                                setJobTitleSearchInput("");
+                                setShowJobTitleDropdown(false);
+                              }}
+                            >
+                              {title}
+                            </div>
+                          ))}
+                        {jobTitles.filter((title) =>
+                          title.toLowerCase().includes(jobTitleSearchInput.toLowerCase())
+                        ).length === 0 && (
+                          <div className="no-results">No job titles found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
+                {/* Required Skills Multi-Select */}
+                <div className="filter-group">
+                  <label>Required Skills</label>
+                  <div className="multi-select-container">
+                    <div className="search-input-wrapper">
+                      <input
+                        type="text"
+                        value={skillsSearchInput}
+                        onChange={(e) => setSkillsSearchInput(e.target.value)}
+                        onFocus={() => setShowSkillsDropdown(true)}
+                        placeholder="Search or select skills..."
+                        className="search-filter-input"
+                      />
+                      <span className="dropdown-arrow">▼</span>
+                    </div>
+                    
+                    {/* Display selected skills */}
+                    {requiredSkills.length > 0 && (
+                      <div className="selected-items-container">
+                        {requiredSkills.map((skill) => (
+                          <div key={skill} className="selected-tag">
+                            <span>{skill}</span>
+                            <button
+                              className="remove-tag-btn"
+                              onClick={() => setRequiredSkills(requiredSkills.filter(s => s !== skill))}
+                              type="button"
+                              aria-label={`Remove ${skill}`}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {showSkillsDropdown && (
+                      <div className="multi-select-dropdown skills-dropdown">
+                        {skillsList
+                          .filter((skill) =>
+                            skill.toLowerCase().includes(skillsSearchInput.toLowerCase())
+                          )
+                          .map((skill) => (
+                            <label key={skill} className="checkbox-option">
+                              <input
+                                type="checkbox"
+                                checked={requiredSkills.includes(skill)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setRequiredSkills([...requiredSkills, skill]);
+                                  } else {
+                                    setRequiredSkills(requiredSkills.filter(s => s !== skill));
+                                  }
+                                }}
+                              />
+                              <span>{skill}</span>
+                            </label>
+                          ))}
+                        {skillsList.filter((skill) =>
+                          skill.toLowerCase().includes(skillsSearchInput.toLowerCase())
+                        ).length === 0 && (
+                          <div className="no-results">No skills found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="filter-group">
+                  <label>Work Authorization</label>
+                  <div className="multi-select-container">
+                    <button 
+                      className="multi-select-button"
+                      onClick={() => setShowVisaDropdown(!showVisaDropdown)}
+                    >
+                      <span className="multi-select-display">
+                        {visaRequirement.length === 0 
+                          ? "Select work authorization..." 
+                          : `${visaRequirement.length} selected`}
+                      </span>
+                      <span className={`dropdown-arrow ${showVisaDropdown ? 'open' : ''}`}>▼</span>
+                    </button>
+                    
+                    {/* Display selected items */}
+                    {visaRequirement.length > 0 && (
+                      <div className="selected-items-container">
+                        {visaRequirement.map((item) => (
+                          <div key={item} className="selected-tag">
+                            <span>{item}</span>
+                            <button
+                              className="remove-tag-btn"
+                              onClick={() => setVisaRequirement(visaRequirement.filter(v => v !== item))}
+                              type="button"
+                              aria-label={`Remove ${item}`}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {showVisaDropdown && (
+                      <div className="multi-select-dropdown">
+                        {visaOptions.map((group) => (
+                          <div key={group.category}>
+                            <div className="option-group-label">{group.category}</div>
+                            {group.options.map((option) => (
+                              <label key={option} className="checkbox-option">
+                                <input
+                                  type="checkbox"
+                                  checked={visaRequirement.includes(option)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setVisaRequirement([...visaRequirement, option]);
+                                    } else {
+                                      setVisaRequirement(visaRequirement.filter(v => v !== option));
+                                    }
+                                  }}
+                                />
+                                <span>{option}</span>
+                              </label>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Job Location Multi-Select */}
                 <div className="filter-group">
                   <label>Job Location</label>
+                  <div className="multi-select-container">
+                    <button 
+                      className="multi-select-button"
+                      onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                    >
+                      <span className="multi-select-display">
+                        {jobLocation.length === 0 
+                          ? "Select locations..." 
+                          : `${jobLocation.length} selected`}
+                      </span>
+                      <span className={`dropdown-arrow ${showLocationDropdown ? 'open' : ''}`}>▼</span>
+                    </button>
+                    
+                    {/* Display selected items */}
+                    {jobLocation.length > 0 && (
+                      <div className="selected-items-container">
+                        {jobLocation.map((item) => (
+                          <div key={item} className="selected-tag">
+                            <span>{item}</span>
+                            <button
+                              className="remove-tag-btn"
+                              onClick={() => setJobLocation(jobLocation.filter(l => l !== item))}
+                              type="button"
+                              aria-label={`Remove ${item}`}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {showLocationDropdown && (
+                      <div className="multi-select-dropdown location-dropdown">
+                        {Object.entries(locationData).map(([country, states]) => (
+                          <div key={country}>
+                            <div className="option-group-label country-label">{country}</div>
+                            {Object.entries(states).map(([state, cities]) => (
+                              <div key={state} className="state-group">
+                                <div className="state-label">{state}</div>
+                                {cities.map((city) => {
+                                  const locationValue = `${city}, ${state}, ${country}`;
+                                  return (
+                                    <label key={locationValue} className="checkbox-option city-option">
+                                      <input
+                                        type="checkbox"
+                                        checked={jobLocation.includes(locationValue)}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            setJobLocation([...jobLocation, locationValue]);
+                                          } else {
+                                            setJobLocation(jobLocation.filter(l => l !== locationValue));
+                                          }
+                                        }}
+                                      />
+                                      <span>{city}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Distance in Miles (Optional) */}
+                <div className="filter-group">
+                  <label>Distance (Miles)</label>
                   <input
-                    type="text"
-                    value={jobLocation}
-                    onChange={(e) => setJobLocation(e.target.value)}
-                    placeholder="Enter job location"
+                    type="number"
+                    value={locationDistance}
+                    onChange={(e) => setLocationDistance(e.target.value)}
+                    placeholder="e.g., 50"
                     className="filter-input"
+                    min="0"
+                    step="5"
                   />
                 </div>
 
-                <div className="filter-group">
+                 {/* Expected Salary (Optional) */}
+                {/* <div className="filter-group">
                   <label>Expected Salary</label>
                   <select
                     value={expectedSalary}
@@ -736,9 +1084,10 @@ export default function DashboardNew() {
                     <option value="150000+">$150K+</option>
                     <option value="others">Others</option>
                   </select>
-                </div>
+                </div> */}
 
-                <div className="filter-group">
+                {/* Notice Period Filter */}
+                {/* <div className="filter-group">
                   <label>Notice Period</label>
                   <select
                     value={noticePeriod}
@@ -760,7 +1109,7 @@ export default function DashboardNew() {
                     <option value="2-months">2 Months</option>
                     <option value="3-months">3 Months</option>
                   </select>
-                </div>
+                </div> */}
 
                 <div className="filter-group">
                   <label>Willingness to Relocate</label>
@@ -780,6 +1129,50 @@ export default function DashboardNew() {
                     <option value="no">No</option>
                   </select>
                 </div>
+
+                {/* Experience Level Filter */}
+                <div className="filter-group">
+                  <label>Experience Level</label>
+                  <select
+                    value={experienceLevel}
+                    onChange={(e) => setExperienceLevel(e.target.value)}
+                    className="filter-select"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#ffffffff",
+                      color: "#000000ff",
+                    }}
+                  >
+                    {experienceLevels.map((level) => (
+                      <option key={level.value} value={level.value}>{level.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Recent Search Activity Filter */}
+                <div className="filter-group">
+                  <label>Recent Job Search Activity</label>
+                  <select
+                    value={recentSearchDays}
+                    onChange={(e) => setRecentSearchDays(e.target.value)}
+                    className="filter-select"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#ffffffff",
+                      color: "#000000ff",
+                    }}
+                  >
+                    {recentSearchTimeframes.map((timeframe) => (
+                      <option key={timeframe.value} value={timeframe.value}>{timeframe.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+              
               </div>
             </div>
 
