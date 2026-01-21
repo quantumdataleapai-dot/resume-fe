@@ -211,12 +211,14 @@ const recentSearchTimeframes = [
   { value: "60", label: "Last 60 Days" },
   { value: "90", label: "Last 90 Days" },
   { value: "180", label: "Last 6 Months" },
-  { value: "365", label: "Last 1 Year" }
+  { value: "365", label: "Last 1 Year" },
+  { value: "All", label: "All" }
 ];
 
 export default function DashboardNew() {
   const navigate = useNavigate();
   const [jobDescription, setJobDescription] = useState("");
+  const [toast, setToast] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -235,16 +237,30 @@ export default function DashboardNew() {
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [jdId, setJdId] = useState(null);
   const [showVisaDropdown, setShowVisaDropdown] = useState(false);
-  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [locationDistance, setLocationDistance] = useState("");
   const [requiredSkills, setRequiredSkills] = useState([]);
   const [jobTitle, setJobTitle] = useState("");
   const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
   const [skillsSearchInput, setSkillsSearchInput] = useState("");
-  const [jobTitleSearchInput, setJobTitleSearchInput] = useState("");
-  const [showJobTitleDropdown, setShowJobTitleDropdown] = useState(false);
   const [experienceLevel, setExperienceLevel] = useState("");
   const [recentSearchDays, setRecentSearchDays] = useState("");
+  const [fetchedVisaOptions, setFetchedVisaOptions] = useState([]);
+  const [fetchedLocationOptions, setFetchedLocationOptions] = useState([]);
+  const [fetchedStateOptions, setFetchedStateOptions] = useState([]);
+  const [fetchedCityOptions, setFetchedCityOptions] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [centerPincode, setCenterPincode] = useState("");
+  const [filtersLoading, setFiltersLoading] = useState(false);
+  const [statesLoading, setStatesLoading] = useState(false);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [suggestedSkills, setSuggestedSkills] = useState([]);
+  const [confirmedSkills, setConfirmedSkills] = useState([]);
+  const [newSkillInput, setNewSkillInput] = useState("");
+  const [suggestedTitle, setSuggestedTitle] = useState("");
+  const [detectedExperience, setDetectedExperience] = useState(null);
+  const [showSkillsEditor, setShowSkillsEditor] = useState(false);
 
   
   const handleViewDetails = (resume) => {
@@ -256,6 +272,21 @@ export default function DashboardNew() {
     setShowDetailModal(false);
     setSelectedResume(null);
   };
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+  };
+
+  // Auto-dismiss toast after 2 seconds
+  React.useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   const handleLogout = () => {
     navigate("/");
   };
@@ -267,7 +298,7 @@ export default function DashboardNew() {
 
     try {
       const response = await fetch(
-        `http://10.20.0.107:8000/api/resumes/${resumeId}/delete`,
+        `http://10.20.0.66:8000/api/resumes/${resumeId}/delete`,
         {
           method: "DELETE",
           headers: {
@@ -282,11 +313,11 @@ export default function DashboardNew() {
 
       // Remove the deleted resume from the list
       setResumes(resumes.filter(r => r.id !== resumeId));
-      window.alert(`Resume for ${resumeName} deleted successfully`);
+      showToast(`Resume for ${resumeName} deleted successfully`, "success");
     } catch (err) {
       console.error("Delete error:", err);
       setError(err.message || "Failed to delete resume");
-      window.alert("Error: " + (err.message || "Failed to delete resume"));
+      showToast("Error: " + (err.message || "Failed to delete resume"), "error");
     }
   };
 
@@ -296,15 +327,67 @@ export default function DashboardNew() {
 
   const handleAnalyze = async () => {
     // Check if either job description OR files are provided
+    console.log("handleAnalyze - jobDescription.trim():", jobDescription.trim());
+    console.log("handleAnalyze - uploadedFiles.length:", uploadedFiles.length);
+    
     if (!jobDescription.trim() && uploadedFiles.length === 0) {
-      window.alert("Please enter a job description or upload resume files");
+      showToast("Please enter a job description or upload resume files", "error");
       return;
     }
 
     setIsAnalyzing(true);
     setError(null);
+    setSuggestedSkills([]);
+    setSuggestedTitle("");
+    setShowSkillsEditor(false);
+    setDetectedExperience(null);
+    console.log("handleAnalyze called");
 
     try {
+      // First, call the analyze endpoint to get suggested skills
+      if (jobDescription.trim()) {
+        try {
+          const analyzePayload = {
+            title: jobTitle || "Job Position",
+            job_description: jobDescription,
+          };
+
+          console.log("Calling analyze endpoint with:", analyzePayload);
+          const analyzeResponse = await fetch(
+            `${API_CONFIG.BASE_URL}/jobs/analyze`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(analyzePayload),
+            }
+          );
+
+          if (analyzeResponse.ok) {
+            const analyzeData = await analyzeResponse.json();
+            console.log("Analyze response:", analyzeData);
+
+            // Store suggested data from analyze response
+            if (analyzeData.data) {
+              setSuggestedTitle(analyzeData.data.suggested_title || "");
+              setDetectedExperience(analyzeData.data.detected_experience || null);
+              if (analyzeData.data.suggested_skills && Array.isArray(analyzeData.data.suggested_skills)) {
+                setSuggestedSkills(analyzeData.data.suggested_skills);
+                setConfirmedSkills([...analyzeData.data.suggested_skills]);
+              }
+              setShowSkillsEditor(true);
+              console.log("Setting showSkillsEditor to true - analyze success");
+            }
+          } else {
+            console.warn("Analyze endpoint returned non-ok status:", analyzeResponse.status);
+          }
+        } catch (analyzeErr) {
+          console.warn("Non-critical error during analyze:", analyzeErr);
+          // Don't fail the entire flow if analyze fails
+        }
+      }
+
       let result;
 
       // If files are uploaded, use file-based API
@@ -329,7 +412,7 @@ export default function DashboardNew() {
 
         console.log("Uploading files for processing...");
         const response = await fetch(
-          "http://10.20.0.107:8000/api/jobs/process-file-and-match",
+          "http://10.20.0.66:8000/api/jobs/process-file-and-match",
           {
             method: "POST",
             body: formData,
@@ -344,36 +427,12 @@ export default function DashboardNew() {
 
         result = await response.json();
         console.log("File matching response:", result);
-      } else {
-        // Use text-based API for job description
-        const payload = {
-          job_description: jobDescription,
-          visa_requirement: visaRequirement,
-          job_location: jobLocation,
-          ...(expectedSalary && { expected_salary: expectedSalary }),
-          ...(noticePeriod && { notice_period: noticePeriod }),
-        };
+      }
 
-        console.log("Sending text job description for processing...");
-        const response = await fetch(
-          "http://10.20.0.107:8000/api/jobs/process-text-and-match",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.text();
-          console.error("API error response:", errorData);
-          throw new Error(`API error: ${response.status} ${response.statusText}`);
-        }
-
-        result = await response.json();
-        console.log("Job matching response:", result);
+      // If no files are uploaded, just show the skills editor without further processing
+      if (uploadedFiles.length === 0) {
+        setIsAnalyzing(false);
+        return;
       }
 
       // Process the response - extract matched resumes
@@ -441,17 +500,20 @@ export default function DashboardNew() {
         setJobLocation("all");
         setExpectedSalary("");
         setNoticePeriod("");
-        window.alert(`Successfully matched ${normalized.length} resumes!`);
+        showToast(`Successfully matched ${normalized.length} resumes!`, "success");
       } else {
         console.warn("No matched resumes returned from API");
-        window.alert("No matched resumes were returned by the server.");
+        showToast("No matched resumes were returned by the server.", "error");
       }
     } catch (err) {
       console.error("Job analysis error:", err);
       setError(err.message || "Failed to analyze job and match resumes");
-      window.alert("Error: " + (err.message || "Failed to analyze job"));
+      showToast("Error: " + (err.message || "Failed to analyze job"), "error");
     } finally {
       setIsAnalyzing(false);
+      // Show skills editor if user clicked analyze (even if error occurred)
+      setShowSkillsEditor(true);
+      console.log("Setting showSkillsEditor to true - finally block");
     }
   };
 
@@ -459,7 +521,7 @@ export default function DashboardNew() {
     try {
       setError(null);
       const response = await fetch(
-        "http://10.20.0.107:8000/api/resumes/download-all?format=zip",
+        "http://10.20.0.66:8000/api/resumes/download-all?format=zip",
         {
           method: "POST",
           headers: {
@@ -494,7 +556,7 @@ export default function DashboardNew() {
     } catch (err) {
       console.error("Download error:", err);
       setError(err.message || "Failed to download resumes");
-      window.alert("Error: " + (err.message || "Failed to download resumes"));
+      showToast("Error: " + (err.message || "Failed to download resumes"), "error");
     }
   };
 
@@ -517,7 +579,7 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("http://10.20.0.107:8000/api/resumes/upload", {
+          const resp = await fetch("http://10.20.0.66:8000/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
@@ -574,10 +636,10 @@ export default function DashboardNew() {
           const combinedResumes = [...newResumes, ...allResumes];
 
           setResumes(combinedResumes);
-          window.alert(`Upload successful! Added ${newResumes.length} new resume(s)`);
+          showToast(`Upload successful! Added ${newResumes.length} new resume(s)`, "success");
         } catch (uploadErr) {
           console.error("Upload failed:", uploadErr);
-          window.alert("Upload failed: " + (uploadErr.message || "Unknown error"));
+          showToast("Upload failed: " + (uploadErr.message || "Unknown error"), "error");
         }
       };
 
@@ -586,7 +648,7 @@ export default function DashboardNew() {
     } catch (err) {
       console.error("Upload resume handler error:", err);
       setError(err.message || "Failed to upload resume");
-      window.alert("Error: " + (err.message || "Failed to upload resume"));
+      showToast("Error: " + (err.message || "Failed to upload resume"), "error");
     }
   };
 
@@ -612,20 +674,145 @@ export default function DashboardNew() {
       if (showVisaDropdown && !e.target.closest('.multi-select-container')) {
         setShowVisaDropdown(false);
       }
-      if (showLocationDropdown && !e.target.closest('.multi-select-container')) {
-        setShowLocationDropdown(false);
-      }
       if (showSkillsDropdown && !e.target.closest('.multi-select-container')) {
         setShowSkillsDropdown(false);
-      }
-      if (showJobTitleDropdown && !e.target.closest('.multi-select-container')) {
-        setShowJobTitleDropdown(false);
       }
     };
 
     document.addEventListener('click', handleOutsideClick);
     return () => document.removeEventListener('click', handleOutsideClick);
-  }, [showVisaDropdown, showLocationDropdown, showSkillsDropdown, showJobTitleDropdown]);
+  }, [showVisaDropdown, showSkillsDropdown]);
+
+  // Fetch filter options (visa, location, etc.) from backend
+  React.useEffect(() => {
+    const fetchFilterOptions = async () => {
+      setFiltersLoading(true);
+      try {
+        const response = await fetch(`${API_CONFIG.BASE_URL}/filters/options`, {
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch filter options: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Filter options response:", data);
+
+        // Store visa options
+        if (data.visas && Array.isArray(data.visas)) {
+          // Transform flat array into categorized format for UI
+          const visaOptionsFormatted = [
+            {
+              category: "Visa Categories",
+              options: data.visas
+            }
+          ];
+          setFetchedVisaOptions(visaOptionsFormatted);
+        }
+
+        // Store location options
+        if (data.locations && Array.isArray(data.locations)) {
+          setFetchedLocationOptions(data.locations);
+        }
+      } catch (err) {
+        console.error("Error fetching filter options:", err);
+        // Fall back to default/hardcoded options if API fails
+        setFetchedVisaOptions([
+          { category: "Citizens and Permanent Residents", options: ["US Citizen", "US Authorized", "Canadian Citizen", "Canada Authorized"] },
+          { category: "Green Card and EAD", options: ["Green Card", "Green Card Holder", "GC", "GC-EAD", "Employment Auth Document", "OPT-EAD", "H4-EAD", "L2-EAD"] },
+          { category: "H1 Related", options: ["H1 Visa", "H1-B", "Have H1", "Have H1 Visa", "Need H1", "Need H1 Visa", "Need H1 Visa Sponsor"] },
+          { category: "Other Visas", options: ["B1", "L1-A", "L2-B", "TN Visa", "TN Permit Holder", "E3 Visa", "E3 (Australian Citizens)"] },
+          { category: "Work Authorization", options: ["Can work for any employer", "Current Employer Only", "Sponsorship Required", "France Authorized", "India Authorized", "Kazakhstan Authorized", "United Kingdom Authorized", "Venezuela Authorized", "Unspecified Work Authorization"] },
+          { category: "Other", options: ["Not Specified", "Unspecified"] }
+        ]);
+      } finally {
+        setFiltersLoading(false);
+      }
+    };
+
+    fetchFilterOptions();
+  }, []);
+
+  // Fetch states when a country is selected
+  React.useEffect(() => {
+    if (!selectedCountry) {
+      setFetchedStateOptions([]);
+      setSelectedState("");
+      return;
+    }
+
+    const fetchStates = async () => {
+      setStatesLoading(true);
+      try {
+        const response = await fetch(
+          `${API_CONFIG.BASE_URL}/filters/options?country=${encodeURIComponent(selectedCountry)}`,
+          { method: "GET" }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch states: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`States for ${selectedCountry}:`, data);
+
+        // Store state options
+        if (data.locations && Array.isArray(data.locations)) {
+          setFetchedStateOptions(data.locations);
+          setSelectedState(""); // Reset state selection when country changes
+        }
+      } catch (err) {
+        console.error("Error fetching states:", err);
+        setFetchedStateOptions([]);
+        setSelectedState("");
+      } finally {
+        setStatesLoading(false);
+      }
+    };
+
+    fetchStates();
+  }, [selectedCountry]);
+
+  // Fetch cities when both country and state are selected
+  React.useEffect(() => {
+    if (!selectedCountry || !selectedState) {
+      setFetchedCityOptions([]);
+      setSelectedCity("");
+      return;
+    }
+
+    const fetchCities = async () => {
+      setCitiesLoading(true);
+      try {
+        const response = await fetch(
+          `${API_CONFIG.BASE_URL}/filters/options?country=${encodeURIComponent(selectedCountry)}&state=${encodeURIComponent(selectedState)}`,
+          { method: "GET" }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch cities: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`Cities for ${selectedState}, ${selectedCountry}:`, data);
+
+        // Store city options
+        if (data.locations && Array.isArray(data.locations)) {
+          setFetchedCityOptions(data.locations);
+          setSelectedCity(""); // Reset city selection when state changes
+        }
+      } catch (err) {
+        console.error("Error fetching cities:", err);
+        setFetchedCityOptions([]);
+        setSelectedCity("");
+      } finally {
+        setCitiesLoading(false);
+      }
+    };
+
+    fetchCities();
+  }, [selectedCountry, selectedState]);
 
   // Fetch resumes from backend when dashboard loads
   React.useEffect(() => {
@@ -758,7 +945,7 @@ export default function DashboardNew() {
                             text = result.value;
                           } else if (file.type === "application/msword" || file.name.endsWith(".doc")) {
                             // For .doc files, show a message since they need special handling
-                            window.alert("Legacy .doc format has limited support. Please use .docx or .txt files for best results.");
+                            showToast("Legacy .doc format has limited support. Please use .docx or .txt files for best results.", "warning");
                             return;
                           } else {
                             // Handle .txt and other text files
@@ -769,11 +956,11 @@ export default function DashboardNew() {
                             setJobDescription(text);
                             console.log("File uploaded successfully, extracted text length:", text.length);
                           } else {
-                            window.alert("The file appears to be empty or could not be read.");
+                            showToast("The file appears to be empty or could not be read.", "warning");
                           }
                         } catch (error) {
                           console.error("Error reading file:", error);
-                          window.alert("Error reading file: " + (error.message || "Unknown error"));
+                          showToast("Error reading file: " + (error.message || "Unknown error"), "error");
                         }
                       }
                     };
@@ -782,6 +969,7 @@ export default function DashboardNew() {
                 >
                   Upload file
                 </button>
+                
               </div>
 
               
@@ -792,63 +980,17 @@ export default function DashboardNew() {
                   {/* Job Title Filter */}
                 <div className="filter-group">
                   <label>Job Title</label>
-                  <div className="multi-select-container">
-                    <div className="search-input-wrapper">
-                      <input
-                        type="text"
-                        value={jobTitleSearchInput}
-                        onChange={(e) => setJobTitleSearchInput(e.target.value)}
-                        onFocus={() => setShowJobTitleDropdown(true)}
-                        placeholder={jobTitle || "Search job titles..."}
-                        className="search-filter-input"
-                      />
-                      {jobTitle && (
-                        <button
-                          className="clear-input-btn"
-                          onClick={() => {
-                            setJobTitle("");
-                            setJobTitleSearchInput("");
-                          }}
-                          type="button"
-                          title="Clear selection"
-                        >
-                          ×
-                        </button>
-                      )}
-                      <span className="dropdown-arrow">▼</span>
-                    </div>
-                    
-                    {showJobTitleDropdown && (
-                      <div className="multi-select-dropdown job-title-dropdown">
-                        {jobTitles
-                          .filter((title) =>
-                            title.toLowerCase().includes(jobTitleSearchInput.toLowerCase())
-                          )
-                          .map((title) => (
-                            <div
-                              key={title}
-                              className={`dropdown-item ${jobTitle === title ? 'selected' : ''}`}
-                              onClick={() => {
-                                setJobTitle(title);
-                                setJobTitleSearchInput("");
-                                setShowJobTitleDropdown(false);
-                              }}
-                            >
-                              {title}
-                            </div>
-                          ))}
-                        {jobTitles.filter((title) =>
-                          title.toLowerCase().includes(jobTitleSearchInput.toLowerCase())
-                        ).length === 0 && (
-                          <div className="no-results">No job titles found</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <input
+                    type="text"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    placeholder="Enter job title..."
+                    className="filter-input"
+                  />
                 </div>
 
                 {/* Required Skills Multi-Select */}
-                <div className="filter-group">
+                {/* <div className="filter-group">
                   <label>Required Skills</label>
                   <div className="multi-select-container">
                     <div className="search-input-wrapper">
@@ -863,7 +1005,6 @@ export default function DashboardNew() {
                       <span className="dropdown-arrow">▼</span>
                     </div>
                     
-                    {/* Display selected skills */}
                     {requiredSkills.length > 0 && (
                       <div className="selected-items-container">
                         {requiredSkills.map((skill) => (
@@ -912,7 +1053,7 @@ export default function DashboardNew() {
                       </div>
                     )}
                   </div>
-                </div>
+                </div> */}
                 <div className="filter-group">
                   <label>Work Authorization</label>
                   <div className="multi-select-container">
@@ -949,7 +1090,7 @@ export default function DashboardNew() {
                     
                     {showVisaDropdown && (
                       <div className="multi-select-dropdown">
-                        {visaOptions.map((group) => (
+                        {fetchedVisaOptions.map((group) => (
                           <div key={group.category}>
                             <div className="option-group-label">{group.category}</div>
                             {group.options.map((option) => (
@@ -978,72 +1119,142 @@ export default function DashboardNew() {
                 {/* Job Location Multi-Select */}
                 <div className="filter-group">
                   <label>Job Location</label>
-                  <div className="multi-select-container">
-                    <button 
-                      className="multi-select-button"
-                      onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                  
+                  {/* Country Selection */}
+                  <div className="location-selection-group">
+                    <select
+                      value={selectedCountry}
+                      onChange={(e) => setSelectedCountry(e.target.value)}
+                      className="filter-select"
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "4px",
+                        backgroundColor: "#ffffffff",
+                        color: "#000000ff",
+                        marginBottom: "10px",
+                      }}
                     >
-                      <span className="multi-select-display">
-                        {jobLocation.length === 0 
-                          ? "Select locations..." 
-                          : `${jobLocation.length} selected`}
-                      </span>
-                      <span className={`dropdown-arrow ${showLocationDropdown ? 'open' : ''}`}>▼</span>
-                    </button>
-                    
-                    {/* Display selected items */}
-                    {jobLocation.length > 0 && (
-                      <div className="selected-items-container">
-                        {jobLocation.map((item) => (
-                          <div key={item} className="selected-tag">
-                            <span>{item}</span>
-                            <button
-                              className="remove-tag-btn"
-                              onClick={() => setJobLocation(jobLocation.filter(l => l !== item))}
-                              type="button"
-                              aria-label={`Remove ${item}`}
-                            >
-                              ×
-                            </button>
-                          </div>
+                      <option value="">Select Country</option>
+                      {fetchedLocationOptions.map((country) => (
+                        <option key={country} value={country}>
+                          {country}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* State Selection - Only show if country is selected */}
+                    {selectedCountry && (
+                      <select
+                        value={selectedState}
+                        onChange={(e) => setSelectedState(e.target.value)}
+                        className="filter-select"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          borderRadius: "4px",
+                          backgroundColor: "#ffffffff",
+                          color: "#000000ff",
+                          marginBottom: "10px",
+                        }}
+                        disabled={statesLoading}
+                      >
+                        <option value="">
+                          {statesLoading ? "Loading states..." : "Select State/Province"}
+                        </option>
+                        {fetchedStateOptions.map((state) => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
                         ))}
-                      </div>
+                      </select>
                     )}
-                    
-                    {showLocationDropdown && (
-                      <div className="multi-select-dropdown location-dropdown">
-                        {Object.entries(locationData).map(([country, states]) => (
-                          <div key={country}>
-                            <div className="option-group-label country-label">{country}</div>
-                            {Object.entries(states).map(([state, cities]) => (
-                              <div key={state} className="state-group">
-                                <div className="state-label">{state}</div>
-                                {cities.map((city) => {
-                                  const locationValue = `${city}, ${state}, ${country}`;
-                                  return (
-                                    <label key={locationValue} className="checkbox-option city-option">
-                                      <input
-                                        type="checkbox"
-                                        checked={jobLocation.includes(locationValue)}
-                                        onChange={(e) => {
-                                          if (e.target.checked) {
-                                            setJobLocation([...jobLocation, locationValue]);
-                                          } else {
-                                            setJobLocation(jobLocation.filter(l => l !== locationValue));
-                                          }
-                                        }}
-                                      />
-                                      <span>{city}</span>
-                                    </label>
-                                  );
-                                })}
-                              </div>
-                            ))}
-                          </div>
+
+                    {/* City Selection - Only show if state is selected */}
+                    {selectedCountry && selectedState && (
+                      <select
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                        className="filter-select"
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          borderRadius: "4px",
+                          backgroundColor: "#ffffffff",
+                          color: "#000000ff",
+                          marginBottom: "10px",
+                        }}
+                        disabled={citiesLoading}
+                      >
+                        <option value="">
+                          {citiesLoading ? "Loading cities..." : "Select City"}
+                        </option>
+                        {fetchedCityOptions.map((city) => (
+                          <option key={city} value={city}>
+                            {city}
+                          </option>
                         ))}
-                      </div>
+                      </select>
+                    )}
+
+                    {/* Add Location Button */}
+                    {selectedCountry && selectedState && selectedCity && (
+                      <button
+                        type="button"
+                        className="analyze-btn"
+                        onClick={() => {
+                          const locationValue = `${selectedCity}, ${selectedState}, ${selectedCountry}`;
+                          if (!jobLocation.includes(locationValue)) {
+                            setJobLocation([...jobLocation, locationValue]);
+                          }
+                          // Reset selections after adding
+                          setSelectedCountry("");
+                          setSelectedState("");
+                          setSelectedCity("");
+                          setFetchedStateOptions([]);
+                          setFetchedCityOptions([]);
+                        }}
+                        style={{
+                          width: "100%",
+                          marginBottom: "10px",
+                          padding: "10px",
+                        }}
+                      >
+                        Add Location
+                      </button>
                     )}
                   </div>
+
+                  {/* Display selected locations */}
+                  {jobLocation.length > 0 && (
+                    <div className="selected-items-container" style={{ marginTop: "10px" }}>
+                      {jobLocation.map((item) => (
+                        <div key={item} className="selected-tag">
+                          <span>{item}</span>
+                          <button
+                            className="remove-tag-btn"
+                            onClick={() => setJobLocation(jobLocation.filter(l => l !== item))}
+                            type="button"
+                            aria-label={`Remove ${item}`}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Zip Code (Optional) */}
+                <div className="filter-group">
+                  <label>Zip Code / Pincode</label>
+                  <input
+                    type="text"
+                    value={centerPincode}
+                    onChange={(e) => setCenterPincode(e.target.value)}
+                    placeholder="e.g., 75001"
+                    className="filter-input"
+                  />
                 </div>
 
                 {/* Distance in Miles (Optional) */}
@@ -1125,6 +1336,7 @@ export default function DashboardNew() {
                       color: "#000000ff",
                     }}
                   >
+                    <option value="">Select Willingness to Relocate</option>
                     <option value="yes">Yes</option>
                     <option value="no">No</option>
                   </select>
@@ -1184,7 +1396,7 @@ export default function DashboardNew() {
               onClick={handleAnalyze}
               disabled={isAnalyzing}
             >
-              {isAnalyzing ? "Analyzing..." : "Analyze & Match"}
+              {isAnalyzing ? "Analyzing..." : "Analyze"}
             </button>
           </div>
 
@@ -1229,6 +1441,319 @@ export default function DashboardNew() {
                   <option>Name (Z-A)</option>
                 </select>
               </div>
+
+              {/* Suggested Skills Section */}
+              {showSkillsEditor && (
+                <div style={{
+                  marginTop: "16px",
+                  padding: "12px",
+                  backgroundColor: "#f9fafb",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "12px",
+                  borderLeft: "1px solid #e5e7eb",
+                  background: "linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)",
+                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+                }}>
+                  <p style={{
+                    margin: "0 0 10px 0",
+                    fontWeight: "600",
+                    color: "#1f2937",
+                    fontSize: "12px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}>
+                    Suggested Skills from Job Description:
+                  </p>
+
+                  {/* Confirmed Skills Display */}
+                  <div style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    marginBottom: "10px",
+                  }}>
+                    {confirmedSkills.map((skill) => (
+                      <div
+                        key={skill}
+                        style={{
+                          background: "rgba(2, 132, 199, 0.15)",
+                          color: "#0284c7",
+                          border: "1px solid rgba(2, 132, 199, 0.3)",
+                          padding: "5px 10px",
+                          borderRadius: "16px",
+                          fontSize: "11px",
+                          fontWeight: "500",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          boxShadow: "0 2px 8px rgba(2, 132, 199, 0.1)",
+                        }}
+                        onClick={() => setConfirmedSkills(confirmedSkills.filter(s => s !== skill))}
+                        title="Click to remove"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                          e.currentTarget.style.background = "rgba(2, 132, 199, 0.25)";
+                          e.currentTarget.style.boxShadow = "0 4px 12px rgba(2, 132, 199, 0.15)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.background = "rgba(2, 132, 199, 0.15)";
+                          e.currentTarget.style.boxShadow = "0 2px 8px rgba(2, 132, 199, 0.1)";
+                        }}
+                      >
+                        {skill}
+                        <span style={{
+                          marginLeft: "4px",
+                          fontWeight: "bold",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                        }}>
+                          ×
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Add New Skill Input */}
+                  <div style={{
+                    display: "flex",
+                    gap: "8px",
+                    marginBottom: "10px",
+                  }}>
+                    <input
+                      type="text"
+                      value={newSkillInput}
+                      onChange={(e) => setNewSkillInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const trimmedSkill = newSkillInput.trim().toLowerCase();
+                          if (trimmedSkill && !confirmedSkills.includes(trimmedSkill)) {
+                            setConfirmedSkills([...confirmedSkills, trimmedSkill]);
+                            setNewSkillInput("");
+                          }
+                        }
+                      }}
+                      placeholder="Add new skill (press Enter)..."
+                      style={{
+                        flex: 1,
+                        padding: "7px 10px",
+                        borderRadius: "6px",
+                        border: "1px solid #e5e7eb",
+                        fontSize: "12px",
+                        fontFamily: "inherit",
+                        transition: "all 0.2s ease",
+                        backgroundColor: "#ffffff",
+                        color: "#1f2937",
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = "#0284c7";
+                        e.currentTarget.style.boxShadow = "0 0 12px rgba(2, 132, 199, 0.2)";
+                        e.currentTarget.style.backgroundColor = "#f0f9ff";
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = "#e5e7eb";
+                        e.currentTarget.style.boxShadow = "none";
+                        e.currentTarget.style.backgroundColor = "#ffffff";
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const trimmedSkill = newSkillInput.trim().toLowerCase();
+                        if (trimmedSkill && !confirmedSkills.includes(trimmedSkill)) {
+                          setConfirmedSkills([...confirmedSkills, trimmedSkill]);
+                          setNewSkillInput("");
+                        }
+                      }}
+                      style={{
+                        padding: "7px 14px",
+                        background: "rgba(34, 197, 94, 0.15)",
+                        color: "#22c55e",
+                        border: "1px solid rgba(34, 197, 94, 0.3)",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        transition: "all 0.2s ease",
+                        boxShadow: "0 2px 8px rgba(34, 197, 94, 0.1)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.background = "rgba(34, 197, 94, 0.25)";
+                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(34, 197, 94, 0.15)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.background = "rgba(34, 197, 94, 0.15)";
+                        e.currentTarget.style.boxShadow = "0 2px 8px rgba(34, 197, 94, 0.1)";
+                      }}
+                    >
+                      Add
+                    </button>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        setIsAnalyzing(true);
+                        setError(null);
+
+                        // Parse experience level to min/max
+                        let experienceFilter = {};
+                        if (experienceLevel) {
+                          const expMap = {
+                            "0-1": { min: 0, max: 1 },
+                            "1-3": { min: 1, max: 3 },
+                            "3-5": { min: 3, max: 5 },
+                            "5-8": { min: 5, max: 8 },
+                            "8-10": { min: 8, max: 10 },
+                            "10+": { min: 10, max: 100 },
+                          };
+                          experienceFilter = expMap[experienceLevel] || {};
+                        }
+
+                        // Parse jobLocation array to extract countries, states, and cities
+                        // Format: "City, State, Country"
+                        const filterCountries = new Set();
+                        const filterStates = new Set();
+                        const filterCities = new Set();
+
+                        jobLocation.forEach((location) => {
+                          const parts = location.split(", ");
+                          if (parts.length === 3) {
+                            filterCities.add(parts[0].trim());
+                            filterStates.add(parts[1].trim());
+                            filterCountries.add(parts[2].trim());
+                          }
+                        });
+
+                        const matchPayload = {
+                          title: jobTitle || "Job Position",
+                          job_description: jobDescription,
+                          confirmed_skills: confirmedSkills,
+                          min_match_score: 60,
+                          center_pincode: centerPincode || "",
+                          radius_miles: locationDistance ? parseInt(locationDistance) : 0,
+                          filter_countries: Array.from(filterCountries),
+                          filter_states: Array.from(filterStates),
+                          filter_cities: Array.from(filterCities),
+                          filter_visas: visaRequirement && visaRequirement.length > 0 ? visaRequirement : [],
+                          filter_relocation: willingnessToRelocate || "",
+                          ...(Object.keys(experienceFilter).length > 0 && { filter_experience: experienceFilter }),
+                          resume_ids: [],
+                        };
+
+                        console.log("Calling match endpoint with:", matchPayload);
+
+                        const matchResponse = await fetch(
+                          `${API_CONFIG.BASE_URL}/jobs/match`,
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(matchPayload),
+                          }
+                        );
+
+                        if (!matchResponse.ok) {
+                          const errorData = await matchResponse.text();
+                          throw new Error(`Match API error: ${matchResponse.status} ${errorData}`);
+                        }
+
+                        const matchData = await matchResponse.json();
+                        console.log("Match response:", matchData);
+
+                        if (!matchData.success) {
+                          throw new Error(matchData.error || "Match API returned failure");
+                        }
+
+                        // Process matched resumes
+                        let items = [];
+                        if (matchData.data && matchData.data.matched_resumes && Array.isArray(matchData.data.matched_resumes)) {
+                          items = matchData.data.matched_resumes;
+                        }
+
+                        if (items.length > 0) {
+                          // Store job analysis ID
+                          if (matchData.data && matchData.data.job_analysis) {
+                            setJdId(matchData.data.job_analysis.jd_id);
+                          }
+
+                          const normalized = items.map((r, idx) => {
+                            return {
+                              id: r.id || idx + 1,
+                              name: r.name || "Unknown",
+                              email: r.email || "",
+                              contact_number: r.contact_number || "",
+                              location: r.location || "",
+                              score: r.match_score || 0,
+                              skills: r.matching_skills || [],
+                              experience_years: r.experience || "",
+                              visa_type: r.visa || "",
+                              relocation: r.relocation || "",
+                              resumePath: r.resume_path || "",
+                              matchDetails: r.match_details || { vector: 0, skill: 0 },
+                              matchingSkills: r.matching_skills || [],
+                              missingSkills: r.missing_skills || [],
+                              questionsToAsk: r.questions_to_ask || [],
+                              avatar: r.name ? (r.name.split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
+                            };
+                          });
+                          setResumes(normalized);
+                          setHasAnalyzed(true);
+                          setSearchQuery("");
+                          showToast(`Successfully matched ${normalized.length} resumes!`, "success");
+                        } else {
+                          showToast("No matched resumes found with the selected criteria.", "warning");
+                          setResumes([]);
+                          setHasAnalyzed(true);
+                        }
+                      } catch (err) {
+                        console.error("Match error:", err);
+                        setError(err.message);
+                        showToast("Error: " + (err.message || "Failed to match resumes"), "error");
+                      } finally {
+                        setIsAnalyzing(false);
+                      }
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "9px 16px",
+                      background: "rgba(2, 132, 199, 0.15)",
+                      color: "#0284c7",
+                      border: "1px solid rgba(2, 132, 199, 0.3)",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      transition: "all 0.3s ease",
+                      boxShadow: "0 2px 8px rgba(2, 132, 199, 0.1)",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!(isAnalyzing || confirmedSkills.length === 0)) {
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.background = "rgba(2, 132, 199, 0.25)";
+                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(2, 132, 199, 0.15)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.background = "rgba(2, 132, 199, 0.15)";
+                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(2, 132, 199, 0.1)";
+                    }}
+                    disabled={isAnalyzing || confirmedSkills.length === 0}
+                  >
+                    {isAnalyzing ? "Matching..." : "Submit & Match Resumes"}
+                  </button>
+                </div>
+              )}
 
               {/* Results Header - Only show if resumes exist and analysis has been performed */}
               {hasAnalyzed && filteredResumes.length > 0 && (
@@ -1308,6 +1833,49 @@ export default function DashboardNew() {
 
       {/* AI Chat Modal */}
       <AIChat isOpen={showAIChat} onClose={() => setShowAIChat(false)} />
+
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            padding: "16px 24px",
+            borderRadius: "8px",
+            backgroundColor: toast.type === "error" ? "#ef4444" : toast.type === "warning" ? "#f59e0b" : "#10b981",
+            color: "white",
+            fontSize: "14px",
+            fontWeight: "500",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            zIndex: 9999,
+            animation: "fadeInOut 2s ease-in-out",
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeInOut {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          10% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          90% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+        }
+      `}</style>
 
         {/* Resume Detail Modal */}
       <ResumeDetailModal
