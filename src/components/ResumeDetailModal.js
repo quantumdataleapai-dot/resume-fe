@@ -31,6 +31,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [questionsError, setQuestionsError] = useState(null);
   const [generatedQuestions, setGeneratedQuestions] = useState(null);
+  const [resumeFileType, setResumeFileType] = useState(null);
 
   if (!isOpen || !resume) return null;
 
@@ -58,7 +59,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `http://10.20.0.64:8000/api/resumes/${resume.id}/download`,
+        `http://10.30.0.11:8000/api/resumes/download/${resume.id}`,
         {
           responseType: "blob",
           headers: {
@@ -68,14 +69,14 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       );
 
       console.log("Response status:", response.status);
-      console.log("Response data type:", response.data.type);
+      console.log("Response headers:", response.headers);
 
       if (response.status === 200) {
         // response.data is already a blob
         const blob = response.data;
         console.log("Resume blob received - Type:", blob.type, "Size:", blob.size);
         
-        // Check if it's actually a PDF
+        // Check if blob is empty
         if (blob.size === 0) {
           console.error("Empty blob received");
           alert("Resume file is empty. Please try again.");
@@ -83,13 +84,42 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
           return;
         }
         
+        // Determine file type from Content-Type header or blob type
+        let contentType = response.headers["content-type"] || blob.type;
+        console.log("Content-Type:", contentType);
+        
+        // Normalize content type
+        let fileType = "unknown";
+        if (contentType.includes("pdf")) {
+          fileType = "pdf";
+        } else if (
+          contentType.includes("wordprocessingml") ||
+          contentType.includes("msword") ||
+          contentType.includes("word")
+        ) {
+          fileType = "word";
+        } else if (contentType.includes("plain")) {
+          fileType = "text";
+        }
+        
+        console.log("Detected file type:", fileType);
+        
         // Create a URL for the blob
         const url = URL.createObjectURL(blob);
         console.log("Resume URL created:", url);
         
         setResumeBlob(blob);
         setResumeUrl(url);
-        setShowResumeViewer(true);
+        setResumeFileType(fileType);
+        
+        // For Word documents, open directly in new tab
+        if (fileType === "word") {
+          window.open(url, "_blank");
+          setShowResumeViewer(false);
+        } else {
+          // For PDFs and other formats, show in modal viewer
+          setShowResumeViewer(true);
+        }
       } else {
         console.error("Failed to fetch resume:", response.status);
         alert("Failed to load resume. Status: " + response.status);
@@ -115,7 +145,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
     try {
       const response = await fetch(
-        "http://10.20.0.64:8000/api/jobs/generate-questions",
+        "http://10.30.0.11:8000/api/jobs/generate-questions",
         {
           method: "POST",
           headers: {
@@ -1499,18 +1529,93 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       flexDirection: "column",
                     }}
                   >
-                    <iframe
-                      src={`${resumeUrl}#toolbar=1&navpanes=1&scrollbar=1`}
-                      type="application/pdf"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        border: "none",
-                        borderRadius: "8px",
-                        flex: 1,
-                      }}
-                      title="Resume PDF Viewer"
-                    />
+                    {resumeFileType === "pdf" ? (
+                      <iframe
+                        src={`${resumeUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+                        type="application/pdf"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          border: "none",
+                          borderRadius: "8px",
+                          flex: 1,
+                        }}
+                        title="Resume PDF Viewer"
+                      />
+                    ) : resumeFileType === "word" ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: "#f9fafb",
+                          borderRadius: "8px",
+                          padding: "20px",
+                          boxSizing: "border-box",
+                        }}
+                      >
+                        <MdOutlineInsertDriveFile
+                          style={{
+                            fontSize: "64px",
+                            marginBottom: "15px",
+                            color: "#2563eb",
+                          }}
+                        />
+                        <p style={{ fontSize: "16px", fontWeight: "600", margin: "0 0 20px 0" }}>
+                          Opening Word Document...
+                        </p>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: "#f9fafb",
+                          borderRadius: "8px",
+                          padding: "20px",
+                          boxSizing: "border-box",
+                        }}
+                      >
+                        <MdOutlineInsertDriveFile
+                          style={{
+                            fontSize: "64px",
+                            marginBottom: "15px",
+                            color: "#9ca3af",
+                          }}
+                        />
+                        <p style={{ fontSize: "16px", fontWeight: "600", margin: "0 0 10px 0" }}>
+                          Unsupported Format
+                        </p>
+                        <p style={{ fontSize: "14px", color: "#6b7280", margin: "0 0 20px 0", textAlign: "center" }}>
+                          This resume format cannot be previewed in the browser.
+                        </p>
+                        <button
+                          onClick={() => {
+                            if (resumeUrl) {
+                              const link = document.createElement("a");
+                              link.href = resumeUrl;
+                              link.download = `${resume.name}_resume`;
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                            }
+                          }}
+                          style={{
+                            ...primaryButtonStyles,
+                            padding: "10px 20px",
+                          }}
+                        >
+                          <MdDownload /> Download File
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div
@@ -1545,6 +1650,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       URL.revokeObjectURL(resumeUrl);
                       setResumeUrl(null);
                       setResumeBlob(null);
+                      setResumeFileType(null);
                     }
                   }}
                 >
