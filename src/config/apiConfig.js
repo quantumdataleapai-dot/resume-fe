@@ -1,7 +1,7 @@
 // API Configuration for Frontend-to-Python Backend Communication
 const API_CONFIG = {
   // Python backend URL
-  BASE_URL: "http://10.20.0.66:8000/api", // Force to use the new URL
+  BASE_URL: "http://10.20.0.64:8000/api", // Force to use the new URL
 
   // Clean API Endpoints for Python Backend
   ENDPOINTS: {

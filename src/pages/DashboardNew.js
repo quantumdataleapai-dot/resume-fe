@@ -298,7 +298,7 @@ export default function DashboardNew() {
 
     try {
       const response = await fetch(
-        `http://10.20.0.66:8000/api/resumes/${resumeId}/delete`,
+        `http://10.20.0.64:8000/api/resumes/${resumeId}/delete`,
         {
           method: "DELETE",
           headers: {
@@ -412,7 +412,7 @@ export default function DashboardNew() {
 
         console.log("Uploading files for processing...");
         const response = await fetch(
-          "http://10.20.0.66:8000/api/jobs/process-file-and-match",
+          "http://10.20.0.64:8000/api/jobs/process-file-and-match",
           {
             method: "POST",
             body: formData,
@@ -521,7 +521,7 @@ export default function DashboardNew() {
     try {
       setError(null);
       const response = await fetch(
-        "http://10.20.0.66:8000/api/resumes/download-all?format=zip",
+        "http://10.20.0.64:8000/api/resumes/download-all?format=zip",
         {
           method: "POST",
           headers: {
@@ -579,7 +579,7 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("http://10.20.0.66:8000/api/resumes/upload", {
+          const resp = await fetch("http://10.20.0.64:8000/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
@@ -699,33 +699,39 @@ export default function DashboardNew() {
         const data = await response.json();
         console.log("Filter options response:", data);
 
-        // Store visa options
-        if (data.visas && Array.isArray(data.visas)) {
+        // Store visa options - handle both data.visas and data.data.visas
+        const visasArray = data.visas || (data.data && data.data.visas) || [];
+        if (Array.isArray(visasArray) && visasArray.length > 0) {
           // Transform flat array into categorized format for UI
           const visaOptionsFormatted = [
             {
-              category: "Visa Categories",
-              options: data.visas
+              category: "Work Authorization",
+              options: visasArray
             }
           ];
+          console.log("Setting visa options:", visaOptionsFormatted);
           setFetchedVisaOptions(visaOptionsFormatted);
+        } else {
+          console.warn("No visas found in API response");
+          setFetchedVisaOptions([]);
         }
 
-        // Store location options
-        if (data.locations && Array.isArray(data.locations)) {
-          setFetchedLocationOptions(data.locations);
+        // Store location options - handle both data.locations and data.data.locations
+        const locationsArray = data.locations || (data.data && data.data.locations) || [];
+        if (Array.isArray(locationsArray) && locationsArray.length > 0) {
+          console.log("Setting location options:", locationsArray);
+          setFetchedLocationOptions(locationsArray);
+        } else {
+          console.warn("No locations found in API response");
+          setFetchedLocationOptions([]);
         }
       } catch (err) {
         console.error("Error fetching filter options:", err);
         // Fall back to default/hardcoded options if API fails
         setFetchedVisaOptions([
-          { category: "Citizens and Permanent Residents", options: ["US Citizen", "US Authorized", "Canadian Citizen", "Canada Authorized"] },
-          { category: "Green Card and EAD", options: ["Green Card", "Green Card Holder", "GC", "GC-EAD", "Employment Auth Document", "OPT-EAD", "H4-EAD", "L2-EAD"] },
-          { category: "H1 Related", options: ["H1 Visa", "H1-B", "Have H1", "Have H1 Visa", "Need H1", "Need H1 Visa", "Need H1 Visa Sponsor"] },
-          { category: "Other Visas", options: ["B1", "L1-A", "L2-B", "TN Visa", "TN Permit Holder", "E3 Visa", "E3 (Australian Citizens)"] },
-          { category: "Work Authorization", options: ["Can work for any employer", "Current Employer Only", "Sponsorship Required", "France Authorized", "India Authorized", "Kazakhstan Authorized", "United Kingdom Authorized", "Venezuela Authorized", "Unspecified Work Authorization"] },
-          { category: "Other", options: ["Not Specified", "Unspecified"] }
+          { category: "Work Authorization", options: ["Can work for any employer", "Current Employer Only", "Sponsorship Required", "France Authorized", "India Authorized", "Kazakhstan Authorized", "United Kingdom Authorized", "Venezuela Authorized", "US Citizen", "US Authorized", "Canadian Citizen", "Canada Authorized", "Green Card", "Green Card Holder", "GC", "GC-EAD", "Employment Auth Document", "OPT-EAD", "H1-B", "H1 Visa", "H4-EAD", "L2-EAD", "TN Visa", "Not Specified"] }
         ]);
+        setFetchedLocationOptions(["Canada", "Mexico", "United States", "United Kingdom", "India"]);
       } finally {
         setFiltersLoading(false);
       }
@@ -757,10 +763,16 @@ export default function DashboardNew() {
         const data = await response.json();
         console.log(`States for ${selectedCountry}:`, data);
 
-        // Store state options
-        if (data.locations && Array.isArray(data.locations)) {
-          setFetchedStateOptions(data.locations);
+        // Store state options - handle both nested and flat response structures
+        const statesArray = (data.data && data.data.locations) || data.locations || [];
+        if (Array.isArray(statesArray) && statesArray.length > 0) {
+          console.log("Setting state options:", statesArray);
+          setFetchedStateOptions(statesArray);
           setSelectedState(""); // Reset state selection when country changes
+        } else {
+          console.warn("No states found in API response");
+          setFetchedStateOptions([]);
+          setSelectedState("");
         }
       } catch (err) {
         console.error("Error fetching states:", err);
@@ -797,10 +809,16 @@ export default function DashboardNew() {
         const data = await response.json();
         console.log(`Cities for ${selectedState}, ${selectedCountry}:`, data);
 
-        // Store city options
-        if (data.locations && Array.isArray(data.locations)) {
-          setFetchedCityOptions(data.locations);
+        // Store city options - handle both nested and flat response structures
+        const citiesArray = (data.data && data.data.locations) || data.locations || [];
+        if (Array.isArray(citiesArray) && citiesArray.length > 0) {
+          console.log("Setting city options:", citiesArray);
+          setFetchedCityOptions(citiesArray);
           setSelectedCity(""); // Reset city selection when state changes
+        } else {
+          console.warn("No cities found in API response");
+          setFetchedCityOptions([]);
+          setSelectedCity("");
         }
       } catch (err) {
         console.error("Error fetching cities:", err);
@@ -1058,6 +1076,7 @@ export default function DashboardNew() {
                   <label>Work Authorization</label>
                   <div className="multi-select-container">
                     <button 
+                      type="button"
                       className="multi-select-button"
                       onClick={() => setShowVisaDropdown(!showVisaDropdown)}
                     >
@@ -1090,27 +1109,35 @@ export default function DashboardNew() {
                     
                     {showVisaDropdown && (
                       <div className="multi-select-dropdown">
-                        {fetchedVisaOptions.map((group) => (
-                          <div key={group.category}>
-                            <div className="option-group-label">{group.category}</div>
-                            {group.options.map((option) => (
-                              <label key={option} className="checkbox-option">
-                                <input
-                                  type="checkbox"
-                                  checked={visaRequirement.includes(option)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setVisaRequirement([...visaRequirement, option]);
-                                    } else {
-                                      setVisaRequirement(visaRequirement.filter(v => v !== option));
-                                    }
-                                  }}
-                                />
-                                <span>{option}</span>
-                              </label>
-                            ))}
-                          </div>
-                        ))}
+                        {fetchedVisaOptions.length > 0 ? (
+                          fetchedVisaOptions.map((group) => (
+                            <div key={group.category}>
+                              <div className="option-group-label">{group.category}</div>
+                              {group.options && group.options.length > 0 ? (
+                                group.options.map((option) => (
+                                  <label key={option} className="checkbox-option">
+                                    <input
+                                      type="checkbox"
+                                      checked={visaRequirement.includes(option)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setVisaRequirement([...visaRequirement, option]);
+                                        } else {
+                                          setVisaRequirement(visaRequirement.filter(v => v !== option));
+                                        }
+                                      }}
+                                    />
+                                    <span>{option}</span>
+                                  </label>
+                                ))
+                              ) : (
+                                <div className="no-results">No options available</div>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="no-results">Loading work authorization options...</div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1365,7 +1392,7 @@ export default function DashboardNew() {
 
                 {/* Recent Search Activity Filter */}
                 <div className="filter-group">
-                  <label>Recent Job Search Activity</label>
+                  <label>Recent Activity</label>
                   <select
                     value={recentSearchDays}
                     onChange={(e) => setRecentSearchDays(e.target.value)}
@@ -1635,7 +1662,7 @@ export default function DashboardNew() {
                           title: jobTitle || "Job Position",
                           job_description: jobDescription,
                           confirmed_skills: confirmedSkills,
-                          min_match_score: 60,
+                          min_match_score: 0,
                           center_pincode: centerPincode || "",
                           radius_miles: locationDistance ? parseInt(locationDistance) : 0,
                           filter_countries: Array.from(filterCountries),
