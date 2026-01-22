@@ -341,6 +341,7 @@ export default function DashboardNew() {
     setSuggestedTitle("");
     setShowSkillsEditor(false);
     setDetectedExperience(null);
+    setHasAnalyzed(false);
     console.log("handleAnalyze called");
 
     try {
@@ -432,6 +433,8 @@ export default function DashboardNew() {
       // If no files are uploaded, just show the skills editor without further processing
       if (uploadedFiles.length === 0) {
         setIsAnalyzing(false);
+        setShowSkillsEditor(true);
+        console.log("No files uploaded - showing skills editor only");
         return;
       }
 
@@ -471,14 +474,14 @@ export default function DashboardNew() {
             upload_date: r.upload_date || "",
             name: name,
             email: parsed.email || r.email || r.contact_email || "",
-            contact_number: parsed.mobile_no || parsed.contact_number || r.phone || r.contact_number || "",
+            contact_number: parsed.mobile_no || parsed.contact_number || r.mobile || r.phone || r.contact_number || "",
             location: parsed.location || r.location || r.city || "",
             score: r.match_score || r.score || r.similarity || 0,
-            skills: parsed.skills || r.skills || r.tags || [],
+            skills: parsed.skills || r.skills || r.tags || r.matching_skills || [],
             experience_years: parsed.experience_years || r.experience_years || r.experience || "",
             description: parsed.description || r.description || "",
             linkedin: parsed.linkedin || r.linkedin || "",
-            visa_type: parsed.visa_type || r.visa_type || "",
+            visa_type: parsed.visa_type || r.visa_type || r.visa || "",
             education: parsed.education || r.education || "",
             matchingSkills: r.matchingSkills || r.matching_skills || [],
             missingSkills: r.missingSkills || r.missing_skills || [],
@@ -612,14 +615,14 @@ export default function DashboardNew() {
               upload_date: r.upload_date || new Date().toISOString().split('T')[0],
               name: name,
               email: parsed.email || r.email || "",
-              contact_number: parsed.contact_number || r.contact_number || "",
+              contact_number: parsed.mobile_no || parsed.contact_number || r.mobile || r.contact_number || "",
               location: parsed.location || r.location || "",
               score: r.score || r.match_score || 0,
-              skills: Array.isArray(parsed.skills) ? parsed.skills : (r.skills || []),
+              skills: Array.isArray(parsed.skills) ? parsed.skills : (r.skills || r.matching_skills || []),
               experience_years: parsed.experience_years || r.experience_years || r.experience || "",
               description: parsed.description || r.description || "",
               linkedin: parsed.linkedin || r.linkedin || "",
-              visa_type: parsed.visa_type || r.visa_type || "",
+              visa_type: parsed.visa_type || r.visa_type || r.visa || "",
               education: parsed.education || r.education || "",
               matchingSkills: r.matchingSkills || r.matching_skills || [],
               missingSkills: r.missingSkills || r.missing_skills || [],
@@ -873,17 +876,17 @@ export default function DashboardNew() {
             upload_date: r.upload_date || "",
             name: name,
             email: p.email || r.email || "",
-            contact_number: p.contact_number || r.contact_number || "",
+            contact_number: p.mobile_no || p.contact_number || r.mobile || r.contact_number || "",
             location: p.location || r.location || "",
             score: (r.match_score || r.score || 0) || 0,
-            skills: Array.isArray(p.skills) ? p.skills : (r.skills || []),
+            skills: Array.isArray(p.skills) ? p.skills : (r.skills || r.matching_skills || []),
             experience_years: p.experience_years || r.experience_years || r.experience || "",
             description: p.description || r.description || "",
             linkedin: p.linkedin || r.linkedin || "",
-            visa_type: p.visa_type || r.visa_type || "",
+            visa_type: p.visa_type || r.visa_type || r.visa || "",
             education: p.education || r.education || "",
-            matchingSkills: r.matchingSkills || [],
-            missingSkills: r.missingSkills || [],
+            matchingSkills: r.matchingSkills || r.matching_skills || [],
+            missingSkills: r.missingSkills || r.missing_skills || [],
             questionsToAsk: r.questionsToAsk || [],
             generated_questions: r.generated_questions || [],
             avatar: name ? (name.split(" ").map(n=>n[0]).slice(0,2).join("").toUpperCase()) : "U",
@@ -1470,7 +1473,7 @@ export default function DashboardNew() {
               </div>
 
               {/* Suggested Skills Section */}
-              {showSkillsEditor && (
+              {showSkillsEditor && !(hasAnalyzed && filteredResumes.length > 0) && (
                 <div style={{
                   marginTop: "16px",
                   padding: "12px",
@@ -1716,7 +1719,7 @@ export default function DashboardNew() {
                               id: r.id || idx + 1,
                               name: r.name || "Unknown",
                               email: r.email || "",
-                              contact_number: r.contact_number || "",
+                              contact_number: r.contact_number|| r.mobile || "",
                               location: r.location || "",
                               score: r.match_score || 0,
                               skills: r.matching_skills || [],
