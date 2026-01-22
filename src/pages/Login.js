@@ -23,8 +23,16 @@ const LoginPage = () => {
       return;
     }
 
-    // Navigate directly to dashboard without delay
-    navigate("/dashboard");
+    // Validate test credentials
+    const testEmail = "demo@fisecglobal.net";
+    const testPassword = "password";
+
+    if (username === testEmail && password === testPassword) {
+      // Navigate directly to dashboard without delay
+      navigate("/dashboard");
+    } else {
+      alert("Invalid email or password. Please use demo@fisecglobal.net / password");
+    }
   };
 
   // Sign-up helpers
