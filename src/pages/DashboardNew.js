@@ -1227,13 +1227,23 @@ export default function DashboardNew() {
                       </select>
                     )}
 
-                    {/* Add Location Button */}
-                    {selectedCountry && selectedState && selectedCity && (
+                    {/* Add Location Button - Allow adding at any level */}
+                    {selectedCountry && (
                       <button
                         type="button"
                         className="analyze-btn"
                         onClick={() => {
-                          const locationValue = `${selectedCity}, ${selectedState}, ${selectedCountry}`;
+                          let locationValue = selectedCountry;
+                          
+                          // Build location string based on what's selected
+                          if (selectedState) {
+                            locationValue = `${selectedState}, ${selectedCountry}`;
+                          }
+                          if (selectedCity) {
+                            locationValue = `${selectedCity}, ${selectedState}, ${selectedCountry}`;
+                          }
+                          
+                          // Add location if not already in the list
                           if (!jobLocation.includes(locationValue)) {
                             setJobLocation([...jobLocation, locationValue]);
                           }
@@ -1647,17 +1657,26 @@ export default function DashboardNew() {
                         }
 
                         // Parse jobLocation array to extract countries, states, and cities
-                        // Format: "City, State, Country"
+                        // Formats: "Country" (1 part), "State, Country" (2 parts), or "City, State, Country" (3 parts)
                         const filterCountries = new Set();
                         const filterStates = new Set();
                         const filterCities = new Set();
 
                         jobLocation.forEach((location) => {
-                          const parts = location.split(", ");
-                          if (parts.length === 3) {
-                            filterCities.add(parts[0].trim());
-                            filterStates.add(parts[1].trim());
-                            filterCountries.add(parts[2].trim());
+                          const parts = location.split(", ").map(p => p.trim());
+                          
+                          if (parts.length === 1) {
+                            // Only country
+                            filterCountries.add(parts[0]);
+                          } else if (parts.length === 2) {
+                            // State, Country
+                            filterStates.add(parts[0]);
+                            filterCountries.add(parts[1]);
+                          } else if (parts.length === 3) {
+                            // City, State, Country
+                            filterCities.add(parts[0]);
+                            filterStates.add(parts[1]);
+                            filterCountries.add(parts[2]);
                           }
                         });
 
