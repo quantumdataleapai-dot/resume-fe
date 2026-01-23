@@ -1444,7 +1444,7 @@ export default function DashboardNew() {
           <div className="right-column">
             <div className="results-card">
               {/* Action Buttons */}
-              <div className="results-action-buttons">
+              {/* <div className="results-action-buttons">
                 <button 
                   className="action-btn download-btn"
                   onClick={handleDownloadAll}
@@ -1456,7 +1456,7 @@ export default function DashboardNew() {
                 <button className="action-btn upload-resume-btn" onClick={handleUploadResume}>
                   ⬆ Upload Resume
                 </button>
-              </div>
+              </div> */}
 
               {/* Search & Filter */}
               <div className="search-filter-bar">
