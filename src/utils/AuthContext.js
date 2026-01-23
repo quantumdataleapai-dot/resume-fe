@@ -28,28 +28,25 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
-    try {
-      // Use ApiService for authentication
-      const response = await ApiService.login({ email, password });
+ const login = async (email, password) => {
+  try {
+    // Create a dummy user object
+    const dummyUser = { name: "Guest User", email: email };
+    const dummyToken = "dummy-session-token-123";
 
-      if (response.success) {
-        const { user, token } = response.data;
+    // Save to localStorage so it persists on page refresh
+    localStorage.setItem("token", dummyToken);
+    localStorage.setItem("user", JSON.stringify(dummyUser));
 
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+    // Update the React State
+    setIsAuthenticated(true);
+    setUser(dummyUser);
 
-        setIsAuthenticated(true);
-        setUser(user);
-        return { success: true };
-      } else {
-        throw new Error("Invalid credentials");
-      }
-    } catch (error) {
-      return { success: false, error: error.message || "Login failed" };
-    }
-  };
-
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "Something went wrong" };
+  }
+};
   const signup = async (userData) => {
     try {
       // Use ApiService for registration

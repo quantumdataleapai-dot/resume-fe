@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../utils/AuthContext";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const LoginPage = () => {
@@ -15,6 +16,8 @@ const LoginPage = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
 
+  const { login } = useAuth();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -23,8 +26,12 @@ const LoginPage = () => {
       return;
     }
 
-    // Always redirect to dashboard regardless of credentials
+  const result = await login(username, password);
+
+  if (result.success) {
+    // Now the ProtectedRoute will let you through!
     navigate("/dashboard");
+  }
   };
 
   // Sign-up helpers
