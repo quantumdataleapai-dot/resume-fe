@@ -261,6 +261,7 @@ export default function DashboardNew() {
   const [suggestedTitle, setSuggestedTitle] = useState("");
   const [detectedExperience, setDetectedExperience] = useState(null);
   const [showSkillsEditor, setShowSkillsEditor] = useState(false);
+  const [taxTerm, setTaxTerm] = useState("");
 
   
   const handleViewDetails = (resume) => {
@@ -1008,6 +1009,28 @@ export default function DashboardNew() {
                     placeholder="Enter job title..."
                     className="filter-input"
                   />
+                </div>
+                  
+                {/* Tax Term Filter */}
+                <div className="filter-group">
+                  <label>US Tax Terms</label>
+                  <select
+                    value={taxTerm}
+                    onChange={(e) => setTaxTerm(e.target.value)}
+                    className="filter-select"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      backgroundColor: "#ffffffff",
+                      color: "#000000ff",
+                    }}
+                  >
+                    <option value="">Select Tax Term</option>
+                    <option value="C2C">C2C (Contract to Contract)</option>
+                    <option value="W2">W2 (W2 Employee)</option>
+                    <option value="1099">1099 (Independent Contractor)</option>
+                  </select>
                 </div>
 
                 {/* Required Skills Multi-Select */}
