@@ -1715,6 +1715,7 @@ export default function DashboardNew() {
                           filter_cities: Array.from(filterCities),
                           filter_visas: visaRequirement && visaRequirement.length > 0 ? visaRequirement : [],
                           filter_relocation: willingnessToRelocate || "",
+                          filter_tax_terms: taxTerm ? [taxTerm.toLowerCase()] : [],
                           ...(Object.keys(experienceFilter).length > 0 && { filter_experience: experienceFilter }),
                           resume_ids: [],
                         };
