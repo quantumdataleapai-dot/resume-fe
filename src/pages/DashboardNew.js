@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdEmail, MdPhone, MdLocationOn, MdDelete } from "react-icons/md";
+import { MdEmail, MdPhone, MdLocationOn, MdDelete, MdRefresh } from "react-icons/md";
 import mammoth from "mammoth";
 import Header from "../components/Header";
 import AIChat from "../components/AIChat";
@@ -276,6 +276,24 @@ export default function DashboardNew() {
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
+  };
+
+  const handleRefreshJD = () => {
+    setJobDescription("");
+    setJobTitle("");
+    setTaxTerm("");
+    setVisaRequirement([]);
+    setJobLocation([]);
+    setCenterPincode("");
+    setLocationDistance("");
+    setWillingnessToRelocate("");
+    setExperienceLevel("");
+    setRecentSearchDays("");
+    setSelectedCountry("");
+    setSelectedState("");
+    setSelectedCity("");
+    setUploadedFiles([]);
+    showToast("All fields cleared", "success");
   };
 
   // Auto-dismiss toast after 2 seconds
@@ -936,8 +954,34 @@ export default function DashboardNew() {
           <div className="left-column">
             {/* Job Description Card */}
             <div className="job-card">
-              <div className="job-header">
+              <div className="job-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2>Job Description</h2>
+                <button
+                  className="refresh-btn"
+                  onClick={handleRefreshJD}
+                  title="Clear all fields"
+                  type="button"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: "20px",
+                    cursor: "pointer",
+                    padding: "5px",
+                    borderRadius: "4px",
+                    transition: "all 0.2s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                >
+                  <MdRefresh size={20} />
+                </button>
               </div>
               <textarea
                 value={jobDescription}
@@ -1715,7 +1759,8 @@ export default function DashboardNew() {
                           filter_cities: Array.from(filterCities),
                           filter_visas: visaRequirement && visaRequirement.length > 0 ? visaRequirement : [],
                           filter_relocation: willingnessToRelocate || "",
-                          filter_tax_terms: taxTerm ? [taxTerm.toLowerCase()] : [],
+                          filter_recency_days: recentSearchDays || "",
+                          filter_tax_terms: taxTerm ? [taxTerm.toLowerCase()] : [],                          
                           ...(Object.keys(experienceFilter).length > 0 && { filter_experience: experienceFilter }),
                           resume_ids: [],
                         };
