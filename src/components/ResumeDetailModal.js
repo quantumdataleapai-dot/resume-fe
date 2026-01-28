@@ -19,8 +19,9 @@ import {
   MdPictureAsPdf,
   MdDownload,
 } from "react-icons/md";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import axios from "axios";
+import * as mammoth from "mammoth";
 
 const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, jdId }) => {
   const [showQuestions, setShowQuestions] = useState(false);
@@ -32,6 +33,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
   const [questionsError, setQuestionsError] = useState(null);
   const [generatedQuestions, setGeneratedQuestions] = useState(null);
   const [resumeFileType, setResumeFileType] = useState(null);
+  const [wordDocHtml, setWordDocHtml] = useState(null);
+  const wordDocContainerRef = useRef(null);
 
   if (!isOpen || !resume) return null;
 
@@ -112,14 +115,23 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
         setResumeUrl(url);
         setResumeFileType(fileType);
         
-        // For Word documents, open directly in new tab
+        // For Word documents, convert to HTML
         if (fileType === "word") {
-          window.open(url, "_blank");
-          setShowResumeViewer(false);
+          try {
+            const arrayBuffer = await blob.arrayBuffer();
+            const result = await mammoth.convertToHtml({ arrayBuffer });
+            console.log("Word document converted to HTML");
+            setWordDocHtml(result.value);
+          } catch (conversionError) {
+            console.error("Error converting Word document:", conversionError);
+            setWordDocHtml("<p>Error converting Word document. Please try downloading the file instead.</p>");
+          }
         } else {
-          // For PDFs and other formats, show in modal viewer
-          setShowResumeViewer(true);
+          setWordDocHtml(null);
         }
+        
+        // Show the resume viewer
+        setShowResumeViewer(true);
       } else {
         console.error("Failed to fetch resume:", response.status);
         alert("Failed to load resume. Status: " + response.status);
@@ -1542,6 +1554,24 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                         }}
                         title="Resume PDF Viewer"
                       />
+                    ) : resumeFileType === "word" && wordDocHtml ? (
+                      <div
+                        ref={wordDocContainerRef}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          overflowY: "auto",
+                          padding: "30px",
+                          boxSizing: "border-box",
+                          background: "#ffffff",
+                          borderRadius: "8px",
+                          flex: 1,
+                          fontSize: "14px",
+                          lineHeight: "1.6",
+                          color: "#1f2937",
+                        }}
+                        dangerouslySetInnerHTML={{ __html: wordDocHtml }}
+                      />
                     ) : resumeFileType === "word" ? (
                       <div
                         style={{
@@ -1565,7 +1595,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                           }}
                         />
                         <p style={{ fontSize: "16px", fontWeight: "600", margin: "0 0 20px 0" }}>
-                          Opening Word Document...
+                          Converting Word Document...
                         </p>
                       </div>
                     ) : (
@@ -1651,12 +1681,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       setResumeUrl(null);
                       setResumeBlob(null);
                       setResumeFileType(null);
+                      setWordDocHtml(null);
                     }
                   }}
                 >
                   Close
                 </button>
-                {resumeBlob && (
+                {resumeBlob && resumeFileType === "pdf" && (
                   <button
                     style={successButtonStyles}
                     onClick={() => {
@@ -1674,7 +1705,23 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     <MdDownload /> Download Resume
                   </button>
                 )}
-                {resumeUrl && (
+                {resumeBlob && resumeFileType === "word" && (
+                  <button
+                    style={successButtonStyles}
+                    onClick={() => {
+                      // Download the Word document
+                      const link = document.createElement("a");
+                      link.href = resumeUrl;
+                      link.download = `${resume.name}_resume.docx`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                  >
+                    <MdDownload /> Download Resume
+                  </button>
+                )}
+                {resumeUrl && resumeFileType === "pdf" && (
                   <button
                     style={{
                       ...buttonStyles,
