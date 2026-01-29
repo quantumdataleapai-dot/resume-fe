@@ -1873,6 +1873,34 @@ export default function DashboardNew() {
                 </div>
               )}
 
+              {/* Loading State - Show prominent loader while analyzing/matching */}
+              {isAnalyzing && (
+                <div className="loading-container">
+                  {/* <div className="status-indicator">
+                    <div className="status-dot"></div>
+                    <span className="status-text">Analyzing & Matching in Progress</span>
+                  </div> */}
+                  
+                  <div className="spinner"></div>
+                  
+                  <div className="loading-text">
+                    Analyzing Resumes & Job Description
+                  </div>
+                  
+                  {/* <div className="wave-loader">
+                    <div className="wave"></div>
+                    <div className="wave"></div>
+                    <div className="wave"></div>
+                    <div className="wave"></div>
+                    <div className="wave"></div>
+                  </div> */}
+                  
+                  <div className="loading-subtext">
+                    This may take a few moments depending on the number of resumes and job complexity...
+                  </div>
+                </div>
+              )}
+
               {/* Results Header - Only show if resumes exist and analysis has been performed */}
               {hasAnalyzed && filteredResumes.length > 0 && (
                 <div className="results-header">
@@ -1881,7 +1909,8 @@ export default function DashboardNew() {
                 </div>
               )}
 
-              {/* Resume Cards */}
+              {/* Resume Cards - Only show when not analyzing */}
+              {!isAnalyzing && (
               <div className="resume-list">
                 {filteredResumes.map((resume, index) => (
                   <div key={resume.id} className="resume-item">
@@ -1936,6 +1965,7 @@ export default function DashboardNew() {
                   </div>
                 ))}
               </div>
+              )}
             </div>
           </div>
         </div>
