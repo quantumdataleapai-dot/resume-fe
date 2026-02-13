@@ -533,11 +533,8 @@ export default function DashboardNew() {
       showToast("Error: " + (err.message || "Failed to analyze job"), "error");
     } finally {
       setIsAnalyzing(false);
-      // Show skills editor if user clicked analyze (even if error occurred)
-      setShowSkillsEditor(true);
-      console.log("Setting showSkillsEditor to true - finally block");
     }
-  };
+  };  
 
   const handleDownloadAll = async () => {
     try {
@@ -601,7 +598,7 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("http://10.30.0.11:8000/api/resumes/upload", {
+          const resp = await fetch("10.30.0.11:8000/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
@@ -1546,11 +1543,46 @@ export default function DashboardNew() {
                   <option>Score (Low to High)</option>
                   <option>Name (A-Z)</option>
                   <option>Name (Z-A)</option>
-                </select>
+                </select> 
               </div>
 
+              {/* Toggle Button for Suggested Skills */}
+              <button
+                type="button"
+                onClick={() => setShowSkillsEditor(!showSkillsEditor)}
+                style={{
+                  marginTop: "10px",
+                  marginBottom: "10px",
+                  padding: "9px 16px",
+                  background: showSkillsEditor ? "rgba(216, 216, 216, 0.25)" : "rgba(216, 216, 216, 0.25)",
+                  color: "#0284c7",
+                  border: "1px solid rgba(2, 132, 199, 0.3)",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  transition: "all 0.2s ease",
+                  boxShadow: showSkillsEditor ? "0 2px 8px rgba(2, 132, 199, 0.1)" : "0 2px 8px rgba(2, 132, 199, 0.1)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.background = "rgba(2, 132, 199, 0.25)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(2, 132, 199, 0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.background = showSkillsEditor ? "rgba(2, 132, 199, 0.25)" : "rgba(2, 132, 199, 0.15)";
+                  e.currentTarget.style.boxShadow = showSkillsEditor ? "0 4px 12px rgba(2, 132, 199, 0.15)" : "0 2px 8px rgba(2, 132, 199, 0.1)";
+                }}
+              >
+                <span>{showSkillsEditor ? "▼" : "▶"}</span>
+                {showSkillsEditor ? "Hide" : "Show"} Suggested Skills
+              </button>
+
               {/* Suggested Skills Section */}
-              {showSkillsEditor && !(hasAnalyzed && filteredResumes.length > 0) && (
+              {showSkillsEditor && (
                 <div style={{
                   marginTop: "16px",
                   padding: "12px",
