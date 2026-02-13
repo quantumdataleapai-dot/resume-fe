@@ -264,6 +264,7 @@ export default function DashboardNew() {
   const [taxTerm, setTaxTerm] = useState("");
   const [topCandidatesLimit, setTopCandidatesLimit] = useState("");
   const [sortBy, setSortBy] = useState("score-high-to-low");
+  const [loadingMode, setLoadingMode] = useState("analyze");
 
   
   const handleViewDetails = (resume) => {
@@ -360,6 +361,7 @@ export default function DashboardNew() {
 
     setIsAnalyzing(true);
     setError(null);
+    setLoadingMode("analyze");
     setSuggestedSkills([]);
     setSuggestedTitle("");
     setShowSkillsEditor(false);
@@ -1764,6 +1766,7 @@ export default function DashboardNew() {
                     onClick={async () => {
                       try {
                         setIsAnalyzing(true);
+                        setLoadingMode("match");
                         setError(null);
 
                         // Parse experience level to min/max
@@ -1941,7 +1944,7 @@ export default function DashboardNew() {
                   <div className="spinner"></div>
                   
                   <div className="loading-text">
-                    Analyzing Resumes & Job Description
+                    {loadingMode === "analyze" ? "Analyzing Skills from Job Description" : "Analyzing Resumes & Job Description"}
                   </div>
                   
                   {/* <div className="wave-loader">
@@ -1952,9 +1955,11 @@ export default function DashboardNew() {
                     <div className="wave"></div>
                   </div> */}
                   
-                  <div className="loading-subtext">
-                    This may take a few moments depending on the number of resumes and job complexity...
-                  </div>
+                  {loadingMode === "match" && (
+                    <div className="loading-subtext">
+                      This may take a few moments depending on the number of resumes and job complexity...
+                    </div>
+                  )}
                 </div>
               )}
 
