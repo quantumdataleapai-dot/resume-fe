@@ -262,6 +262,8 @@ export default function DashboardNew() {
   const [detectedExperience, setDetectedExperience] = useState(null);
   const [showSkillsEditor, setShowSkillsEditor] = useState(false);
   const [taxTerm, setTaxTerm] = useState("");
+  const [topCandidatesLimit, setTopCandidatesLimit] = useState("");
+  const [sortBy, setSortBy] = useState("score-high-to-low");
 
   
   const handleViewDetails = (resume) => {
@@ -293,6 +295,8 @@ export default function DashboardNew() {
     setSelectedState("");
     setSelectedCity("");
     setUploadedFiles([]);
+    setTopCandidatesLimit("");
+    setSortBy("score-high-to-low");
     showToast("All fields cleared", "success");
   };
 
@@ -679,7 +683,20 @@ export default function DashboardNew() {
       (resume.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (resume.skills || []).some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()))
     )
-    .sort((a, b) => (b.score || 0) - (a.score || 0));
+    .sort((a, b) => {
+      // Apply sorting based on sortBy state
+      if (sortBy === "score-high-to-low") {
+        return (b.score || 0) - (a.score || 0);
+      } else if (sortBy === "score-low-to-high") {
+        return (a.score || 0) - (b.score || 0);
+      } else if (sortBy === "name-asc") {
+        return (a.name || "").localeCompare(b.name || "");
+      } else if (sortBy === "name-desc") {
+        return (b.name || "").localeCompare(a.name || "");
+      }
+      return 0;
+    })
+    .slice(0, topCandidatesLimit ? parseInt(topCandidatesLimit) : sourceResumes.length);
 
   const getScoreBadgeClass = (score) => {
     if (score >= 85) return "score-excellent";
@@ -1532,17 +1549,25 @@ export default function DashboardNew() {
                   className="search-input"
                 />
                 
-                <select className="sort-select">
-                  <option>Show top candidates: All candidates</option>
-                  <option>Top 5</option>
-                  <option>Top 10</option>
-                  <option>Top 20</option>
+                <select 
+                  className="sort-select"
+                  value={topCandidatesLimit}
+                  onChange={(e) => setTopCandidatesLimit(e.target.value)}
+                >
+                  <option value="">Show top candidates: All candidates</option>
+                  <option value="5">Top 5</option>
+                  <option value="10">Top 10</option>
+                  <option value="20">Top 20</option>
                 </select>
-                <select className="sort-select">
-                  <option>Sort by: Score (High to Low)</option>
-                  <option>Score (Low to High)</option>
-                  <option>Name (A-Z)</option>
-                  <option>Name (Z-A)</option>
+                <select 
+                  className="sort-select"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="score-high-to-low">Sort by: Score (High to Low)</option>
+                  <option value="score-low-to-high">Score (Low to High)</option>
+                  <option value="name-asc">Name (A-Z)</option>
+                  <option value="name-desc">Name (Z-A)</option>
                 </select> 
               </div>
 
