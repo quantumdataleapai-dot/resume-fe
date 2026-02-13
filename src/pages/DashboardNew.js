@@ -1558,6 +1558,8 @@ export default function DashboardNew() {
                   <option value="5">Top 5</option>
                   <option value="10">Top 10</option>
                   <option value="20">Top 20</option>
+                  <option value="50">Top 50</option>
+
                 </select>
                 <select 
                   className="sort-select"
@@ -1576,30 +1578,27 @@ export default function DashboardNew() {
                 type="button"
                 onClick={() => setShowSkillsEditor(!showSkillsEditor)}
                 style={{
-                  marginTop: "10px",
-                  marginBottom: "10px",
-                  padding: "9px 16px",
-                  background: showSkillsEditor ? "rgba(216, 216, 216, 0.25)" : "rgba(216, 216, 216, 0.25)",
-                  color: "#0284c7",
-                  border: "1px solid rgba(2, 132, 199, 0.3)",
-                  borderRadius: "6px",
+                  marginTop: "5px",
+                  marginBottom: "5px",
+                  padding: "10px 12px",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  color: "#1f2937",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "8px",
                   cursor: "pointer",
                   fontSize: "13px",
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
-                  transition: "all 0.2s ease",
-                  boxShadow: showSkillsEditor ? "0 2px 8px rgba(2, 132, 199, 0.1)" : "0 2px 8px rgba(2, 132, 199, 0.1)",
+                  transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.background = "rgba(2, 132, 199, 0.25)";
-                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(2, 132, 199, 0.15)";
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                  e.currentTarget.style.borderColor = "#317e65";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.background = showSkillsEditor ? "rgba(2, 132, 199, 0.25)" : "rgba(2, 132, 199, 0.15)";
-                  e.currentTarget.style.boxShadow = showSkillsEditor ? "0 4px 12px rgba(2, 132, 199, 0.15)" : "0 2px 8px rgba(2, 132, 199, 0.1)";
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                  e.currentTarget.style.borderColor = "#e5e7eb";
                 }}
               >
                 <span>{showSkillsEditor ? "▼" : "▶"}</span>
@@ -1609,7 +1608,8 @@ export default function DashboardNew() {
               {/* Suggested Skills Section */}
               {showSkillsEditor && (
                 <div style={{
-                  marginTop: "16px",
+                  marginTop: "10px",
+                  marginBottom: "5px",
                   padding: "12px",
                   backgroundColor: "#f9fafb",
                   border: "1px solid #e5e7eb",
