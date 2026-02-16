@@ -295,7 +295,7 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f1724", marginBottom: "8px" }}>Sign In</h2>
+          <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f1724", marginBottom: "8px" }}>Log In</h2>
           <p style={{ fontSize: "13px", color: "#60708a", marginBottom: "32px" }}>
             Don't have an account yet?{" "}
             <button onClick={openSignup} style={{ background: "none", border: "none", color: "#0b5fff", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>

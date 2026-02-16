@@ -53,63 +53,130 @@ const SignupModal = ({ isOpen, onClose }) => {
         <span className="close" onClick={onClose}>
           &times;
         </span>
-        <div className="login-header">
-          <h2>Create Account</h2>
-          <p>Join us to start matching resumes efficiently</p>
+        <div className="login-header" style={{ textAlign: "center", marginBottom: "24px" }}>
+          <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#0f1724", marginBottom: "8px" }}>
+            Create Account
+          </h2>
+          <p style={{ fontSize: "13px", color: "#60708a", marginBottom: "0" }}>
+            Join us to start matching resumes efficiently
+          </p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message" style={{ marginBottom: "16px" }}>{error}</div>}
 
-          <div className="form-group">
-            <label htmlFor="full_name">Full Name</label>
+          <div style={{ marginBottom: "20px" }}>
             <input
               type="text"
-              id="full_name"
               name="full_name"
               value={formData.full_name}
               onChange={handleChange}
+              placeholder="Full Name"
               required
+              style={{
+                width: "100%",
+                padding: "12px",
+                height: "48px",
+                border: "1px solid #e6eefc",
+                borderRadius: "8px",
+                fontSize: "15px",
+                background: "#fff",
+                color: "#0f1724",
+                boxSizing: "border-box",
+                outline: "none",
+              }}
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="signupEmail">Email Address</label>
+          <div style={{ marginBottom: "20px" }}>
             <input
               type="email"
-              id="signupEmail"
               name="email"
               value={formData.email}
               onChange={handleChange}
+              placeholder="Email Address"
               required
+              style={{
+                width: "100%",
+                padding: "12px",
+                height: "48px",
+                border: "1px solid #e6eefc",
+                borderRadius: "8px",
+                fontSize: "15px",
+                background: "#fff",
+                color: "#0f1724",
+                boxSizing: "border-box",
+                outline: "none",
+              }}
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="signupPassword">Password</label>
+          <div style={{ marginBottom: "20px", position: "relative" }}>
             <input
               type="password"
-              id="signupPassword"
               name="password"
               value={formData.password}
               onChange={handleChange}
+              placeholder="Password"
               required
+              style={{
+                width: "100%",
+                padding: "12px",
+                height: "48px",
+                border: "1px solid #e6eefc",
+                borderRadius: "8px",
+                fontSize: "15px",
+                background: "#fff",
+                color: "#0f1724",
+                boxSizing: "border-box",
+                outline: "none",
+              }}
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+          <div style={{ marginBottom: "24px" }}>
             <input
               type="password"
-              id="confirmPassword"
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              placeholder="Confirm Password"
               required
+              style={{
+                width: "100%",
+                padding: "12px",
+                height: "48px",
+                border: "1px solid #e6eefc",
+                borderRadius: "8px",
+                fontSize: "15px",
+                background: "#fff",
+                color: "#0f1724",
+                boxSizing: "border-box",
+                outline: "none",
+              }}
             />
           </div>
 
-          <button type="submit" className="login-btn" disabled={loading}>
+          <button
+            type="submit"
+            className="login-btn"
+            disabled={loading}
+            style={{
+              width: "100%",
+              height: "48px",
+              padding: "12px",
+              background: loading ? "#5b8dff" : "linear-gradient(135deg, #0b5fff 0%, #0950d1 100%)",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "15px",
+              fontWeight: 700,
+              cursor: loading ? "not-allowed" : "pointer",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              opacity: loading ? 0.8 : 1,
+            }}
+          >
             {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
