@@ -30,41 +30,46 @@ export const AuthProvider = ({ children }) => {
 
  const login = async (email, password) => {
   try {
-    // Create a dummy user object
-    const dummyUser = { name: "Guest User", email: email };
-    const dummyToken = "dummy-session-token-123";
+    // Call real backend API for login
+    const response = await ApiService.login({ email, password });
 
-    // Save to localStorage so it persists on page refresh
-    localStorage.setItem("token", dummyToken);
-    localStorage.setItem("user", JSON.stringify(dummyUser));
+    if (response.success) {
+      const { user, token } = response.data;
 
-    // Update the React State
-    setIsAuthenticated(true);
-    setUser(dummyUser);
+      // Save to localStorage so it persists on page refresh
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-    return { success: true };
+      // Update the React State
+      setIsAuthenticated(true);
+      setUser(user);
+
+      return { success: true };
+    } else {
+      return { success: false, error: response.error };
+    }
   } catch (error) {
-    return { success: false, error: "Something went wrong" };
+    console.error("Login error:", error);
+    return { success: false, error: error.message || "Login failed" };
   }
 };
   const signup = async (userData) => {
     try {
-      // Use ApiService for registration
+      // Use ApiService for registration with real backend call
       const response = await ApiService.register(userData);
 
       if (response.success) {
-        const { user, token } = response.data;
-
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-
-        setIsAuthenticated(true);
-        setUser(user);
-        return { success: true };
+        // Signup is successful, but user is not logged in yet (no token returned)
+        // User will need to login with their credentials
+        return { 
+          success: true,
+          message: "Account created successfully! Please log in with your credentials."
+        };
       } else {
-        throw new Error("Registration failed");
+        return { success: false, error: response.error };
       }
     } catch (error) {
+      console.error("Signup error:", error);
       return { success: false, error: error.message || "Registration failed" };
     }
   };

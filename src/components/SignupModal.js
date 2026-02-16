@@ -4,7 +4,7 @@ import "../styles/Modal.css";
 
 const SignupModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
-    fullName: "",
+    full_name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -35,6 +35,8 @@ const SignupModal = ({ isOpen, onClose }) => {
     const result = await signup(formData);
 
     if (result.success) {
+      // Show success message and close modal
+      alert("Account created successfully! Please log in with your credentials.");
       onClose();
     } else {
       setError(result.error);
@@ -60,12 +62,12 @@ const SignupModal = ({ isOpen, onClose }) => {
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="fullName">Full Name</label>
+            <label htmlFor="full_name">Full Name</label>
             <input
               type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
+              id="full_name"
+              name="full_name"
+              value={formData.full_name}
               onChange={handleChange}
               required
             />
