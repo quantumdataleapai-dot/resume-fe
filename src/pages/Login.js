@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import SignupModal from "../components/SignupModal";
@@ -15,14 +15,7 @@ const LoginPage = () => {
   const [showScores, setShowScores] = useState(true);
   const [showSignupModal, setShowSignupModal] = useState(false);
 
-  const { login, isAuthenticated, loading } = useAuth();
-
-  // Redirect to dashboard if user is already logged in
-  useEffect(() => {
-    if (!loading && isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, loading, navigate]);
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
