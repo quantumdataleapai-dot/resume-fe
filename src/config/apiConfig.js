@@ -1,19 +1,10 @@
 // API Configuration for Frontend-to-Python Backend Communication
 const API_CONFIG = {
   // Python backend URL
-  BASE_URL: "http://10.20.0.65:8000/api", // Force to use the new URL
+  BASE_URL: "http://10.30.0.11:8000/api", // Force to use the new URL
 
   // Clean API Endpoints for Python Backend
   ENDPOINTS: {
-    // Authentication endpoints
-    AUTH: {
-      LOGIN: "/auth/signin",
-      SIGNUP: "/auth/signup",
-      REGISTER: "/auth/register",
-      LOGOUT: "/auth/logout",
-      REFRESH: "/auth/refresh",
-    },
-
     // Resume endpoints
     RESUMES: {
       UPLOAD: "/resumes/upload", // Combined endpoint for both single and multiple uploads

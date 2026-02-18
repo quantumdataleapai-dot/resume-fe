@@ -1,52 +1,69 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
-import SignupModal from "../components/SignupModal";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [showScores, setShowScores] = useState(true);
   const [showSignupModal, setShowSignupModal] = useState(false);
+  const [signupName, setSignupName] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
 
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     
-    if (!email || !password) {
-      setError("Please fill in all fields");
+    if (!username || !password) {
+      alert("Please fill in all fields");
       return;
     }
 
-    setIsLoading(true);
-    const result = await login(email, password);
+  const result = await login(username, password);
 
-    if (result.success) {
-      // Now the ProtectedRoute will let you through!
-      navigate("/dashboard");
-    } else {
-      setError(result.error || "Login failed");
-    }
-    setIsLoading(false);
+  if (result.success) {
+    // Now the ProtectedRoute will let you through!
+    navigate("/dashboard");
+  }
   };
 
   // Sign-up helpers
   const GOOGLE_FORM_URL = "https://forms.gle/YOUR_GOOGLE_FORM_LINK"; // replace with your Google Form URL
 
   const openSignup = () => {
+    // clear any previous values and open modal
+    setSignupName("");
+    setSignupEmail("");
+    setSignupPassword("");
     setShowSignupModal(true);
   };
 
   const closeSignup = () => {
+    // clear values when closing as well
+    setSignupName("");
+    setSignupEmail("");
+    setSignupPassword("");
     setShowSignupModal(false);
+  };
+
+  const handleSignupSubmit = (e) => {
+    e.preventDefault();
+    if (!signupName || !signupEmail || !signupPassword) {
+      alert("Please fill in all sign-up fields.");
+      return;
+    }
+
+    // Simulate sign-up — replace with API call / OAuth flow in production
+    alert("Sign-up successful (simulated). Redirecting to dashboard...");
+    setShowSignupModal(false);
+    navigate("/dashboard");
   };
 
   const openExternal = (url) => {
@@ -304,24 +321,12 @@ const LoginPage = () => {
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            {error && (
-              <div style={{
-                padding: "12px",
-                backgroundColor: "#fee",
-                color: "#c33",
-                borderRadius: "8px",
-                fontSize: "14px",
-                border: "1px solid #fcc"
-              }}>
-                {error}
-              </div>
-            )}
             <div>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email Address"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="User Name"
                 disabled={isLoading}
                 style={{ width: "100%", padding: "12px", height: "48px", border: "1px solid #e6eefc", borderRadius: "8px", fontSize: "15px", background: "#fff", color: "#0f1724", boxSizing: "border-box", opacity: isLoading ? 0.6 : 1, cursor: isLoading ? "not-allowed" : "text" }}
               />
@@ -390,7 +395,31 @@ const LoginPage = () => {
             </div>
           </form>
           {/* Sign Up Modal */}
-          <SignupModal isOpen={showSignupModal} onClose={closeSignup} />
+          {showSignupModal && (
+            <div className="modal-overlay" onClick={closeSignup}>
+              <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+                <h3 style={{ margin: 0, marginBottom: 8 }}>Create an account</h3>
+                <p style={{ margin: 0, marginBottom: 12, color: '#6b7280', fontSize: 13 }}>Use the form below or sign up with Google.</p>
+                <form autoComplete="off" onSubmit={handleSignupSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <input autoComplete="name" value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="Full name" style={{ padding: 10, borderRadius: 8, border: '1px solid #e6eefc' }} />
+                  <input autoComplete="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="Email" type="email" style={{ padding: 10, borderRadius: 8, border: '1px solid #e6eefc' }} />
+                  <input autoComplete="new-password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="Password" type="password" style={{ padding: 10, borderRadius: 8, border: '1px solid #e6eefc' }} />
+                  <div className="modal-actions">
+                    <button type="submit" style={{ flex: 1, padding: 10, background: 'linear-gradient(135deg, #0b5fff 0%, #0950d1 100%)', color: '#fff', borderRadius: 8, border: 'none', cursor: 'pointer' }}>Sign up</button>
+                    <button type="button" onClick={closeSignup} className="btn-ghost">Cancel</button>
+                  </div>
+                </form>
+
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontSize: 13, color: '#9aa6bd' }}>Or use a form / social account</div>
+                  <div className="modal-actions" style={{ marginTop: 8 }}>
+                    <button type="button" className="btn-ghost" onClick={() => handleOAuthPlaceholder('google')}>Google Account</button>
+                  </div>
+                  {/* Only Google sign-up options are available per request */}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

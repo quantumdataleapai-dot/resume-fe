@@ -5,7 +5,7 @@ import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
 // Force axios to use the hardcoded URL
 const apiClient = axios.create({
-  baseURL: "http://10.20.0.65:8000/api", // Explicitly set to avoid any confusion
+  baseURL: "http://10.30.0.11:8000/api", // Explicitly set to avoid any confusion
   timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
   headers: {
     "Content-Type": "application/json",
@@ -53,56 +53,15 @@ apiClient.interceptors.response.use(
 
 // API Service Class
 class ApiService {
-  // Authentication APIs - Real Backend Calls
+  // Authentication (dummy - frontend only)
   async login(credentials) {
-    try {
-      const response = await apiClient.post(
-        API_CONFIG.ENDPOINTS.AUTH.LOGIN,
-        {
-          email: credentials.email,
-          password: credentials.password,
-        }
-      );
-      return {
-        success: true,
-        data: {
-          user: response.data.data.user,
-          token: response.data.data.access_token,
-        },
-      };
-    } catch (error) {
-      console.error("Login error:", error);
-      return {
-        success: false,
-        error: error.response?.data?.message || "Login failed",
-      };
-    }
+    // No real backend auth - using dummy system
+    return { success: true, message: "Using dummy authentication" };
   }
 
   async register(userData) {
-    try {
-      const response = await apiClient.post(
-        API_CONFIG.ENDPOINTS.AUTH.SIGNUP,
-        {
-          full_name: userData.full_name,
-          email: userData.email,
-          password: userData.password,
-        }
-      );
-      return {
-        success: true,
-        data: {
-          user: response.data.data.user,
-          token: null,
-        },
-      };
-    } catch (error) {
-      console.error("Registration error:", error);
-      return {
-        success: false,
-        error: error.response?.data?.message || "Registration failed",
-      };
-    }
+    // No real backend auth - using dummy system
+    return { success: true, message: "Using dummy authentication" };
   }
 
   // Resume APIs
