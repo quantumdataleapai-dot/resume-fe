@@ -322,7 +322,7 @@ export default function DashboardNew() {
 
     try {
       const response = await fetch(
-        `http://10.30.0.11:8000/api/resumes/${resumeId}/delete`,
+        `http://10.30.0.104:8006/api/resumes/${resumeId}/delete`,
         {
           method: "DELETE",
           headers: {
@@ -438,7 +438,7 @@ export default function DashboardNew() {
 
         console.log("Uploading files for processing...");
         const response = await fetch(
-          "http://10.30.0.11:8000/api/jobs/process-file-and-match",
+          "http://10.30.0.104:8006/api/jobs/process-file-and-match",
           {
             method: "POST",
             body: formData,
@@ -546,7 +546,7 @@ export default function DashboardNew() {
     try {
       setError(null);
       const response = await fetch(
-        "http://10.30.0.11:8000/api/resumes/download-all?format=zip",
+        "http://10.30.0.104:8006/api/resumes/download-all?format=zip",
         {
           method: "POST",
           headers: {
@@ -604,7 +604,7 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("10.30.0.11:8000/api/resumes/upload", {
+          const resp = await fetch("10.30.0.104:8006/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
