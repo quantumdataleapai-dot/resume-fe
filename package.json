@@ -22,12 +22,12 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
-  "scripts": {
-    "start": "craco start",
-    "build": "react-scripts build",
-    "test": "craco test",
-    "eject": "react-scripts eject"
-  },
+"scripts": {
+  "start": "craco start",
+  "build": "CI=false react-scripts build",
+  "test": "craco test",
+  "eject": "react-scripts eject"
+},
   "eslintConfig": {
     "extends": [
       "react-app",
