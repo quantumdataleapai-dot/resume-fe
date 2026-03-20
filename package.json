@@ -2,6 +2,9 @@
   "name": "resume-ui",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.2",
     "@testing-library/jest-dom": "^5.17.0",
@@ -21,7 +24,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "react-scripts build",
     "test": "craco test",
     "eject": "react-scripts eject"
   },
