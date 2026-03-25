@@ -337,25 +337,6 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
     transform: "none",
   };
 
-  const closeButtonStyles = {
-    position: "absolute",
-    top: "15px",
-    right: "20px",
-    background: "#fee2e2",
-    border: "1px solid #fca5a5",
-    borderRadius: "50%",
-    width: "40px",
-    height: "40px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    color: "#dc2626",
-    fontSize: "16px",
-    transition: "all 0.3s ease",
-    transform: "none",
-  };
-
   const footerStyles = {
     padding: "16px 24px",
     borderTop: "1px solid #e5e7eb",
@@ -426,20 +407,6 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
     margin: "4px",
     transform: "none",
     transition: "none",
-  };
-
-  const matchingSkillStyles = {
-    ...skillTagStyles,
-    background: "#f0fdf4",
-    color: "#16a34a",
-    border: "1px solid #bbf7d0",
-  };
-
-  const missingSkillStyles = {
-    ...skillTagStyles,
-    background: "#fee2e2",
-    color: "#dc2626",
-    border: "1px solid #fca5a5",
   };
 
   // Helper function to get section background color (alternating)

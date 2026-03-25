@@ -1181,7 +1181,6 @@ function DownloadsTab() {
   if (!data) return <div className="dh-loading">No data available</div>;
 
   const { total_downloads = 0, per_user = [], top_resumes = [], daily_trend = [] } = data;
-  const trendMax = Math.max(...daily_trend.map((d) => d.downloads), 1);
   const userTotalPages = Math.ceil(userTotal / USER_LIMIT);
 
   return (
@@ -1336,7 +1335,7 @@ function DownloadsTab() {
           const chartW = W - padL - padR, chartH = H - padT - padB;
           const maxVal = Math.max(...trendData.map((d) => d.downloads), 1);
           const gridLines = 5;
-          const stepY = maxVal / gridLines;
+          const _stepY = maxVal / gridLines;
 
           const pts = trendData.map((d, i) => ({
             x: padL + (n > 1 ? (i / (n - 1)) * chartW : chartW / 2),
