@@ -1,7 +1,7 @@
 // API Configuration for Frontend-to-Python Backend Communication
 const API_CONFIG = {
   // Python backend URL
-  BASE_URL: "http://10.30.0.104:8006/api", // Force to use the new URL
+  BASE_URL: "https://app.abhinay.online/api", // Force to use the new URL
 
   // Clean API Endpoints for Python Backend
   ENDPOINTS: {

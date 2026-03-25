@@ -62,7 +62,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `http://10.30.0.104:8006/api/resumes/download/${resume.id}`,
+        `https://app.abhinay.online/api/resumes/download/${resume.id}`,
         {
           responseType: "blob",
           headers: {
@@ -157,7 +157,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
     try {
       const response = await fetch(
-        "http://10.30.0.104:8006/api/jobs/generate-questions",
+        "https://app.abhinay.online/api/jobs/generate-questions",
         {
           method: "POST",
           headers: {
