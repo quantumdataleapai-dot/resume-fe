@@ -182,10 +182,10 @@ export default function DashboardNew() {
   const [jdId, setJdId] = useState(null);
   const [showVisaDropdown, setShowVisaDropdown] = useState(false);
   const [locationDistance, setLocationDistance] = useState("");
-  const [, setRequiredSkills] = useState([]);
+  const [requiredSkills, setRequiredSkills] = useState([]); // eslint-disable-line no-unused-vars
   const [jobTitle, setJobTitle] = useState("");
   const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
-  const [, setSkillsSearchInput] = useState("");
+  const [skillsSearchInput, setSkillsSearchInput] = useState(""); // eslint-disable-line no-unused-vars
   const [experienceLevel, setExperienceLevel] = useState("");
   const [recentSearchDays, setRecentSearchDays] = useState("");
   const [fetchedVisaOptions, setFetchedVisaOptions] = useState([]);

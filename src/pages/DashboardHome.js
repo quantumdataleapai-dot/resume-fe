@@ -1335,7 +1335,7 @@ function DownloadsTab() {
           const chartW = W - padL - padR, chartH = H - padT - padB;
           const maxVal = Math.max(...trendData.map((d) => d.downloads), 1);
           const gridLines = 5;
-          const _stepY = maxVal / gridLines;
+          // stepY intentionally unused - gridLines used for layout reference
 
           const pts = trendData.map((d, i) => ({
             x: padL + (n > 1 ? (i / (n - 1)) * chartW : chartW / 2),
