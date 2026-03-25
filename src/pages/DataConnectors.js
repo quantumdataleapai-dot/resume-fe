@@ -210,7 +210,8 @@ export default function DataConnectors() {
 
   // Cleanup poll intervals on unmount
   useEffect(() => {
-    return () => { Object.values(pollRefs.current).forEach(clearInterval); };
+    const refs = pollRefs.current;
+    return () => { Object.values(refs).forEach(clearInterval); };
   }, []);
 
   const clearMessages = () => { setError(""); setSuccess(""); };

@@ -6,15 +6,12 @@ import {
   FaBullseye,
   FaTimesCircle,
   FaLinkedin,
-  FaGithub,
 } from "react-icons/fa";
 import {
   MdOutlineSummarize,
   MdOutlineInsertDriveFile,
   MdDateRange,
   MdOutlineEmail,
-  MdCheck,
-  MdOutlineClose,
   MdHelpOutline,
   MdPictureAsPdf,
   MdDownload,
@@ -28,14 +25,14 @@ import axios from "axios";
 import * as mammoth from "mammoth";
 
 const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, jdId }) => {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const [showQuestions, setShowQuestions] = useState(false);
   const [showResumeViewer, setShowResumeViewer] = useState(false);
   const [resumeUrl, setResumeUrl] = useState(null);
   const [loadingResume, setLoadingResume] = useState(false);
   const [resumeBlob, setResumeBlob] = useState(null);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
-  const [questionsError, setQuestionsError] = useState(null);
+  const [, setQuestionsError] = useState(null);
   const [generatedQuestions, setGeneratedQuestions] = useState(null);
   const [resumeFileType, setResumeFileType] = useState(null);
   const [wordDocHtml, setWordDocHtml] = useState(null);
