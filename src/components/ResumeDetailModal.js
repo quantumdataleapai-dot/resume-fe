@@ -103,7 +103,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
     setShowDeleteConfirm(false);
     try {
       const response = await axios.delete(
-        `http://10.30.0.104:8010/api/resumes/${resume.id}/delete`
+        `https://app.abhinay.online/api/resumes/${resume.id}/delete`
       );
       if (response.data?.success) {
         if (onDelete) {
@@ -126,7 +126,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `http://10.30.0.104:8010/api/resumes/download/${resume.id}`,
+        `https://app.abhinay.online/api/resumes/download/${resume.id}`,
         {
           responseType: "blob",
           headers: {
@@ -221,7 +221,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
     try {
       const response = await fetch(
-        "http://10.30.0.104:8010/api/jobs/generate-questions",
+        "https://app.abhinay.online/api/jobs/generate-questions",
         {
           method: "POST",
           headers: {
