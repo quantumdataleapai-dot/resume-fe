@@ -5,7 +5,7 @@ import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
 // Force axios to use the hardcoded URL
 const apiClient = axios.create({
-  baseURL: "https://app.abhinay.online/api", // Explicitly set to avoid any confusion
+  baseURL: "http://10.30.0.104:8010/api", // Explicitly set to avoid any confusion
   timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
   headers: {
     "Content-Type": "application/json",
@@ -14,9 +14,13 @@ const apiClient = axios.create({
   withCredentials: false,
 });
 
-// Simple request interceptor (no authentication)
+// Request interceptor - attach Bearer token
 apiClient.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -53,15 +57,455 @@ apiClient.interceptors.response.use(
 
 // API Service Class
 class ApiService {
-  // Authentication (dummy - frontend only)
+  // Authentication
   async login(credentials) {
-    // No real backend auth - using dummy system
-    return { success: true, message: "Using dummy authentication" };
+    try {
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.AUTH.LOGIN,
+        credentials
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return {
+          success: false,
+          message: error.response.data.message || "Invalid email or password",
+        };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
   }
 
   async register(userData) {
-    // No real backend auth - using dummy system
-    return { success: true, message: "Using dummy authentication" };
+    return this.signup(userData);
+  }
+
+  async signup(userData) {
+    try {
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.AUTH.SIGNUP,
+        userData
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return {
+          success: false,
+          message: error.response.data.message || "Registration failed",
+        };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // Forgot Password Flow
+  async forgotPassword(email) {
+    try {
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD,
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return {
+          success: false,
+          message: error.response.data.detail || error.response.data.message || "Failed to send OTP",
+          status: error.response.status,
+        };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async verifyOtp(email, otp) {
+    try {
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.AUTH.VERIFY_OTP,
+        { email, otp }
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return {
+          success: false,
+          message: error.response.data.detail || error.response.data.message || "OTP verification failed",
+          status: error.response.status,
+        };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async resetPassword(email, otp, newPassword) {
+    try {
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD,
+        { email, otp, new_password: newPassword }
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return {
+          success: false,
+          message: error.response.data.detail || error.response.data.message || "Password reset failed",
+          status: error.response.status,
+        };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // Admin - Activity
+  async getAdminActivity({ action, user_id, days, page, limit } = {}) {
+    try {
+      const params = {};
+      if (action) params.action = action;
+      if (user_id) params.user_id = user_id;
+      if (days) params.days = days;
+      if (page) params.page = page;
+      if (limit) params.limit = limit;
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.ADMIN.ACTIVITY, { params });
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to fetch activity" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // Admin - Downloads
+  async getAdminDownloads(days = 30) {
+    try {
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.ADMIN.DOWNLOADS, { params: { days } });
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to fetch downloads" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async getAdminDownloadsUser(userId, { page, limit } = {}) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.DOWNLOADS_USER.replace("{user_id}", userId);
+      const params = {};
+      if (page) params.page = page;
+      if (limit) params.limit = limit;
+      const response = await apiClient.get(endpoint, { params });
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to fetch user downloads" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // Admin - Locks
+  async getAdminLocks() {
+    try {
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.ADMIN.LOCKS);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to fetch locks" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async forceUnlock(resumeId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.FORCE_UNLOCK.replace("{resume_id}", resumeId);
+      const response = await apiClient.delete(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to unlock resume" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async unlockAllByUser(userId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.UNLOCK_ALL_USER.replace("{user_id}", userId);
+      const response = await apiClient.delete(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to unlock user's resumes" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // ─── Connectors ───
+
+  async getSupportedConnectorTypes() {
+    try {
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.CONNECTORS.SUPPORTED_TYPES);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.message || "Failed to fetch supported types" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async connectorQuickSetup(payload) {
+    try {
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.CONNECTORS.QUICK_SETUP, payload);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.message || "Quick setup failed" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async getConnectors() {
+    try {
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.CONNECTORS.LIST);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.message || "Failed to fetch connectors" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async testConnector(id) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.CONNECTORS.TEST.replace("{id}", id);
+      const response = await apiClient.post(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.message || "Connection test failed" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async syncConnector(id) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.CONNECTORS.SYNC.replace("{id}", id);
+      const response = await apiClient.post(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.message || "Sync failed" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async getSyncStatus(id) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.CONNECTORS.SYNC_STATUS.replace("{id}", id);
+      const response = await apiClient.get(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.message || "Failed to get sync status" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async discoverSchema(payload) {
+    try {
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.CONNECTORS.DISCOVER, payload);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.detail || error.response.data.message || "Schema discovery failed" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async autoMapFields(payload) {
+    try {
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.CONNECTORS.AUTO_MAP, payload);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.detail || error.response.data.message || "Auto-map failed" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async createConnector(payload) {
+    try {
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.CONNECTORS.CREATE, payload);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.detail || error.response.data.message || "Failed to create connector" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async remapConnector(id) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.CONNECTORS.REMAP.replace("{id}", id);
+      const response = await apiClient.post(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.detail || error.response.data.message || "Re-map failed" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async deleteConnector(id) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.CONNECTORS.DELETE.replace("{id}", id);
+      const response = await apiClient.delete(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) return { success: false, message: error.response.data.detail || error.response.data.message || "Failed to delete connector" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // User Dashboard
+  async getUserDashboard() {
+    try {
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.USER.DASHBOARD);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to fetch dashboard" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // Admin - Users
+  async getUsers() {
+    try {
+      const response = await apiClient.get(
+        API_CONFIG.ENDPOINTS.ADMIN.USERS
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to fetch users" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async createUser(userData) {
+    try {
+      const response = await apiClient.post(
+        API_CONFIG.ENDPOINTS.ADMIN.CREATE_USER,
+        userData
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to create user" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // Admin - Pending Users
+  async getPendingUsers() {
+    try {
+      const response = await apiClient.get(
+        API_CONFIG.ENDPOINTS.ADMIN.PENDING_USERS
+      );
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to fetch pending users" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async approveUser(userId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.APPROVE_USER.replace("{id}", userId);
+      const response = await apiClient.post(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to approve user" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async rejectUser(userId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.REJECT_USER.replace("{id}", userId);
+      const response = await apiClient.post(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to reject user" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async deactivateUser(userId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.DEACTIVATE_USER.replace("{id}", userId);
+      const response = await apiClient.post(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to deactivate user" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async activateUser(userId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.ACTIVATE_USER.replace("{id}", userId);
+      const response = await apiClient.post(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to activate user" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async patchUserRole(userId, role) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.PATCH_USER_ROLE.replace("{id}", userId);
+      const response = await apiClient.patch(endpoint, { role });
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to update user" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async getAdminStats() {
+    try {
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.ADMIN.STATS);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to fetch stats" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async deleteUser(userId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.ADMIN.DELETE_USER.replace("{id}", userId);
+      const response = await apiClient.delete(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to delete user" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
   }
 
   // Resume APIs
@@ -204,6 +648,33 @@ class ApiService {
         message: "Failed to process job description and match resumes",
         error: error.message,
       };
+    }
+  }
+
+  // Resume Lock/Unlock
+  async lockResume(resumeId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.RESUMES.LOCK.replace("{id}", resumeId);
+      const response = await apiClient.post(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to lock resume" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  async unlockResume(resumeId) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.RESUMES.LOCK.replace("{id}", resumeId);
+      const response = await apiClient.delete(endpoint);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.message || "Failed to unlock resume" };
+      }
+      return { success: false, message: "Unable to connect to server" };
     }
   }
 

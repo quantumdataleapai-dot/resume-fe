@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdEmail, MdPhone, MdLocationOn, MdDelete, MdRefresh } from "react-icons/md";
 import mammoth from "mammoth";
-import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
 import AIChat from "../components/AIChat";
 import FileUpload from "../components/FileUpload";
 import apiService from "../services/apiService";
@@ -311,9 +311,6 @@ export default function DashboardNew() {
     }
   }, [toast]);
 
-  const handleLogout = () => {
-    navigate("/");
-  };
 
   const handleDeleteResume = async (resumeId, resumeName) => {
     if (!window.confirm(`Are you sure you want to delete the resume for ${resumeName}?`)) {
@@ -322,7 +319,7 @@ export default function DashboardNew() {
 
     try {
       const response = await fetch(
-        `https://app.abhinay.online/api/resumes/${resumeId}/delete`,
+        `http://10.30.0.104:8010/api/resumes/${resumeId}/delete`,
         {
           method: "DELETE",
           headers: {
@@ -438,7 +435,7 @@ export default function DashboardNew() {
 
         console.log("Uploading files for processing...");
         const response = await fetch(
-          "https://app.abhinay.online/api/jobs/process-file-and-match",
+          "http://10.30.0.104:8010/api/jobs/process-file-and-match",
           {
             method: "POST",
             body: formData,
@@ -546,7 +543,7 @@ export default function DashboardNew() {
     try {
       setError(null);
       const response = await fetch(
-        "https://app.abhinay.online/api/resumes/download-all?format=zip",
+        "http://10.30.0.104:8010/api/resumes/download-all?format=zip",
         {
           method: "POST",
           headers: {
@@ -604,7 +601,7 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("10.30.0.104:8006/api/resumes/upload", {
+          const resp = await fetch("10.30.0.104:8010/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
@@ -948,8 +945,9 @@ export default function DashboardNew() {
 
 
   return (
-    <div className="dashboard-new-container">
-      <Header userName="Demo User" onLogout={handleLogout} />
+    <div className="sidebar-layout">
+      <Sidebar />
+      <div className="sidebar-main-content">
 
       <main className="dashboard-new-main">
         {/* Stats Section */}
@@ -2096,6 +2094,7 @@ export default function DashboardNew() {
         onDelete={handleDeleteResume}
         jdId={jdId}
       />
+      </div>
     </div>
   );
 }

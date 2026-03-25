@@ -18,12 +18,17 @@ import {
   MdHelpOutline,
   MdPictureAsPdf,
   MdDownload,
+  MdLock,
+  MdLockOpen,
 } from "react-icons/md";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../utils/AuthContext";
+import apiService from "../services/apiService";
 import axios from "axios";
 import * as mammoth from "mammoth";
 
 const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, jdId }) => {
+  const { user, isAdmin } = useAuth();
   const [showQuestions, setShowQuestions] = useState(false);
   const [showResumeViewer, setShowResumeViewer] = useState(false);
   const [resumeUrl, setResumeUrl] = useState(null);
@@ -34,7 +39,20 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
   const [generatedQuestions, setGeneratedQuestions] = useState(null);
   const [resumeFileType, setResumeFileType] = useState(null);
   const [wordDocHtml, setWordDocHtml] = useState(null);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockLoading, setLockLoading] = useState(false);
+  const [showLockConfirm, setShowLockConfirm] = useState(false);
+  const [lockError, setLockError] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const wordDocContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (resume && isOpen) {
+      setIsLocked(resume.is_locked || false);
+      setLockError(null);
+    }
+  }, [resume, isOpen]);
 
   if (!isOpen || !resume) return null;
 
@@ -55,6 +73,55 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
     }
   };
 
+  const handleToggleLock = async () => {
+    setLockLoading(true);
+    setShowLockConfirm(false);
+    try {
+      let res;
+      if (isLocked) {
+        // Admin uses force-unlock API, User uses regular unlock API
+        res = isAdmin()
+          ? await apiService.forceUnlock(resume.id)
+          : await apiService.unlockResume(resume.id);
+      } else {
+        res = await apiService.lockResume(resume.id);
+      }
+      if (res?.success) {
+        const newLocked = !isLocked;
+        setIsLocked(newLocked);
+        resume.is_locked = newLocked;
+      } else {
+        setLockError(res?.message || "Failed to update lock status.");
+      }
+    } catch (error) {
+      console.error("Error toggling lock:", error);
+      setLockError(error.response?.data?.message || "Failed to update lock status.");
+    } finally {
+      setLockLoading(false);
+    }
+  };
+
+  const handleDeleteResume = async () => {
+    setDeleteLoading(true);
+    setShowDeleteConfirm(false);
+    try {
+      const response = await axios.delete(
+        `http://10.30.0.104:8010/api/resumes/${resume.id}/delete`
+      );
+      if (response.data?.success) {
+        if (onDelete) {
+          onDelete(resume.id, resume.name);
+        }
+        onClose();
+      }
+    } catch (error) {
+      console.error("Error deleting resume:", error);
+      alert(error.response?.data?.message || "Failed to delete resume.");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const handleViewResume = async () => {
     setLoadingResume(true);
     try {
@@ -62,7 +129,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `https://app.abhinay.online/api/resumes/download/${resume.id}`,
+        `http://10.30.0.104:8010/api/resumes/download/${resume.id}`,
         {
           responseType: "blob",
           headers: {
@@ -157,7 +224,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
     try {
       const response = await fetch(
-        "https://app.abhinay.online/api/jobs/generate-questions",
+        "http://10.30.0.104:8010/api/jobs/generate-questions",
         {
           method: "POST",
           headers: {
@@ -407,6 +474,65 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
         <div style={modalStyles}>
           {/* Delete and Close Buttons Container */}
           <div style={{ position: "absolute", top: "12px", right: "12px", display: "flex", gap: "8px", alignItems: "center", zIndex: 10 }}>
+            {/* Lock/Unlock: Admin can only unlock; User/Recruiter can lock and unlock */}
+            {(!isAdmin() || isLocked) && (
+              <>
+                {isLocked && (
+                  <span
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      color: "#b45309",
+                      background: "#fef3c7",
+                      border: "1px solid #fde68a",
+                      borderRadius: "4px",
+                      padding: "2px 8px",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Locked
+                  </span>
+                )}
+                <button
+                  style={{
+                    background: isLocked ? "#fef3c7" : "transparent",
+                    border: `1px solid ${isLocked ? "#eab308" : "rgba(107, 114, 128, 0.3)"}`,
+                    color: isLocked ? "#b45309" : "#6b7280",
+                    padding: "6px 8px",
+                    borderRadius: "6px",
+                    cursor: lockLoading ? "not-allowed" : "pointer",
+                    fontSize: "18px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.3s ease",
+                    width: "36px",
+                    height: "36px",
+                    minWidth: "36px",
+                    opacity: lockLoading ? 0.6 : 1,
+                  }}
+                  onClick={() => setShowLockConfirm(true)}
+                  disabled={lockLoading}
+                  title={isLocked ? (isAdmin() ? "Force unlock resume" : "Unlock resume") : "Lock resume"}
+                  onMouseEnter={(e) => {
+                    if (!lockLoading) {
+                      e.currentTarget.style.background = isLocked
+                        ? "#fde68a"
+                        : "rgba(107, 114, 128, 0.15)";
+                      e.currentTarget.style.boxShadow = isLocked
+                        ? "0 0 8px rgba(234, 179, 8, 0.4)"
+                        : "0 0 8px rgba(107, 114, 128, 0.3)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = isLocked ? "#fef3c7" : "transparent";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  {isLocked ? <MdLock size={18} /> : <MdLockOpen size={18} />}
+                </button>
+              </>
+            )}
             {onDelete && (
               <button 
                 style={{
@@ -425,10 +551,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   height: "36px",
                   minWidth: "36px",
                 }}
-                onClick={() => {
-                  onDelete(resume.id, resume.name);
-                  onClose();
-                }}
+                onClick={() => setShowDeleteConfirm(true)}
                 title="Delete resume"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "rgba(220, 38, 38, 0.15)";
@@ -1736,6 +1859,219 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     Open in New Tab
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Lock/Unlock Confirmation Popup */}
+        {showLockConfirm && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 999999,
+            }}
+            onClick={() => setShowLockConfirm(false)}
+          >
+            <div
+              style={{
+                background: "#ffffff",
+                borderRadius: "12px",
+                padding: "30px",
+                width: "400px",
+                maxWidth: "90vw",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
+                textAlign: "center",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                style={{
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "50%",
+                  background: isLocked ? "#fef3c7" : "#e0e7ff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 16px",
+                }}
+              >
+                {isLocked ? (
+                  <MdLockOpen size={24} style={{ color: "#d97706" }} />
+                ) : (
+                  <MdLock size={24} style={{ color: "#4f46e5" }} />
+                )}
+              </div>
+              <h3 style={{ margin: "0 0 8px", fontSize: "18px", color: "#1f2937" }}>
+                {isLocked
+                  ? (isAdmin() ? "Force Unlock Resume?" : "Unlock Resume?")
+                  : "Lock Resume?"}
+              </h3>
+              <p style={{ margin: "0 0 24px", fontSize: "14px", color: "#6b7280", lineHeight: "1.5" }}>
+                {isLocked
+                  ? (isAdmin()
+                    ? `Are you sure you want to force-unlock the resume for ${resume.name}? It will be visible in match results for all users.`
+                    : `Are you sure you want to unlock the resume for ${resume.name}? It will be visible in match results for other users.`)
+                  : `Are you sure you want to lock the resume for ${resume.name}? Locked resumes are excluded from match results for other users.`}
+              </p>
+              <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+                <button
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "1px solid #d1d5db",
+                    background: "#ffffff",
+                    color: "#4b5563",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setShowLockConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background: isLocked
+                      ? "linear-gradient(135deg, #d97706, #b45309)"
+                      : "linear-gradient(135deg, #4f46e5, #4338ca)",
+                    color: "#ffffff",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                  }}
+                  onClick={handleToggleLock}
+                >
+                  {isLocked ? (isAdmin() ? "Yes, Force Unlock" : "Yes, Unlock") : "Yes, Lock"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Lock Error Toast */}
+        {lockError && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: 28,
+              right: 28,
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "14px 20px",
+              borderRadius: 12,
+              fontSize: 14,
+              fontWeight: 500,
+              background: "#FEF2F2",
+              color: "#991B1B",
+              border: "1px solid #FECACA",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+              zIndex: 1000000,
+            }}
+          >
+            <FaTimesCircle style={{ color: "#DC2626", fontSize: 16 }} />
+            <span>{lockError}</span>
+            <button
+              style={{ background: "none", border: "none", cursor: "pointer", color: "#991B1B", opacity: 0.5, fontSize: 12, marginLeft: 6 }}
+              onClick={() => setLockError(null)}
+            >✕</button>
+          </div>
+        )}
+
+        {/* Delete Confirmation Popup */}
+        {showDeleteConfirm && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 999999,
+            }}
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            <div
+              style={{
+                background: "#ffffff",
+                borderRadius: "12px",
+                padding: "30px",
+                width: "400px",
+                maxWidth: "90vw",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
+                textAlign: "center",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                style={{
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "50%",
+                  background: "#fee2e2",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 16px",
+                }}
+              >
+                <MdDelete size={24} style={{ color: "#dc2626" }} />
+              </div>
+              <h3 style={{ margin: "0 0 8px", fontSize: "18px", color: "#1f2937" }}>
+                Delete Resume?
+              </h3>
+              <p style={{ margin: "0 0 24px", fontSize: "14px", color: "#6b7280", lineHeight: "1.5" }}>
+                Are you sure you want to delete the resume for <strong>{resume.name}</strong>? This action cannot be undone.
+              </p>
+              <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+                <button
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "1px solid #d1d5db",
+                    background: "#ffffff",
+                    color: "#4b5563",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background: "linear-gradient(135deg, #dc2626, #b91c1c)",
+                    color: "#ffffff",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    cursor: deleteLoading ? "not-allowed" : "pointer",
+                    opacity: deleteLoading ? 0.7 : 1,
+                  }}
+                  onClick={handleDeleteResume}
+                  disabled={deleteLoading}
+                >
+                  {deleteLoading ? "Deleting..." : "Yes, Delete"}
+                </button>
               </div>
             </div>
           </div>

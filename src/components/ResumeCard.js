@@ -253,6 +253,7 @@ const ResumeCard = ({
         isOpen={showModal}
         onClose={closeModal}
         handleDownload={handleDownload}
+        onDelete={handleDeleteClick}
       />
     </>
   );
