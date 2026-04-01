@@ -93,3 +93,13 @@
     margin: 0.5rem 0;
   }
 }
+
+/* ═══ DARK THEME ═══ */
+body.dark-theme .pagination-controls { background: #1e293b; border-color: #334155; }
+body.dark-theme .pagination-info { color: #94a3b8; }
+body.dark-theme .pagination-btn { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+body.dark-theme .pagination-btn:hover:not(:disabled) { background: #334155; border-color: #475569; }
+body.dark-theme .pagination-btn:disabled { background: #1e293b; }
+body.dark-theme .pagination-btn.active { background: #6366f1; border-color: #6366f1; }
+body.dark-theme .items-per-page { color: #94a3b8; }
+body.dark-theme .items-per-page select { background: #0f172a; border-color: #334155; color: #e2e8f0; }

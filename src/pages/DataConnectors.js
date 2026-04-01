@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Sidebar from "../components/Sidebar";
 import ApiService from "../services/apiService";
+import { useTheme } from "../utils/ThemeContext";
 import "../styles/DataConnectors.css";
 
 /* ── Source metadata for all 6 types ── */
@@ -16,7 +17,7 @@ const SOURCE_META = {
     icon: "fas fa-leaf",
     color: "#13aa52",
     label: "MongoDB",
-    description: "MongoDB / DocumentDB",
+    description: "Connect to a MongoDB instance with flexible document queries",
     category: "database",
   },
   api: {
@@ -26,20 +27,20 @@ const SOURCE_META = {
     description: "Connect to any REST API endpoint",
     category: "database",
   },
-  monster: {
-    icon: "fas fa-search-dollar",
-    color: "#6d28d9",
-    label: "Monster.com",
-    description: "Monster job board integration",
-    category: "jobboard",
-  },
-  dice: {
-    icon: "fas fa-dice-d6",
-    color: "#e11d48",
-    label: "Dice.com",
-    description: "Dice tech job board integration",
-    category: "jobboard",
-  },
+  // monster: {
+  //   icon: "fas fa-search-dollar",
+  //   color: "#6d28d9",
+  //   label: "Monster.com",
+  //   description: "Monster job board integration",
+  //   category: "jobboard",
+  // },
+  // dice: {
+  //   icon: "fas fa-dice-d6",
+  //   color: "#e11d48",
+  //   label: "Dice.com",
+  //   description: "Dice tech job board integration",
+  //   category: "jobboard",
+  // },
   ceipal: {
     icon: "fas fa-briefcase",
     color: "#0369a1",
@@ -62,7 +63,7 @@ function getDefaultForm(source) {
     case "sql":
       return { name: "", host: "localhost", port: "5432", database: "recruitment_db", table: "candidates", username: "", password: "", where_clause: "", batch_size: "100" };
     case "mongodb":
-      return { name: "", host: "localhost", port: "27017", database: "recruiting", collection: "resumes", username: "", password: "", query_filter: "", batch_size: "50" };
+      return { name: "", connection_string: "", database: "", collection: "", query_filter: "", batch_size: "50", auto_sync: true, showAdvanced: false };
     case "api":
       return { name: "", base_url: "", endpoint: "/candidates", auth_type: "bearer", auth_token: "", auth_username: "", auth_password: "", auth_header_name: "X-API-Key", pagination_type: "page", page_size: "50", batch_size: "100" };
     case "monster":
@@ -83,7 +84,9 @@ function buildDiscoverPayload(source, form) {
     return { source: "sql", connection_string: connStr, table: form.table };
   }
   if (source === "mongodb") {
-    return { source: "mongodb", connection_string: connStr, database: form.database, collection: form.collection, query_filter: form.query_filter ? JSON.parse(form.query_filter) : {} };
+    let qf = {};
+    if (form.query_filter) { try { qf = JSON.parse(form.query_filter); } catch { /* ignore */ } }
+    return { source: "mongodb", connection_string: form.connection_string, database: form.database, collection: form.collection, query_filter: qf };
   }
   if (source === "api") {
     const payload = { source: "api", base_url: form.base_url, endpoint: form.endpoint };
@@ -101,7 +104,9 @@ function buildQuickSetupPayload(source, form) {
     return { name: form.name, source: "sql", connection_string: connStr, table: form.table, batch_size: parseInt(form.batch_size) || 100, auto_sync: false };
   }
   if (source === "mongodb") {
-    return { name: form.name, source: "mongodb", connection_string: connStr, database: form.database, collection: form.collection, batch_size: parseInt(form.batch_size) || 50, auto_sync: false };
+    let qf = {};
+    if (form.query_filter) { try { qf = JSON.parse(form.query_filter); } catch { /* ignore */ } }
+    return { name: form.name, source: "mongodb", connection_string: form.connection_string, database: form.database, collection: form.collection, query_filter: qf, auto_sync: !!form.auto_sync };
   }
   if (source === "api") {
     const payload = { name: form.name, source: "api", base_url: form.base_url, endpoint: form.endpoint, batch_size: parseInt(form.batch_size) || 100, auto_sync: false };
@@ -121,7 +126,7 @@ function buildCreatePayload(source, form, mapping) {
     return { name: form.name, source: "sql", config };
   }
   if (source === "mongodb") {
-    const config = { connection_string: buildConnectionString(source, form), database: form.database, collection: form.collection, batch_size: parseInt(form.batch_size) || 50 };
+    const config = { connection_string: form.connection_string, database: form.database, collection: form.collection, batch_size: parseInt(form.batch_size) || 50 };
     if (mapping) config.field_map = mapping;
     if (form.query_filter) { try { config.query_filter = JSON.parse(form.query_filter); } catch { /* ignore */ } }
     return { name: form.name, source: "mongodb", config };
@@ -170,6 +175,7 @@ const TARGET_FIELDS = [
 ];
 
 export default function DataConnectors() {
+  const { isDark } = useTheme();
   const [activeTab, setActiveTab] = useState("new");
   const [connectors, setConnectors] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -189,9 +195,25 @@ export default function DataConnectors() {
   const [discoveredSchema, setDiscoveredSchema] = useState(null);
   const [fieldMapping, setFieldMapping] = useState({});
 
+  // Success popup state
+  const [successPopup, setSuccessPopup] = useState(null); // { title, message, icon }
+
   // My connectors state
   const [syncStatuses, setSyncStatuses] = useState({});
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [editingConnector, setEditingConnector] = useState(null); // connector id being edited
+  const [editForm, setEditForm] = useState({});
+  const [showEditPassword, setShowEditPassword] = useState(false);
+  const [showEditApiKey, setShowEditApiKey] = useState(false);
+
+  // Ceipal ATS state
+  const [ceipalPhase, setCeipalPhase] = useState("form"); // "form" | "previewing" | "preview" | "saving" | "saved"
+  const [ceipalForm, setCeipalForm] = useState({ name: "", email: "", password: "", api_key: "", max_records: "0" });
+  const [ceipalPreview, setCeipalPreview] = useState(null);
+  const [ceipalConnectorId, setCeipalConnectorId] = useState(null);
+  const [ceipalSyncStatus, setCeipalSyncStatus] = useState(null);
+  const [showCeipalPassword, setShowCeipalPassword] = useState(false);
+  const [showCeipalApiKey, setShowCeipalApiKey] = useState(false);
 
   const pollRefs = useRef({});
 
@@ -210,8 +232,7 @@ export default function DataConnectors() {
 
   // Cleanup poll intervals on unmount
   useEffect(() => {
-    const refs = pollRefs.current;
-    return () => { Object.values(refs).forEach(clearInterval); };
+    return () => { Object.values(pollRefs.current).forEach(clearInterval); };
   }, []);
 
   const clearMessages = () => { setError(""); setSuccess(""); };
@@ -224,9 +245,9 @@ export default function DataConnectors() {
     setStepPhase("form");
     setSelectedSource(source);
     setFormData(getDefaultForm(source));
-    // Job boards always use manual create flow
+    // Job boards use manual create flow, db/api sources show form immediately
     const isJobBoard = SOURCE_META[source].category === "jobboard";
-    setSetupMode(isJobBoard ? "step" : null);
+    setSetupMode(isJobBoard ? "step" : "unified");
   };
 
   const resetForm = () => {
@@ -253,8 +274,20 @@ export default function DataConnectors() {
       const payload = buildQuickSetupPayload(selectedSource, formData);
       const res = await ApiService.connectorQuickSetup(payload);
       if (res.success) {
-        setSuccess(res.message || "Connector created successfully!");
-        setSetupResult(res);
+        const aiMap = res.ai_mapping || res.mapping;
+        const mappedCount = aiMap?.field_mapping ? Object.keys(aiMap.field_mapping).length : (aiMap ? Object.keys(aiMap).length : 0);
+        const schema = res.discovered_schema;
+        let msg = `"${formData.name}" has been set up successfully.`;
+        if (mappedCount) msg += ` ${mappedCount} fields auto-mapped by AI.`;
+        if (schema?.total_rows) msg += ` ${schema.total_rows.toLocaleString()} documents found.`;
+        if (res.sync_status) msg += ` ${res.sync_status}`;
+        setSuccessPopup({
+          title: "Connector Created!",
+          message: msg,
+          icon: "fas fa-bolt",
+          color: "#6366f1",
+        });
+        resetForm();
       } else {
         setError(res.message || "Setup failed.");
       }
@@ -274,7 +307,13 @@ export default function DataConnectors() {
       if (res.success) {
         setDiscoveredSchema(res.schema);
         setStepPhase("schema");
-        setSuccess("Schema discovered successfully!");
+        const fieldCount = res.schema?.fields?.length || 0;
+        setSuccessPopup({
+          title: "Schema Discovered!",
+          message: `Found ${fieldCount} fields in your data source. Review the schema and proceed to auto-map.`,
+          icon: "fas fa-table",
+          color: "#10b981",
+        });
       } else {
         setError(res.message || "Schema discovery failed.");
       }
@@ -313,9 +352,14 @@ export default function DataConnectors() {
       const payload = buildCreatePayload(selectedSource, formData, mapping);
       const res = await ApiService.createConnector(payload);
       if (res.success) {
-        setSuccess(res.message || "Connector created!");
-        setStepPhase("done");
-        setSetupResult(res);
+        const sourceLabel = SOURCE_META[selectedSource]?.label || selectedSource;
+        setSuccessPopup({
+          title: "Connector Created!",
+          message: `"${formData.name}" (${sourceLabel}) has been saved. Head to My Connectors to test and sync.`,
+          icon: "fas fa-check-circle",
+          color: "#10b981",
+        });
+        resetForm();
       } else {
         setError(res.message || "Failed to create connector.");
       }
@@ -400,6 +444,205 @@ export default function DataConnectors() {
     setActionLoading(null);
   };
 
+  // ─── CEIPAL ATS HANDLERS ───
+  const handleCeipalChange = (field, value) => setCeipalForm((prev) => ({ ...prev, [field]: value }));
+
+  const resetCeipal = () => {
+    setCeipalPhase("form");
+    setCeipalForm({ name: "", email: "", password: "", api_key: "", max_records: "0" });
+    setCeipalPreview(null);
+    setCeipalConnectorId(null);
+    setCeipalSyncStatus(null);
+    clearMessages();
+  };
+
+  const handleCeipalPreview = async () => {
+    clearMessages();
+    if (!ceipalForm.email || !ceipalForm.password || !ceipalForm.api_key) {
+      setError("Email, password, and API key are required.");
+      return;
+    }
+    setCeipalPhase("previewing");
+    try {
+      const res = await ApiService.ceipalPreview({
+        email: ceipalForm.email,
+        password: ceipalForm.password,
+        api_key: ceipalForm.api_key,
+        limit: 5,
+        page: 1,
+      });
+      if (res.success) {
+        setCeipalPreview(res);
+        setCeipalPhase("preview");
+        setSuccess(`Connected successfully! Found ${res.pagination?.total_count?.toLocaleString() || "N/A"} applicants.`);
+      } else {
+        setError(res.message || "Failed to connect to Ceipal.");
+        setCeipalPhase("form");
+      }
+    } catch {
+      setError("Unable to connect to Ceipal. Please check your credentials.");
+      setCeipalPhase("form");
+    }
+  };
+
+  const handleCeipalSave = async () => {
+    clearMessages();
+    const connName = ceipalForm.name?.trim();
+    if (!connName) {
+      setError("Connector name is required.");
+      return;
+    }
+    setCeipalPhase("saving");
+    try {
+      const payload = {
+        name: connName,
+        source: "ceipal",
+        config: {
+          email: ceipalForm.email,
+          password: ceipalForm.password,
+          api_key: ceipalForm.api_key,
+          max_records: parseInt(ceipalForm.max_records) || 0,
+        },
+      };
+      const res = await ApiService.createConnector(payload);
+      if (res.success) {
+        setCeipalConnectorId(res.id);
+        setCeipalPhase("saved");
+        setSuccess(`Connector '${connName}' saved successfully!`);
+      } else {
+        setError(res.message || "Failed to save connector.");
+        setCeipalPhase("preview");
+      }
+    } catch {
+      setError("Unable to save connector.");
+      setCeipalPhase("preview");
+    }
+  };
+
+  const handleCeipalTestConnection = async () => {
+    if (!ceipalConnectorId) return;
+    setActionLoading("ceipal-test");
+    clearMessages();
+    try {
+      const res = await ApiService.testConnector(ceipalConnectorId);
+      if (res.success && res.reachable) setSuccess(`Connection successful: ${res.message}`);
+      else setError(res.message || "Connection test failed.");
+    } catch { setError("Unable to test connection."); }
+    setActionLoading(null);
+  };
+
+  const handleCeipalSync = async () => {
+    if (!ceipalConnectorId) return;
+    setActionLoading("ceipal-sync");
+    clearMessages();
+    try {
+      const res = await ApiService.syncConnector(ceipalConnectorId);
+      if (res.success) {
+        setSuccess(res.message || "Sync started.");
+        setCeipalSyncStatus({ status: "syncing", total_synced: 0 });
+        pollCeipalSyncStatus();
+      } else { setError(res.message || "Sync failed."); }
+    } catch { setError("Unable to start sync."); }
+    setActionLoading(null);
+  };
+
+  const pollCeipalSyncStatus = () => {
+    if (!ceipalConnectorId) return;
+    const key = `ceipal-${ceipalConnectorId}`;
+    if (pollRefs.current[key]) clearInterval(pollRefs.current[key]);
+    pollRefs.current[key] = setInterval(async () => {
+      try {
+        const res = await ApiService.getSyncStatus(ceipalConnectorId);
+        if (res.success) {
+          setCeipalSyncStatus(res);
+          if (res.status !== "syncing") {
+            clearInterval(pollRefs.current[key]);
+            delete pollRefs.current[key];
+          }
+        }
+      } catch {
+        clearInterval(pollRefs.current[key]);
+        delete pollRefs.current[key];
+      }
+    }, 4000);
+  };
+
+  // ─── EDIT CONNECTOR HANDLERS ───
+  const handleStartEdit = (connector) => {
+    clearMessages();
+    setDeleteConfirm(null);
+    setEditingConnector(connector.id);
+    // Pre-populate form. For ceipal connectors, we show credential fields.
+    // Config is not returned from the API for security — user must re-enter credentials to update.
+    setEditForm({
+      name: connector.name || "",
+      source_type: connector.source_type || "",
+      email: "",
+      password: "",
+      api_key: "",
+      max_records: "0",
+    });
+    setShowEditPassword(false);
+    setShowEditApiKey(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingConnector(null);
+    setEditForm({});
+    clearMessages();
+  };
+
+  const handleEditChange = (field, value) => setEditForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleSaveEdit = async (connectorId) => {
+    clearMessages();
+    const payload = {};
+    const connector = connectors.find((c) => c.id === connectorId);
+
+    // Always send name if changed
+    if (editForm.name?.trim() && editForm.name !== connector?.name) {
+      payload.name = editForm.name.trim();
+    }
+
+    // Build config if credentials were provided (for ceipal)
+    if (editForm.source_type === "ceipal") {
+      if (editForm.email || editForm.password || editForm.api_key) {
+        // Must provide all config fields when updating config
+        if (!editForm.email || !editForm.password || !editForm.api_key) {
+          setError("When updating credentials, all fields (email, password, API key) are required.");
+          return;
+        }
+        payload.config = {
+          email: editForm.email,
+          password: editForm.password,
+          api_key: editForm.api_key,
+          max_records: parseInt(editForm.max_records) || 0,
+        };
+      }
+    }
+
+    if (Object.keys(payload).length === 0) {
+      setError("No changes to save.");
+      return;
+    }
+
+    setActionLoading(`edit-${connectorId}`);
+    try {
+      const res = await ApiService.updateConnector(connectorId, payload);
+      if (res.success) {
+        setSuccess(res.message || "Connector updated successfully.");
+        setEditingConnector(null);
+        setEditForm({});
+        fetchConnectors();
+      } else {
+        setError(res.message || "Failed to update connector.");
+      }
+    } catch {
+      setError("Unable to update connector.");
+    }
+    setActionLoading(null);
+  };
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "Never";
     return new Date(dateStr).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -456,42 +699,41 @@ export default function DataConnectors() {
 
   const renderMongoFields = () => (
     <>
-      <fieldset className="dc-fieldset"><legend><i className="fas fa-plug"></i> CONNECTION</legend>
-        <div className="dc-form-group">
-          <label>Host</label>
-          <input placeholder="localhost or db.example.com" value={formData.host || ""} onChange={(e) => handleChange("host", e.target.value)} />
+      <div className="dc-form-group">
+        <label>Connection URI <span style={{ color: "#ef4444" }}>*</span></label>
+        <div className="dc-input-icon-wrap">
+          <i className="fas fa-link dc-input-icon"></i>
+          <input
+            placeholder="mongodb+srv://user:pass@cluster0.xxxxx.mongodb.net"
+            value={formData.connection_string || ""}
+            onChange={(e) => handleChange("connection_string", e.target.value)}
+          />
         </div>
-        <div className="dc-form-row">
-          <div className="dc-form-group">
-            <label>Port</label>
-            <input placeholder="27017" value={formData.port || ""} onChange={(e) => handleChange("port", e.target.value)} />
-          </div>
-          <div className="dc-form-group">
-            <label>Database</label>
-            <input placeholder="recruiting" value={formData.database || ""} onChange={(e) => handleChange("database", e.target.value)} />
-          </div>
-        </div>
-        <div className="dc-form-group">
-          <label>Collection</label>
-          <input placeholder="resumes" value={formData.collection || ""} onChange={(e) => handleChange("collection", e.target.value)} />
-        </div>
-        {setupMode === "step" && (
-          <div className="dc-form-group">
-            <label>Query Filter <span className="dc-optional">(optional, JSON)</span></label>
-            <input placeholder='{"status": "active"}' value={formData.query_filter || ""} onChange={(e) => handleChange("query_filter", e.target.value)} />
-          </div>
-        )}
-      </fieldset>
-      <fieldset className="dc-fieldset"><legend><i className="fas fa-key"></i> AUTHENTICATION</legend>
-        <div className="dc-form-group">
-          <label>Username</label>
-          <input placeholder="db_user" value={formData.username || ""} onChange={(e) => handleChange("username", e.target.value)} />
-        </div>
-        <div className="dc-form-group">
-          <label>Password</label>
-          <input type="password" placeholder="Enter password" value={formData.password || ""} onChange={(e) => handleChange("password", e.target.value)} />
-        </div>
-      </fieldset>
+        <p className="dc-field-hint"><i className="fas fa-info-circle"></i> Include username and password in the URI. Special characters in passwords are auto-encoded.</p>
+      </div>
+
+      <div className="dc-form-group">
+        <label>Database Name <span style={{ color: "#ef4444" }}>*</span></label>
+        <input placeholder="recruitment_db" value={formData.database || ""} onChange={(e) => handleChange("database", e.target.value)} />
+      </div>
+
+      <div className="dc-form-group">
+        <label>Collection Name <span style={{ color: "#ef4444" }}>*</span></label>
+        <input placeholder="candidates" value={formData.collection || ""} onChange={(e) => handleChange("collection", e.target.value)} />
+        <p className="dc-field-hint">The collection containing your candidate/resume documents</p>
+      </div>
+
+      <div className="dc-form-group">
+        <label>Query Filter <span className="dc-optional">(optional)</span></label>
+        <input placeholder='{"status": "active"}' value={formData.query_filter || ""} onChange={(e) => handleChange("query_filter", e.target.value)} />
+        <p className="dc-field-hint">MongoDB query to filter documents (JSON format)</p>
+      </div>
+
+      {/* Auto-sync checkbox */}
+      <label className="dc-checkbox-row">
+        <input type="checkbox" checked={formData.auto_sync || false} onChange={(e) => handleChange("auto_sync", e.target.checked)} />
+        <span><strong>Start sync immediately after setup</strong></span>
+      </label>
     </>
   );
 
@@ -754,6 +996,9 @@ export default function DataConnectors() {
             <button className={`dc-tab ${activeTab === "new" ? "active" : ""}`} onClick={() => { setActiveTab("new"); clearMessages(); }}>
               <i className="fas fa-plus"></i> New Connector
             </button>
+            <button className={`dc-tab ${activeTab === "ceipal" ? "active" : ""}`} onClick={() => { setActiveTab("ceipal"); clearMessages(); }}>
+              <i className="fas fa-users-cog"></i> Ceipal ATS
+            </button>
             <button className={`dc-tab ${activeTab === "my" ? "active" : ""}`} onClick={() => { setActiveTab("my"); clearMessages(); }}>
               <i className="fas fa-list"></i> My Connectors
             </button>
@@ -821,26 +1066,6 @@ export default function DataConnectors() {
                       </div>
                     </div>
 
-                    {/* Mode selector for db/api sources */}
-                    {hasDiscoverFeature && !setupMode && (
-                      <div className="dc-mode-selector">
-                        <button className="dc-mode-btn" onClick={() => setSetupMode("quick")}>
-                          <i className="fas fa-bolt"></i>
-                          <div>
-                            <strong>Quick Setup</strong>
-                            <p>One click: discover + AI map + create</p>
-                          </div>
-                        </button>
-                        <button className="dc-mode-btn" onClick={() => setSetupMode("step")}>
-                          <i className="fas fa-list-ol"></i>
-                          <div>
-                            <strong>Step-by-Step</strong>
-                            <p>Discover schema, review mapping, then create</p>
-                          </div>
-                        </button>
-                      </div>
-                    )}
-
                     {/* Form fields phase */}
                     {setupMode && stepPhase === "form" && (
                       <>
@@ -851,44 +1076,35 @@ export default function DataConnectors() {
 
                         {renderSourceFields()}
 
-                        {/* Setup result (after quick setup completes) */}
-                        {setupResult && (
-                          <div className="dc-result-card">
-                            <h3><i className="fas fa-check-circle" style={{ color: "#10b981" }}></i> Setup Complete</h3>
-                            {setupResult.test_result && (
-                              <p className="dc-result-row"><strong>Connection:</strong> {setupResult.test_result.message}</p>
-                            )}
-                            {setupResult.mapping && (
-                              <p className="dc-result-row"><strong>AI Mapping:</strong> {Object.keys(setupResult.mapping).length} fields mapped</p>
-                            )}
-                            {setupResult.message && (
-                              <p className="dc-result-row"><strong>Status:</strong> {setupResult.message}</p>
-                            )}
+                        {/* Action buttons */}
+                        {setupMode === "unified" && hasDiscoverFeature && (
+                          <div className="dc-unified-actions">
+                            <button className="dc-unified-quick-btn" onClick={handleQuickSetup} disabled={submitting}>
+                              {submitting ? <><i className="fas fa-spinner fa-spin"></i> Setting up...</> : <><i className="fas fa-bolt"></i> One-Click Setup</>}
+                            </button>
+                            <button className="dc-unified-step-btn" onClick={() => { setSetupMode("step"); handleDiscover(); }} disabled={submitting}>
+                              <i className="fas fa-eye"></i> Step-by-Step
+                            </button>
                           </div>
                         )}
 
-                        {/* Action buttons */}
-                        <div className="dc-form-actions">
-                          <button className="dc-btn-secondary" onClick={resetForm}>Cancel</button>
-
-                          {setupMode === "quick" && (
-                            <button className="dc-btn-primary" onClick={handleQuickSetup} disabled={submitting}>
-                              {submitting ? <><i className="fas fa-spinner fa-spin"></i> Setting up...</> : <><i className="fas fa-bolt"></i> Quick Setup</>}
-                            </button>
-                          )}
-
-                          {setupMode === "step" && hasDiscoverFeature && (
+                        {setupMode === "step" && hasDiscoverFeature && (
+                          <div className="dc-form-actions">
+                            <button className="dc-btn-secondary" onClick={resetForm}>Cancel</button>
                             <button className="dc-btn-primary" onClick={handleDiscover} disabled={submitting}>
                               {submitting ? <><i className="fas fa-spinner fa-spin"></i> Discovering...</> : <><i className="fas fa-search"></i> Discover Schema</>}
                             </button>
-                          )}
+                          </div>
+                        )}
 
-                          {setupMode === "step" && isJobBoard && (
+                        {setupMode === "step" && isJobBoard && (
+                          <div className="dc-form-actions">
+                            <button className="dc-btn-secondary" onClick={resetForm}>Cancel</button>
                             <button className="dc-btn-primary" onClick={handleCreateConnector} disabled={submitting}>
                               {submitting ? <><i className="fas fa-spinner fa-spin"></i> Creating...</> : <><i className="fas fa-plus"></i> Create Connector</>}
                             </button>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </>
                     )}
 
@@ -921,15 +1137,296 @@ export default function DataConnectors() {
                   <h2 className="dc-card-title">How It Works</h2>
                   <div className="dc-how-grid">
                     {HOW_IT_WORKS.map((step, i) => (
-                      <div key={i} className="dc-how-step">
-                        <span className="dc-how-icon" style={{ background: `${step.color}15`, color: step.color }}><i className={step.icon}></i></span>
-                        <strong>{step.title}</strong>
-                        <p>{step.desc}</p>
-                      </div>
+                      <React.Fragment key={i}>
+                        <div className="dc-how-step">
+                          <span className="dc-how-icon" style={{ background: `${step.color}15`, color: step.color }}><i className={step.icon}></i></span>
+                          <strong>{step.title}</strong>
+                          <p>{step.desc}</p>
+                        </div>
+                        {i < HOW_IT_WORKS.length - 1 && <span className="dc-how-arrow"><i className="fas fa-arrow-right"></i></span>}
+                      </React.Fragment>
                     ))}
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ═══ CEIPAL ATS TAB ═══ */}
+          {activeTab === "ceipal" && (
+            <div className="dc-ceipal-section">
+              <div className="dc-card">
+                <div className="dc-card-header">
+                  <span className="dc-source-icon" style={{ color: "#e67e22", background: "#fdf2e9" }}>
+                    <i className="fas fa-users-cog"></i>
+                  </span>
+                  <div>
+                    <h2 className="dc-card-title">Ceipal ATS Integration</h2>
+                    <p className="dc-card-desc">Connect your Ceipal ATS account to automatically import applicant data, resumes, and candidate profiles.</p>
+                  </div>
+                </div>
+
+                {/* ── Phase: Form (enter credentials) ── */}
+                {ceipalPhase === "form" && (
+                  <>
+                    <div className="dc-form-source-header" style={{ borderBottom: "none", marginBottom: 8 }}>
+                      <span className="dc-source-icon-sm" style={{ color: "#e67e22" }}>
+                        <i className="fas fa-users-cog"></i>
+                      </span>
+                      <div>
+                        <strong style={{ color: "#e67e22" }}>Ceipal ATS</strong>
+                        <p>Connect your Ceipal account to import applicants</p>
+                      </div>
+                    </div>
+
+                    <div className="dc-form-group">
+                      <label>Connector Name <span className="dc-optional">(optional)</span></label>
+                      <input placeholder="e.g., My Ceipal ATS" value={ceipalForm.name} onChange={(e) => handleCeipalChange("name", e.target.value)} />
+                    </div>
+
+                    <fieldset className="dc-fieldset">
+                      <legend><i className="fas fa-key"></i> CREDENTIALS</legend>
+                      <div className="dc-form-group">
+                        <label>Email</label>
+                        <div className="dc-input-icon-wrap">
+                          <i className="far fa-envelope dc-input-icon"></i>
+                          <input placeholder="Ceipal account email" value={ceipalForm.email} onChange={(e) => handleCeipalChange("email", e.target.value)} />
+                        </div>
+                      </div>
+                      <div className="dc-form-group">
+                        <label>Password</label>
+                        <div className="dc-input-icon-wrap">
+                          <i className="fas fa-lock dc-input-icon"></i>
+                          <input
+                            type={showCeipalPassword ? "text" : "password"}
+                            placeholder="Ceipal password"
+                            value={ceipalForm.password}
+                            onChange={(e) => handleCeipalChange("password", e.target.value)}
+                          />
+                          <button type="button" className="dc-input-toggle" onClick={() => setShowCeipalPassword(!showCeipalPassword)}>
+                            <i className={showCeipalPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="dc-form-group">
+                        <label>API Key</label>
+                        <div className="dc-input-icon-wrap">
+                          <i className="fas fa-key dc-input-icon"></i>
+                          <input
+                            type={showCeipalApiKey ? "text" : "password"}
+                            placeholder="Ceipal API key"
+                            value={ceipalForm.api_key}
+                            onChange={(e) => handleCeipalChange("api_key", e.target.value)}
+                          />
+                          <button type="button" className="dc-input-toggle" onClick={() => setShowCeipalApiKey(!showCeipalApiKey)}>
+                            <i className={showCeipalApiKey ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+                          </button>
+                        </div>
+                      </div>
+                    </fieldset>
+
+                    <fieldset className="dc-fieldset">
+                      <legend><i className="fas fa-cog"></i> OPTIONS</legend>
+                      <div className="dc-form-group">
+                        <label>Max Records <span className="dc-optional">(optional)</span></label>
+                        <input
+                          type="number"
+                          placeholder="0"
+                          value={ceipalForm.max_records}
+                          onChange={(e) => handleCeipalChange("max_records", e.target.value)}
+                          style={{ maxWidth: 200 }}
+                        />
+                        <p className="dc-field-hint">Maximum applicants to import per sync (0 = fetch all)</p>
+                      </div>
+                    </fieldset>
+
+                    <button className="dc-ceipal-preview-btn" onClick={handleCeipalPreview}>
+                      <i className="fas fa-eye"></i> Preview Ceipal Data
+                    </button>
+                  </>
+                )}
+
+                {/* ── Phase: Previewing (loading) ── */}
+                {ceipalPhase === "previewing" && (
+                  <div className="dc-ceipal-loading">
+                    <div className="dc-ceipal-spinner">
+                      <div className="dc-spinner-ring"></div>
+                      <i className="fas fa-users-cog dc-spinner-icon"></i>
+                    </div>
+                    <h3>Connecting to Ceipal...</h3>
+                    <p>Authenticating and fetching sample applicants</p>
+                  </div>
+                )}
+
+                {/* ── Phase: Preview (show data) ── */}
+                {ceipalPhase === "preview" && ceipalPreview && (
+                  <>
+                    <div className="dc-alert dc-alert-success">
+                      <i className="fas fa-check-circle"></i>
+                      <div>
+                        <strong>Connected Successfully</strong>
+                        <br />
+                        Found <strong>{ceipalPreview.pagination?.total_count?.toLocaleString()}</strong> applicants
+                        ({ceipalPreview.pagination?.num_pages?.toLocaleString()} pages).
+                        Showing {ceipalPreview.preview_count} samples below.
+                      </div>
+                    </div>
+
+                    {/* Sample applicants table */}
+                    {ceipalPreview.sample_applicants?.length > 0 && (
+                      <div className="dc-schema-table-wrap" style={{ marginBottom: 20 }}>
+                        <table className="dc-schema-table">
+                          <thead>
+                            <tr>
+                              {Object.keys(ceipalPreview.sample_applicants[0]).slice(0, 8).map((key) => (
+                                <th key={key}>{key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {ceipalPreview.sample_applicants.map((a, i) => (
+                              <tr key={i}>
+                                {Object.values(a).slice(0, 8).map((val, j) => (
+                                  <td key={j} className="dc-sample-cell">{val != null ? String(val) : "-"}</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* All available fields */}
+                    {ceipalPreview.all_fields?.length > 0 && (
+                      <div style={{ marginBottom: 20 }}>
+                        <h4 style={{ fontSize: 14, fontWeight: 600, color: isDark ? "#cbd5e1" : "#374151", marginBottom: 10 }}>
+                          All Available Fields ({ceipalPreview.all_fields.length})
+                        </h4>
+                        <div className="dc-ceipal-fields">
+                          {ceipalPreview.all_fields.map((field) => (
+                            <span key={field} className="dc-ceipal-field-tag"><code>{field}</code></span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Connector name input */}
+                    <div className="dc-form-group">
+                      <label>Connector Name</label>
+                      <input
+                        placeholder="e.g., Ceipal - My Company"
+                        value={ceipalForm.name}
+                        onChange={(e) => handleCeipalChange("name", e.target.value)}
+                      />
+                    </div>
+
+                    <div className="dc-form-actions">
+                      <button className="dc-btn-secondary" onClick={resetCeipal}>
+                        <i className="fas fa-arrow-left"></i> Back
+                      </button>
+                      <button className="dc-ceipal-save-btn" onClick={handleCeipalSave}>
+                        <i className="fas fa-link"></i> Save & Connect
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* ── Phase: Saving (loading) ── */}
+                {ceipalPhase === "saving" && (
+                  <div className="dc-ceipal-loading">
+                    <div className="dc-ceipal-spinner">
+                      <div className="dc-spinner-ring"></div>
+                      <i className="fas fa-link dc-spinner-icon"></i>
+                    </div>
+                    <h3>Saving Connector...</h3>
+                    <p>Registering your Ceipal connection</p>
+                  </div>
+                )}
+
+                {/* ── Phase: Saved (success with actions) ── */}
+                {ceipalPhase === "saved" && (
+                  <div className="dc-ceipal-saved">
+                    <div className="dc-ceipal-saved-icon">
+                      <i className="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Connector Saved!</h3>
+                    <p>Your Ceipal connector is ready. Test the connection, then sync to import applicants.</p>
+
+                    {/* Sync status display */}
+                    {ceipalSyncStatus && (
+                      <div className={`dc-ceipal-sync-status dc-ceipal-sync-${ceipalSyncStatus.status}`}>
+                        {ceipalSyncStatus.status === "syncing" && (
+                          <>
+                            <i className="fas fa-spinner fa-spin"></i>
+                            <span>Syncing... {ceipalSyncStatus.total_synced?.toLocaleString() || 0} records imported</span>
+                          </>
+                        )}
+                        {ceipalSyncStatus.status === "idle" && ceipalSyncStatus.total_synced > 0 && (
+                          <>
+                            <i className="fas fa-check-circle"></i>
+                            <span>Sync complete! {ceipalSyncStatus.total_synced?.toLocaleString()} records imported.</span>
+                          </>
+                        )}
+                        {ceipalSyncStatus.status === "error" && (
+                          <>
+                            <i className="fas fa-exclamation-triangle"></i>
+                            <span>Sync error: {ceipalSyncStatus.error || "Unknown error"}</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="dc-ceipal-saved-actions">
+                      <button
+                        className="dc-btn-secondary"
+                        onClick={handleCeipalTestConnection}
+                        disabled={actionLoading === "ceipal-test"}
+                      >
+                        {actionLoading === "ceipal-test" ? <><i className="fas fa-spinner fa-spin"></i> Testing...</> : <><i className="fas fa-check-circle"></i> Test Connection</>}
+                      </button>
+                      <button
+                        className="dc-ceipal-sync-btn"
+                        onClick={handleCeipalSync}
+                        disabled={actionLoading === "ceipal-sync" || ceipalSyncStatus?.status === "syncing"}
+                      >
+                        {actionLoading === "ceipal-sync" || ceipalSyncStatus?.status === "syncing"
+                          ? <><i className="fas fa-spinner fa-spin"></i> Syncing...</>
+                          : <><i className="fas fa-sync-alt"></i> Start Sync</>}
+                      </button>
+                    </div>
+
+                    <div style={{ marginTop: 16 }}>
+                      <button className="dc-btn-secondary" onClick={resetCeipal} style={{ fontSize: 12 }}>
+                        <i className="fas fa-plus"></i> Set up another connector
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* How Ceipal Integration Works */}
+              <div className="dc-card dc-how-card">
+                <h2 className="dc-card-title">How Ceipal Integration Works</h2>
+                <div className="dc-how-grid">
+                  {[
+                    { icon: "fas fa-key", color: "#e67e22", title: "Authenticate", desc: "Enter your Ceipal email, password & API key" },
+                    { icon: "fas fa-eye", color: "#e67e22", title: "Preview", desc: "Review sample applicant data before importing" },
+                    { icon: "fas fa-check-circle", color: "#27ae60", title: "Connect", desc: "Save credentials & test the connection" },
+                    { icon: "fas fa-sync-alt", color: "#e67e22", title: "Sync", desc: "Import applicants automatically into your database" },
+                  ].map((step, i, arr) => (
+                    <React.Fragment key={i}>
+                      <div className="dc-how-step">
+                        <span className="dc-how-icon" style={{ background: `${step.color}18`, color: step.color }}>
+                          <i className={step.icon}></i>
+                        </span>
+                        <strong>{step.title}</strong>
+                        <p>{step.desc}</p>
+                      </div>
+                      {i < arr.length - 1 && <span className="dc-how-arrow"><i className="fas fa-arrow-right"></i></span>}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -973,8 +1470,13 @@ export default function DataConnectors() {
                         <button className="dc-action-btn dc-action-test" title="Test Connection" onClick={() => handleTestConnection(c.id)} disabled={actionLoading === `test-${c.id}`}>
                           {actionLoading === `test-${c.id}` ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-plug"></i>}
                         </button>
-                        <button className="dc-action-btn dc-action-remap" title="Re-Map Fields" onClick={() => handleRemap(c.id)} disabled={actionLoading === `remap-${c.id}`}>
-                          {actionLoading === `remap-${c.id}` ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-robot"></i>}
+                        {!c.has_ai_mapping && c.source_type !== "ceipal" && (
+                          <button className="dc-action-btn dc-action-remap" title="Re-Map Fields" onClick={() => handleRemap(c.id)} disabled={actionLoading === `remap-${c.id}`}>
+                            {actionLoading === `remap-${c.id}` ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-robot"></i>}
+                          </button>
+                        )}
+                        <button className="dc-action-btn dc-action-edit" title="Edit" onClick={() => handleStartEdit(c)} disabled={(syncStatuses[c.id] || c.status) === "syncing"}>
+                          <i className="fas fa-pen"></i>
                         </button>
                         <button className="dc-action-btn dc-action-sync" title="Sync Now" onClick={() => handleSync(c.id)} disabled={actionLoading === `sync-${c.id}` || (syncStatuses[c.id] || c.status) === "syncing"}>
                           {actionLoading === `sync-${c.id}` || (syncStatuses[c.id] || c.status) === "syncing" ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-sync-alt"></i>}
@@ -984,13 +1486,108 @@ export default function DataConnectors() {
                         </button>
                       </div>
 
+                      {/* Delete confirmation */}
                       {deleteConfirm === c.id && (
                         <div className="dc-delete-confirm">
-                          <span>Delete <strong>{c.name}</strong>?</span>
+                          <span>Delete <strong>{c.name}</strong>? Already-synced resumes will not be removed.</span>
                           <button className="dc-btn-danger-sm" onClick={() => handleDelete(c.id)} disabled={actionLoading === `del-${c.id}`}>
                             {actionLoading === `del-${c.id}` ? "Deleting..." : "Yes, Delete"}
                           </button>
                           <button className="dc-btn-secondary-sm" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+                        </div>
+                      )}
+
+                      {/* Edit form (inline) */}
+                      {editingConnector === c.id && (
+                        <div className="dc-edit-form">
+                          <div className="dc-edit-form-header">
+                            <i className="fas fa-pen" style={{ color: "#6366f1" }}></i>
+                            <strong>Edit Connector</strong>
+                          </div>
+
+                          <div className="dc-form-group">
+                            <label>Connector Name</label>
+                            <input
+                              placeholder={c.name}
+                              value={editForm.name}
+                              onChange={(e) => handleEditChange("name", e.target.value)}
+                            />
+                          </div>
+
+                          {c.source_type === "ceipal" && (
+                            <fieldset className="dc-fieldset">
+                              <legend><i className="fas fa-key"></i> UPDATE CREDENTIALS <span className="dc-optional">(leave blank to keep current)</span></legend>
+                              <div className="dc-form-group">
+                                <label>Email</label>
+                                <div className="dc-input-icon-wrap">
+                                  <i className="far fa-envelope dc-input-icon"></i>
+                                  <input
+                                    placeholder="Ceipal account email"
+                                    value={editForm.email}
+                                    onChange={(e) => handleEditChange("email", e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                              <div className="dc-form-group">
+                                <label>Password</label>
+                                <div className="dc-input-icon-wrap">
+                                  <i className="fas fa-lock dc-input-icon"></i>
+                                  <input
+                                    type={showEditPassword ? "text" : "password"}
+                                    placeholder="Ceipal password"
+                                    value={editForm.password}
+                                    onChange={(e) => handleEditChange("password", e.target.value)}
+                                  />
+                                  <button type="button" className="dc-input-toggle" onClick={() => setShowEditPassword(!showEditPassword)}>
+                                    <i className={showEditPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="dc-form-group">
+                                <label>API Key</label>
+                                <div className="dc-input-icon-wrap">
+                                  <i className="fas fa-key dc-input-icon"></i>
+                                  <input
+                                    type={showEditApiKey ? "text" : "password"}
+                                    placeholder="Ceipal API key"
+                                    value={editForm.api_key}
+                                    onChange={(e) => handleEditChange("api_key", e.target.value)}
+                                  />
+                                  <button type="button" className="dc-input-toggle" onClick={() => setShowEditApiKey(!showEditApiKey)}>
+                                    <i className={showEditApiKey ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="dc-form-group">
+                                <label>Max Records <span className="dc-optional">(0 = all)</span></label>
+                                <input
+                                  type="number"
+                                  placeholder="0"
+                                  value={editForm.max_records}
+                                  onChange={(e) => handleEditChange("max_records", e.target.value)}
+                                  style={{ maxWidth: 200 }}
+                                />
+                              </div>
+                            </fieldset>
+                          )}
+
+                          <div className="dc-edit-form-actions">
+                            <button className="dc-btn-secondary" onClick={handleCancelEdit}>Cancel</button>
+                            <button
+                              className="dc-btn-secondary"
+                              onClick={() => handleTestConnection(c.id)}
+                              disabled={actionLoading === `test-${c.id}`}
+                            >
+                              {actionLoading === `test-${c.id}` ? <><i className="fas fa-spinner fa-spin"></i> Testing...</> : <><i className="fas fa-plug"></i> Test Connection</>}
+                            </button>
+                            <button
+                              className="dc-btn-primary"
+                              onClick={() => handleSaveEdit(c.id)}
+                              disabled={actionLoading === `edit-${c.id}`}
+                            >
+                              {actionLoading === `edit-${c.id}` ? <><i className="fas fa-spinner fa-spin"></i> Saving...</> : <><i className="fas fa-save"></i> Save Changes</>}
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1001,6 +1598,27 @@ export default function DataConnectors() {
           )}
         </main>
       </div>
+
+      {/* ═══ SUCCESS POPUP OVERLAY ═══ */}
+      {successPopup && (
+        <div className="dc-popup-overlay" onClick={() => setSuccessPopup(null)}>
+          <div className="dc-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="dc-popup-icon" style={{ background: `${successPopup.color}12`, color: successPopup.color }}>
+              <i className={successPopup.icon}></i>
+            </div>
+            <h3 className="dc-popup-title">{successPopup.title}</h3>
+            <p className="dc-popup-message">{successPopup.message}</p>
+            <div className="dc-popup-actions">
+              <button className="dc-popup-btn-secondary" onClick={() => { setSuccessPopup(null); setActiveTab("my"); fetchConnectors(); }}>
+                <i className="fas fa-list"></i> View My Connectors
+              </button>
+              <button className="dc-popup-btn-primary" onClick={() => setSuccessPopup(null)}>
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

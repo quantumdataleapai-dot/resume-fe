@@ -4,18 +4,17 @@ import ResumeDetailModal from "../components/ResumeDetailModal";
 import API_CONFIG from "../config/apiConfig";
 import "../styles/ResumeDatabase.css";
 
-const FILTERS = ["All", "Engineering", "Product", "Design", "Data", "Score \u2265 80%"];
+const FILTERS = ["All", "Engineering", "Product", "Design", "Data"];
 
-// Light pastel backgrounds for avatars (matching the muted circle style in design)
 const AVATAR_COLORS = [
-  { bg: "#F0EDEA", text: "#5C6356" },  // muted olive
-  { bg: "#FEF3E2", text: "#B45309" },  // warm amber
-  { bg: "#FDE8E8", text: "#B91C1C" },  // soft red
-  { bg: "#EDE9FE", text: "#6D28D9" },  // light purple
-  { bg: "#FFEDD5", text: "#C2410C" },  // orange
-  { bg: "#D1FAE5", text: "#047857" },  // mint green
-  { bg: "#FCE7F3", text: "#BE185D" },  // soft pink
-  { bg: "#CCFBF1", text: "#0F766E" },  // teal
+  { bg: "#EEF2FF", text: "#4f46e5" },
+  { bg: "#FEF3C7", text: "#B45309" },
+  { bg: "#FEE2E2", text: "#B91C1C" },
+  { bg: "#EDE9FE", text: "#6D28D9" },
+  { bg: "#FFEDD5", text: "#C2410C" },
+  { bg: "#D1FAE5", text: "#047857" },
+  { bg: "#FCE7F3", text: "#BE185D" },
+  { bg: "#CCFBF1", text: "#0F766E" },
 ];
 
 function getInitials(name) {
@@ -60,7 +59,6 @@ function formatDate(dateStr) {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-// Normalize API resume into flat shape
 function normalizeResume(r) {
   const pd = r.parsed_data || {};
   return {
@@ -75,9 +73,38 @@ function normalizeResume(r) {
     uploadDate: r.upload_date || null,
     viewLink: r.view_link || null,
     bestMatchScore: r.best_match_score || null,
-    // Keep raw for modal compatibility
     _raw: r,
   };
+}
+
+function getScoreClass(score) {
+  if (score >= 80) return "high";
+  if (score >= 60) return "medium";
+  return "low";
+}
+
+function SkeletonCards() {
+  return (
+    <div className="rdb-skeleton-grid">
+      {[...Array(8)].map((_, i) => (
+        <div key={i} className="rdb-skeleton-card">
+          <div className="rdb-skeleton-top">
+            <div className="rdb-skeleton-avatar" />
+            <div className="rdb-skeleton-lines">
+              <div className="rdb-skeleton-line" />
+              <div className="rdb-skeleton-line" />
+            </div>
+          </div>
+          <div className="rdb-skeleton-tags">
+            <div className="rdb-skeleton-tag" />
+            <div className="rdb-skeleton-tag" />
+            <div className="rdb-skeleton-tag" />
+          </div>
+          <div className="rdb-skeleton-footer" />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function ResumeDatabase() {
@@ -87,12 +114,11 @@ export default function ResumeDatabase() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total_pages: 1, total_items: 0 });
+  const [viewMode, setViewMode] = useState("grid");
 
-  // Modal state
   const [selectedResume, setSelectedResume] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Prevent duplicate API calls (React StrictMode double-mount)
   const fetchingRef = useRef(false);
 
   const fetchResumes = useCallback(async (forcePage) => {
@@ -141,7 +167,6 @@ export default function ResumeDatabase() {
     setPagination({ total_pages: 1, total_items: 5 });
   };
 
-  // Fetch only on page change
   useEffect(() => {
     fetchResumes();
   }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -172,7 +197,6 @@ export default function ResumeDatabase() {
   };
 
   const handleViewResume = (resume) => {
-    // Build a resume object compatible with ResumeDetailModal
     setSelectedResume({
       id: resume.id,
       name: resume.name,
@@ -203,7 +227,6 @@ export default function ResumeDatabase() {
     }
   };
 
-  // Client-side search: filter by name, role, or skills
   const searchFiltered = resumes.filter((r) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
@@ -211,11 +234,9 @@ export default function ResumeDatabase() {
     return searchable.includes(q);
   });
 
-  // Client-side category filter
   const filteredResumes = searchFiltered.filter((r) => {
     if (activeFilter === "All") return true;
     if (activeFilter === "Never matched") return !r.bestMatchScore;
-    if (activeFilter === "Score \u2265 80%") return (r.bestMatchScore || 0) >= 80;
     const roleAndSkills = `${r.role} ${r.skills.join(" ")}`.toLowerCase();
     if (activeFilter === "Engineering") return /engineer|developer|sde|backend|frontend|fullstack|devops/i.test(roleAndSkills);
     if (activeFilter === "Product") return /product|manager|analyst|business/i.test(roleAndSkills);
@@ -230,11 +251,26 @@ export default function ResumeDatabase() {
   const addedThisMonth = Math.round(totalItems * 0.005) || 84;
 
   const statsCards = [
-    { label: "Total resumes", value: totalItems.toLocaleString(), sub: `${addedThisMonth} this month`, arrow: "up", color: "#10B981" },
-    { label: "Matched at least once", value: matchedEstimate.toLocaleString(), sub: totalItems > 0 ? `${Math.round((matchedEstimate / totalItems) * 100)}% utilisation` : "", arrow: null, color: "#6B7280" },
-    { label: "Never matched", value: neverMatchedEstimate.toLocaleString(), sub: "Consider cleanup", arrow: null, color: "#DC2626" },
-    { label: "Added this month", value: addedThisMonth.toString(), sub: "12 vs last month", arrow: "up", color: "#10B981" },
+    { label: "Total resumes", value: totalItems.toLocaleString(), sub: "", arrow: null, color: "#6B7280", icon: "fas fa-file-alt" },
+    { label: "Matched at least once", value: matchedEstimate.toLocaleString(), sub: "", arrow: null, color: "#6B7280", icon: "fas fa-check-circle" },
+    { label: "Never matched", value: neverMatchedEstimate.toLocaleString(), sub: "", arrow: null, color: "#6B7280", icon: "fas fa-exclamation-circle" },
+    { label: "Added this month", value: addedThisMonth.toString(), sub: "", arrow: null, color: "#6B7280", icon: "fas fa-plus-circle" },
   ];
+
+  // Page numbers for pagination
+  const getPageNumbers = () => {
+    const total = pagination.total_pages;
+    if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages = [];
+    if (page <= 3) {
+      pages.push(1, 2, 3, 4, "...", total);
+    } else if (page >= total - 2) {
+      pages.push(1, "...", total - 3, total - 2, total - 1, total);
+    } else {
+      pages.push(1, "...", page - 1, page, page + 1, "...", total);
+    }
+    return pages;
+  };
 
   return (
     <div className="rdb-layout">
@@ -245,7 +281,6 @@ export default function ResumeDatabase() {
             <h1 className="rdb-header-title">Resume Database</h1>
             <span className="rdb-header-subtitle">Browse, upload and manage all resumes</span>
           </div>
-         
         </header>
 
         <main className="rdb-content">
@@ -253,32 +288,55 @@ export default function ResumeDatabase() {
           <div className="rdb-stats-grid">
             {statsCards.map((stat, i) => (
               <div key={i} className="rdb-stat-card">
+                <div className="rdb-stat-icon">
+                  <i className={stat.icon}></i>
+                </div>
                 <span className="rdb-stat-label">{stat.label}</span>
                 <span className="rdb-stat-value">{stat.value}</span>
                 <span className="rdb-stat-sub" style={{ color: stat.color }}>
-                  {stat.arrow === "up" && <span>&#8593; </span>}
+                  {stat.arrow === "up" && (
+                    <span className="arrow-badge up">&#8593;</span>
+                  )}
                   {stat.sub}
                 </span>
               </div>
             ))}
           </div>
 
-          {/* Search + Actions */}
-          <div className="rdb-search-row">
+          {/* Toolbar: Search + View Toggle + Actions */}
+          <div className="rdb-toolbar">
             <div className="rdb-search-bar">
               <i className="fas fa-search rdb-search-icon"></i>
               <input
                 type="text"
-                placeholder="Search by name, skill, location..."
+                placeholder="Search by name, skill, role..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className="rdb-search-actions">
+            <div className="rdb-toolbar-actions">
+              <div className="rdb-view-toggle">
+                <button
+                  className={`rdb-view-btn ${viewMode === "grid" ? "active" : ""}`}
+                  onClick={() => setViewMode("grid")}
+                  title="Grid view"
+                >
+                  <i className="fas fa-th-large"></i>
+                </button>
+                <button
+                  className={`rdb-view-btn ${viewMode === "table" ? "active" : ""}`}
+                  onClick={() => setViewMode("table")}
+                  title="Table view"
+                >
+                  <i className="fas fa-list"></i>
+                </button>
+              </div>
               <button className="rdb-upload-btn" onClick={handleUploadClick}>
-                + Upload resumes
+                <i className="fas fa-cloud-upload-alt"></i> Upload resumes
               </button>
-              <button className="rdb-bulk-btn">Bulk delete</button>
+              {/* <button className="rdb-bulk-btn">
+                <i className="fas fa-trash-alt"></i> Bulk delete
+              </button> */}
             </div>
           </div>
 
@@ -295,16 +353,27 @@ export default function ResumeDatabase() {
             ))}
           </div>
 
-          {/* Resume cards grid */}
+          {/* Results summary */}
+          {!loading && (
+            <div className="rdb-results-summary">
+              <span>
+                Showing <strong>{filteredResumes.length}</strong> of{" "}
+                <strong>{totalItems.toLocaleString()}</strong> resumes
+              </span>
+            </div>
+          )}
+
+          {/* Content */}
           {loading ? (
-            <div className="rdb-loading">Loading resumes...</div>
+            <SkeletonCards />
           ) : filteredResumes.length === 0 ? (
             <div className="rdb-loading">
               {searchQuery || activeFilter !== "All"
                 ? "No resumes match your search or filter."
                 : "No resumes found."}
             </div>
-          ) : (
+          ) : viewMode === "grid" ? (
+            /* Grid View */
             <div className="rdb-cards-grid">
               {filteredResumes.map((resume) => {
                 const skills = resume.skills || [];
@@ -313,7 +382,11 @@ export default function ResumeDatabase() {
                 const extraCount = skills.length - maxSkills;
 
                 return (
-                  <div key={resume.id} className="rdb-resume-card">
+                  <div
+                    key={resume.id}
+                    className="rdb-resume-card"
+                    onClick={() => handleViewResume(resume)}
+                  >
                     <div className="rdb-card-top">
                       <div
                         className="rdb-card-avatar"
@@ -325,17 +398,25 @@ export default function ResumeDatabase() {
                         <span className="rdb-card-name">{resume.name}</span>
                         <span className="rdb-card-role">
                           {resume.role || "Candidate"}
-                          {resume.experience ? ` \u00B7 ${resume.experience} yrs` : ""}
                         </span>
                       </div>
                       <button
                         className="rdb-card-view-btn"
-                        onClick={() => handleViewResume(resume)}
-                        title="View resume details"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewResume(resume);
+                        }}
+                        title="View details"
                       >
-                        <i className="fas fa-eye"></i>
+                        <i className="fas fa-arrow-right"></i>
                       </button>
                     </div>
+                    {resume.experience && (
+                      <div className="rdb-card-exp">
+                        <i className="fas fa-briefcase"></i>
+                        {resume.experience} yrs experience
+                      </div>
+                    )}
                     <div className="rdb-card-skills">
                       {visibleSkills.map((skill, i) => (
                         <span key={i} className="rdb-skill-tag">{formatSkill(skill)}</span>
@@ -344,33 +425,79 @@ export default function ResumeDatabase() {
                         <span className="rdb-skill-tag rdb-skill-extra">+{extraCount}</span>
                       )}
                     </div>
-                    <div className="rdb-card-footer">
-                      <span className="rdb-card-date">
-                        {resume.uploadDate ? `Added ${formatDate(resume.uploadDate)}` : ""}
-                      </span>
-                      {resume.bestMatchScore != null && (
-                        <span
-                          className={`rdb-card-score ${
-                            resume.bestMatchScore >= 80
-                              ? "high"
-                              : resume.bestMatchScore >= 60
-                              ? "medium"
-                              : "low"
-                          }`}
-                        >
-                          {resume.bestMatchScore}% best match
-                        </span>
-                      )}
-                    </div>
                   </div>
                 );
               })}
 
-              {/* Upload more card */}
               <div className="rdb-upload-card" onClick={handleUploadClick}>
-                <i className="fas fa-arrow-up rdb-upload-card-icon"></i>
+                <div className="rdb-upload-card-icon">
+                  <i className="fas fa-cloud-upload-alt"></i>
+                </div>
                 <span className="rdb-upload-card-text">Upload more resumes</span>
               </div>
+            </div>
+          ) : (
+            /* Table View */
+            <div className="rdb-table-wrapper">
+              <table className="rdb-table">
+                <thead>
+                  <tr>
+                    <th>Candidate</th>
+                    <th>Skills</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredResumes.map((resume) => {
+                    const skills = resume.skills || [];
+                    const visibleSkills = skills.slice(0, 3);
+                    const extraCount = skills.length - 3;
+
+                    return (
+                      <tr key={resume.id} onClick={() => handleViewResume(resume)}>
+                        <td>
+                          <div className="rdb-table-user">
+                            <div className="rdb-table-avatar" style={getAvatarStyle(resume.name)}>
+                              {getInitials(resume.name)}
+                            </div>
+                            <div>
+                              <div className="rdb-table-name">{resume.name}</div>
+                              <div className="rdb-table-role">
+                                {resume.role || "Candidate"}
+                                {resume.experience ? ` \u00B7 ${resume.experience} yrs` : ""}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="rdb-table-skills">
+                            {visibleSkills.map((skill, i) => (
+                              <span key={i} className="rdb-table-skill">{formatSkill(skill)}</span>
+                            ))}
+                            {extraCount > 0 && (
+                              <span className="rdb-table-skill">+{extraCount}</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="rdb-table-actions">
+                            <button
+                              className="rdb-table-action-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewResume(resume);
+                              }}
+                              title="View details"
+                            >
+                              <i className="fas fa-eye"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
 
@@ -382,24 +509,37 @@ export default function ResumeDatabase() {
                 disabled={page <= 1}
                 onClick={() => setPage((p) => p - 1)}
               >
-                Previous
+                <i className="fas fa-chevron-left"></i> Previous
               </button>
-              <span className="rdb-page-info">
-                Page {page} of {pagination.total_pages.toLocaleString()}
-              </span>
+              <div className="rdb-page-numbers">
+                {getPageNumbers().map((p, i) =>
+                  p === "..." ? (
+                    <span key={`ellipsis-${i}`} className="rdb-page-num" style={{ cursor: "default" }}>
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      className={`rdb-page-num ${page === p ? "active" : ""}`}
+                      onClick={() => setPage(p)}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+              </div>
               <button
                 className="rdb-page-btn"
                 disabled={page >= pagination.total_pages}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Next
+                Next <i className="fas fa-chevron-right"></i>
               </button>
             </div>
           )}
         </main>
       </div>
 
-      {/* Resume Detail Modal */}
       <ResumeDetailModal
         resume={selectedResume}
         isOpen={showModal}

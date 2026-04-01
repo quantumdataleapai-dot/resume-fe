@@ -1,17 +1,77 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdEmail, MdPhone, MdLocationOn, MdRefresh } from "react-icons/md";
+import { useTheme } from "../utils/ThemeContext";
+import { MdEmail, MdPhone, MdLocationOn, MdDelete, MdRefresh } from "react-icons/md";
 import mammoth from "mammoth";
 import Sidebar from "../components/Sidebar";
 import AIChat from "../components/AIChat";
-
-
+import FileUpload from "../components/FileUpload";
+import apiService from "../services/apiService";
 import ResumeDetailModal from "../components/ResumeDetailModal";
 
 import API_CONFIG from "../config/apiConfig";
 import "../styles/DashboardNew.css";
 
-// eslint-disable-next-line no-unused-vars
+// Sample data
+const sampleResumes = [
+  {
+    id: 1,
+    name: "Sarah Johnson",
+    email: "sarah.j@email.com",
+    phone: "+1 (555) 123-4567",
+    location: "San Francisco, CA",
+    score: 92,
+    skills: ["React", "TypeScript", "Node.js", "AWS", "GraphQL"],
+    experience: "Senior Frontend Developer • 6 years",
+    avatar: "SJ",
+  },
+  {
+    id: 2,
+    name: "Michael Chen",
+    email: "m.chen@email.com",
+    phone: "+1 (555) 234-5678",
+    location: "Seattle, WA",
+    score: 85,
+    skills: ["Python", "React", "Django", "PostgreSQL"],
+    experience: "Full Stack Developer • 4 years",
+    avatar: "MC",
+  },
+  {
+    id: 3,
+    name: "Emily Rodriguez",
+    email: "emily.r@email.com",
+    phone: "+1 (555) 987-6543",
+    location: "Austin, TX",
+    score: 78,
+    skills: ["JavaScript", "Vue.js", "CSS", "Figma"],
+    experience: "UI Developer • 3 years",
+    avatar: "ER",
+  },
+  {
+    id: 4,
+    name: "James Wilson",
+    email: "j.wilson@email.com",
+    phone: "+1 (555) 456-7890",
+    location: "New York, NY",
+    score: 65,
+    skills: ["Java", "Spring Boot", "MySQL", "REST APIs"],
+    experience: "Backend Developer • 2 years",
+    avatar: "JW",
+  },
+  {
+    id: 5,
+    name: "Lisa Park",
+    email: "lisa.park@email.com",
+    phone: "+1 (555) 678-9012",
+    location: "Los Angeles, CA",
+    score: 88,
+    skills: ["React Native", "TypeScript", "Firebase", "Redux"],
+    experience: "Mobile Developer • 5 years",
+    avatar: "LP",
+  },
+];
+
+// Location hierarchy data
 const locationData = {
   "Canada": {
     "Alberta": ["Calgary", "Edmonton", "Red Deer", "Lethbridge", "Fort McMurray"],
@@ -88,7 +148,6 @@ const locationData = {
   }
 };
 
-// eslint-disable-next-line no-unused-vars
 const visaOptions = [
   { category: "Citizens and Permanent Residents", options: ["US Citizen", "US Authorized", "Canadian Citizen", "Canada Authorized"] },
   { category: "Green Card and EAD", options: ["Green Card", "Green Card Holder", "GC", "GC-EAD", "Employment Auth Document", "OPT-EAD", "H4-EAD", "L2-EAD"] },
@@ -98,7 +157,6 @@ const visaOptions = [
   { category: "Other", options: ["Not Specified", "Unspecified"] }
 ];
 
-// eslint-disable-next-line no-unused-vars
 const skillsList = [
   "React", "Vue.js", "Angular", "JavaScript", "TypeScript", "Python", "Java", "C++", "C#",
   "Node.js", "Express.js", "Django", "Flask", "Spring Boot", "ASP.NET",
@@ -112,7 +170,6 @@ const skillsList = [
   "Agile", "Scrum", "Jira", "DevOps"
 ];
 
-// eslint-disable-next-line no-unused-vars
 const jobTitles = [
   "Frontend Developer",
   "Backend Developer",
@@ -138,29 +195,12 @@ const jobTitles = [
   "UI/UX Designer"
 ];
 
-const experienceLevels = [
-  { value: "", label: "Select Experience Level" },
-  { value: "0-1", label: "0-1 Years (Fresher)" },
-  { value: "1-3", label: "1-3 Years (Junior)" },
-  { value: "3-5", label: "3-5 Years (Mid-Level)" },
-  { value: "5-8", label: "5-8 Years (Senior)" },
-  { value: "8-10", label: "8-10 Years (Lead/Architect)" },
-  { value: "10+", label: "10+ Years (Principal/Director)" }
-];
-
-const recentSearchTimeframes = [
-  { value: "", label: "Select Recent Activity" },
-  { value: "7", label: "Last 7 Days" },
-  { value: "30", label: "Last 30 Days" },
-  { value: "60", label: "Last 60 Days" },
-  { value: "90", label: "Last 90 Days" },
-  { value: "180", label: "Last 6 Months" },
-  { value: "365", label: "Last 1 Year" },
-  { value: "All", label: "All" }
-];
-
 export default function DashboardNew() {
-  const _navigate = useNavigate(); // eslint-disable-line no-unused-vars
+  const navigate = useNavigate();
+  const { isDark } = useTheme();
+  const _t = isDark ? "#e2e8f0" : "#1f2937";
+  const _bg = isDark ? "#1e293b" : "#ffffff";
+  const _border = isDark ? "#334155" : "#e5e7eb";
   const [jobDescription, setJobDescription] = useState("");
   const [toast, setToast] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -171,8 +211,8 @@ export default function DashboardNew() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [resumes, setResumes] = useState([]);
-  const [, setLoading] = useState(false);
-  const [, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [visaRequirement, setVisaRequirement] = useState([]);
   const [jobLocation, setJobLocation] = useState([]);
   const [expectedSalary, setExpectedSalary] = useState("");
@@ -182,11 +222,13 @@ export default function DashboardNew() {
   const [jdId, setJdId] = useState(null);
   const [showVisaDropdown, setShowVisaDropdown] = useState(false);
   const [locationDistance, setLocationDistance] = useState("");
-  const [requiredSkills, setRequiredSkills] = useState([]); // eslint-disable-line no-unused-vars
+  const [requiredSkills, setRequiredSkills] = useState([]);
   const [jobTitle, setJobTitle] = useState("");
   const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
-  const [skillsSearchInput, setSkillsSearchInput] = useState(""); // eslint-disable-line no-unused-vars
-  const [experienceLevel, setExperienceLevel] = useState("");
+  const [skillsSearchInput, setSkillsSearchInput] = useState("");
+  const [expMin, setExpMin] = useState("");
+  const [expMax, setExpMax] = useState("");
+  const [showCustomExp, setShowCustomExp] = useState(false);
   const [recentSearchDays, setRecentSearchDays] = useState("");
   const [fetchedVisaOptions, setFetchedVisaOptions] = useState([]);
   const [fetchedLocationOptions, setFetchedLocationOptions] = useState([]);
@@ -196,19 +238,21 @@ export default function DashboardNew() {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [centerPincode, setCenterPincode] = useState("");
-  const [, setFiltersLoading] = useState(false);
+  const [filtersLoading, setFiltersLoading] = useState(false);
   const [statesLoading, setStatesLoading] = useState(false);
   const [citiesLoading, setCitiesLoading] = useState(false);
-  const [, setSuggestedSkills] = useState([]);
+  const [suggestedSkills, setSuggestedSkills] = useState([]);
   const [confirmedSkills, setConfirmedSkills] = useState([]);
   const [newSkillInput, setNewSkillInput] = useState("");
-  const [, setSuggestedTitle] = useState("");
-  const [, setDetectedExperience] = useState(null);
+  const [suggestedTitle, setSuggestedTitle] = useState("");
+  const [detectedExperience, setDetectedExperience] = useState(null);
   const [showSkillsEditor, setShowSkillsEditor] = useState(false);
   const [taxTerm, setTaxTerm] = useState("");
   const [topCandidatesLimit, setTopCandidatesLimit] = useState("");
   const [sortBy, setSortBy] = useState("score-high-to-low");
   const [loadingMode, setLoadingMode] = useState("analyze");
+  const [currentPage, setCurrentPage] = useState(1);
+  const resumesPerPage = 10;
 
   
   const handleViewDetails = (resume) => {
@@ -234,7 +278,9 @@ export default function DashboardNew() {
     setCenterPincode("");
     setLocationDistance("");
     setWillingnessToRelocate("");
-    setExperienceLevel("");
+    setExpMin("");
+    setExpMax("");
+    setShowCustomExp(false);
     setRecentSearchDays("");
     setSelectedCountry("");
     setSelectedState("");
@@ -263,7 +309,7 @@ export default function DashboardNew() {
 
     try {
       const response = await fetch(
-        `https://app.abhinay.online/api/resumes/${resumeId}/delete`,
+        `http://10.30.0.104:8010/api/resumes/${resumeId}/delete`,
         {
           method: "DELETE",
           headers: {
@@ -286,7 +332,7 @@ export default function DashboardNew() {
     }
   };
 
-  const handleFilesSelected = (files) => { // eslint-disable-line no-unused-vars
+  const handleFilesSelected = (files) => {
     setUploadedFiles(files);
   };
 
@@ -339,10 +385,30 @@ export default function DashboardNew() {
             if (analyzeData.data) {
               setSuggestedTitle(analyzeData.data.suggested_title || "");
               setDetectedExperience(analyzeData.data.detected_experience || null);
-              if (analyzeData.data.suggested_skills && Array.isArray(analyzeData.data.suggested_skills)) {
-                setSuggestedSkills(analyzeData.data.suggested_skills);
-                setConfirmedSkills([...analyzeData.data.suggested_skills]);
+
+              const confirmedFromAnalyze = Array.isArray(
+                analyzeData.data?.suggested_filters?.confirmed_skills
+              )
+                ? analyzeData.data.suggested_filters.confirmed_skills
+                : Array.isArray(analyzeData.data?.confirmed_skills)
+                  ? analyzeData.data.confirmed_skills
+                  : Array.isArray(analyzeData.data?.suggested_skills)
+                    ? analyzeData.data.suggested_skills
+                    : [];
+
+              if (confirmedFromAnalyze.length > 0) {
+                const normalized = Array.from(
+                  new Set(
+                    confirmedFromAnalyze
+                      .filter((skill) => typeof skill === "string")
+                      .map((skill) => skill.trim())
+                      .filter(Boolean)
+                  )
+                );
+                setSuggestedSkills(normalized);
+                setConfirmedSkills([...normalized]);
               }
+
               setShowSkillsEditor(true);
               console.log("Setting showSkillsEditor to true - analyze success");
             }
@@ -379,7 +445,7 @@ export default function DashboardNew() {
 
         console.log("Uploading files for processing...");
         const response = await fetch(
-          "https://app.abhinay.online/api/jobs/process-file-and-match",
+          "http://10.30.0.104:8010/api/jobs/process-file-and-match",
           {
             method: "POST",
             body: formData,
@@ -483,11 +549,11 @@ export default function DashboardNew() {
     }
   };  
 
-  const handleDownloadAll = async () => { // eslint-disable-line no-unused-vars
+  const handleDownloadAll = async () => {
     try {
       setError(null);
       const response = await fetch(
-        "https://app.abhinay.online/api/resumes/download-all?format=zip",
+        "http://10.30.0.104:8010/api/resumes/download-all?format=zip",
         {
           method: "POST",
           headers: {
@@ -526,7 +592,7 @@ export default function DashboardNew() {
     }
   };
 
-  const handleUploadResume = async () => { // eslint-disable-line no-unused-vars
+  const handleUploadResume = async () => {
     try {
       setError(null);
 
@@ -545,7 +611,7 @@ export default function DashboardNew() {
         files.forEach((f) => formData.append("files", f));
 
         try {
-          const resp = await fetch("https://app.abhinay.online/api/resumes/upload", {
+          const resp = await fetch("http://10.30.0.104:8010/api/resumes/upload", {
             method: "POST",
             body: formData,
           });
@@ -640,6 +706,13 @@ export default function DashboardNew() {
       return 0;
     })
     .slice(0, topCandidatesLimit ? parseInt(topCandidatesLimit) : sourceResumes.length);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredResumes.length / resumesPerPage);
+  const paginatedResumes = filteredResumes.slice(
+    (currentPage - 1) * resumesPerPage,
+    currentPage * resumesPerPage
+  );
 
   const getScoreBadgeClass = (score) => {
     if (score >= 85) return "score-excellent";
@@ -881,7 +954,7 @@ export default function DashboardNew() {
     return () => { mounted = false; };
   }, []);
 
-  const stats = [ // eslint-disable-line no-unused-vars
+  const stats = [
     { label: "Total Resumes", value: sourceResumes.length, icon: "📄" },
     { label: "Excellent Matches", value: sourceResumes.filter(r=> (r.score||0) >= 85).length, icon: "📈" },
     { label: "Candidates Reviewed", value: sourceResumes.length, icon: "👥" },
@@ -1024,8 +1097,8 @@ export default function DashboardNew() {
                       width: "100%",
                       padding: "10px",
                       borderRadius: "4px",
-                      backgroundColor: "#ffffffff",
-                      color: "#000000ff",
+                      backgroundColor: _bg,
+                      color: _t,
                     }}
                   >
                     <option value="">Select Tax Term</option>
@@ -1185,8 +1258,8 @@ export default function DashboardNew() {
                         width: "100%",
                         padding: "10px",
                         borderRadius: "4px",
-                        backgroundColor: "#ffffffff",
-                        color: "#000000ff",
+                        backgroundColor: _bg,
+                        color: _t,
                         marginBottom: "10px",
                       }}
                     >
@@ -1208,8 +1281,8 @@ export default function DashboardNew() {
                           width: "100%",
                           padding: "10px",
                           borderRadius: "4px",
-                          backgroundColor: "#ffffffff",
-                          color: "#000000ff",
+                          backgroundColor: _bg,
+                          color: _t,
                           marginBottom: "10px",
                         }}
                         disabled={statesLoading}
@@ -1235,8 +1308,8 @@ export default function DashboardNew() {
                           width: "100%",
                           padding: "10px",
                           borderRadius: "4px",
-                          backgroundColor: "#ffffffff",
-                          color: "#000000ff",
+                          backgroundColor: _bg,
+                          color: _t,
                           marginBottom: "10px",
                         }}
                         disabled={citiesLoading}
@@ -1310,30 +1383,30 @@ export default function DashboardNew() {
                   )}
                 </div>
 
-                {/* Zip Code (Optional) */}
-                <div className="filter-group">
-                  <label>Zip Code / Pincode</label>
-                  <input
-                    type="text"
-                    value={centerPincode}
-                    onChange={(e) => setCenterPincode(e.target.value)}
-                    placeholder="e.g., 75001"
-                    className="filter-input"
-                  />
-                </div>
-
-                {/* Distance in Miles (Optional) */}
-                <div className="filter-group">
-                  <label>Distance (Miles)</label>
-                  <input
-                    type="number"
-                    value={locationDistance}
-                    onChange={(e) => setLocationDistance(e.target.value)}
-                    placeholder="e.g., 50"
-                    className="filter-input"
-                    min="0"
-                    step="5"
-                  />
+                {/* Zip Code & Distance side by side */}
+                <div className="filter-row">
+                  <div className="filter-group">
+                    <label>Zip Code / Pincode</label>
+                    <input
+                      type="text"
+                      value={centerPincode}
+                      onChange={(e) => setCenterPincode(e.target.value)}
+                      placeholder="e.g., 75001"
+                      className="filter-input"
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <label>Distance (Miles)</label>
+                    <input
+                      type="number"
+                      value={locationDistance}
+                      onChange={(e) => setLocationDistance(e.target.value)}
+                      placeholder="e.g., 50"
+                      className="filter-input"
+                      min="0"
+                      step="5"
+                    />
+                  </div>
                 </div>
 
                  {/* Expected Salary (Optional) */}
@@ -1347,8 +1420,8 @@ export default function DashboardNew() {
                       width: "100%",
                       padding: "10px",
                       borderRadius: "4px",
-                      backgroundColor: "#ffffffff",
-                      color: "#000000ff",
+                      backgroundColor: _bg,
+                      color: _t,
                     }}
                   >
                     <option value="">Select Salary Range</option>
@@ -1373,8 +1446,8 @@ export default function DashboardNew() {
                       width: "100%",
                       padding: "10px",
                       borderRadius: "4px",
-                      backgroundColor: "#ffffffff",
-                      color: "#000000ff",
+                      backgroundColor: _bg,
+                      color: _t,
                     }}
                   >
                     <option value="">Select Notice Period</option>
@@ -1387,66 +1460,138 @@ export default function DashboardNew() {
                   </select>
                 </div> */}
 
+                {/* Willingness to Relocate - Toggle */}
                 <div className="filter-group">
                   <label>Willingness to Relocate</label>
-                  <select
-                    value={willingnessToRelocate}
-                    onChange={(e) => setWillingnessToRelocate(e.target.value)}
-                    className="filter-select"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      backgroundColor: "#ffffffff",
-                      color: "#000000ff",
-                    }}
-                  >
-                    <option value="">Select Willingness to Relocate</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-
-                {/* Experience Level Filter */}
-                <div className="filter-group">
-                  <label>Experience Level</label>
-                  <select
-                    value={experienceLevel}
-                    onChange={(e) => setExperienceLevel(e.target.value)}
-                    className="filter-select"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      backgroundColor: "#ffffffff",
-                      color: "#000000ff",
-                    }}
-                  >
-                    {experienceLevels.map((level) => (
-                      <option key={level.value} value={level.value}>{level.label}</option>
+                  <div className="toggle-group">
+                    {[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }].map((opt) => (
+                      <button
+                        key={opt.value}
+                        className={`toggle-btn ${willingnessToRelocate === opt.value ? "active" : ""}`}
+                        onClick={() => setWillingnessToRelocate(willingnessToRelocate === opt.value ? "" : opt.value)}
+                      >
+                        {opt.label}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
-                {/* Recent Search Activity Filter */}
+                {/* Recent Activity - Segmented Control */}
                 <div className="filter-group">
                   <label>Recent Activity</label>
-                  <select
-                    value={recentSearchDays}
-                    onChange={(e) => setRecentSearchDays(e.target.value)}
-                    className="filter-select"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      backgroundColor: "#ffffffff",
-                      color: "#000000ff",
-                    }}
-                  >
-                    {recentSearchTimeframes.map((timeframe) => (
-                      <option key={timeframe.value} value={timeframe.value}>{timeframe.label}</option>
-                    ))}
-                  </select>
+                  {(() => {
+                    const options = [
+                      { value: "1", label: "24h" },
+                      { value: "7", label: "7d" },
+                      { value: "30", label: "30d" },
+                      { value: "90", label: "90d" },
+                      { value: "180", label: "6mo" },
+                      { value: "365", label: "1yr" },
+                      { value: "All", label: "All" },
+                    ];
+                    const activeIdx = options.findIndex(o => o.value === recentSearchDays);
+                    return (
+                      <div className="seg-control">
+                        {activeIdx >= 0 && (
+                          <div
+                            className="seg-control-slider"
+                            style={{
+                              width: `${100 / options.length}%`,
+                              left: `${(activeIdx / options.length) * 100}%`,
+                            }}
+                          />
+                        )}
+                        {options.map((o) => (
+                          <button
+                            key={o.value}
+                            className={`seg-control-btn ${recentSearchDays === o.value ? "active" : ""}`}
+                            onClick={() => setRecentSearchDays(recentSearchDays === o.value ? "" : o.value)}
+                          >
+                            {o.label}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Experience Level - Chips + Custom */}
+                <div className="filter-group">
+                  <label>Experience (Years)</label>
+                  {(() => {
+                    const presets = [
+                      { label: "0-2", min: 0, max: 2 },
+                      { label: "3-5", min: 3, max: 5 },
+                      { label: "5-10", min: 5, max: 10 },
+                      { label: "10+", min: 10, max: "" },
+                    ];
+                    const isPresetActive = (p) => !showCustomExp && String(p.min) === String(expMin) && String(p.max) === String(expMax);
+                    return (
+                      <div className="exp-chips-wrapper">
+                        <div className="exp-chips">
+                          {presets.map((p) => (
+                            <button
+                              key={p.label}
+                              className={`exp-chip ${isPresetActive(p) ? "active" : ""}`}
+                              onClick={() => {
+                                setShowCustomExp(false);
+                                if (isPresetActive(p)) { setExpMin(""); setExpMax(""); }
+                                else { setExpMin(p.min); setExpMax(p.max); }
+                              }}
+                            >
+                              {p.label}
+                            </button>
+                          ))}
+                          <button
+                            className={`exp-chip ${showCustomExp ? "active" : ""}`}
+                            onClick={() => {
+                              if (showCustomExp) { setShowCustomExp(false); setExpMin(""); setExpMax(""); }
+                              else { setShowCustomExp(true); setExpMin(""); setExpMax(""); }
+                            }}
+                          >
+                            Custom
+                          </button>
+                        </div>
+                        {showCustomExp && (
+                          <div className="exp-custom-row">
+                            <div className="exp-custom-field">
+                              <input
+                                type="number"
+                                className="exp-custom-input"
+                                value={expMin === "" ? "" : expMin}
+                                placeholder="Min"
+                                min="0"
+                                onChange={(e) => setExpMin(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))}
+                                onBlur={() => {
+                                  if (expMin !== "" && expMax !== "" && Number(expMin) >= Number(expMax)) {
+                                    setExpMin(Math.max(0, Number(expMax) - 1));
+                                  }
+                                }}
+                              />
+                              <span className="exp-custom-suffix">yrs</span>
+                            </div>
+                            <span className="exp-custom-separator">-</span>
+                            <div className="exp-custom-field">
+                              <input
+                                type="number"
+                                className="exp-custom-input"
+                                value={expMax === "" ? "" : expMax}
+                                placeholder="No limit"
+                                min="0"
+                                onChange={(e) => setExpMax(e.target.value === "" ? "" : Math.max(0, Number(e.target.value)))}
+                                onBlur={() => {
+                                  if (expMin !== "" && expMax !== "" && Number(expMax) <= Number(expMin)) {
+                                    setExpMax(Number(expMin) + 1);
+                                  }
+                                }}
+                              />
+                              <span className="exp-custom-suffix">yrs</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
               
@@ -1489,7 +1634,7 @@ export default function DashboardNew() {
                   type="text"
                   placeholder="Search by name or skills..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                   className="search-input"
                 />
                 
@@ -1508,7 +1653,7 @@ export default function DashboardNew() {
                 <select 
                   className="sort-select"
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
+                  onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}
                 >
                   <option value="score-high-to-low">Sort by: Score (High to Low)</option>
                   <option value="score-low-to-high">Score (Low to High)</option>
@@ -1526,8 +1671,8 @@ export default function DashboardNew() {
                   marginBottom: "5px",
                   padding: "10px 12px",
                   background: "rgba(255, 255, 255, 0.05)",
-                  color: "#1f2937",
-                  border: "1px solid #e5e7eb",
+                  color: _t,
+                  border: `1px solid ${_border}`,
                   borderRadius: "8px",
                   cursor: "pointer",
                   fontSize: "13px",
@@ -1537,12 +1682,12 @@ export default function DashboardNew() {
                   transition: "all 0.3s ease",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
-                  e.currentTarget.style.borderColor = "#317e65";
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "#10b981";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                  e.currentTarget.style.borderColor = "#e5e7eb";
+                  e.currentTarget.style.borderColor = isDark ? "#334155" : "#e5e7eb";
                 }}
               >
                 <span>{showSkillsEditor ? "▼" : "▶"}</span>
@@ -1555,17 +1700,17 @@ export default function DashboardNew() {
                   marginTop: "10px",
                   marginBottom: "5px",
                   padding: "12px",
-                  backgroundColor: "#f9fafb",
-                  border: "1px solid #e5e7eb",
+                  backgroundColor: isDark ? "#0f172a" : "#f9fafb",
+                  border: `1px solid ${_border}`,
                   borderRadius: "12px",
-                  borderLeft: "1px solid #e5e7eb",
-                  background: "linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)",
+                  borderLeft: `1px solid ${_border}`,
+                  background: isDark ? "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)" : "linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)",
                   boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
                 }}>
                   <p style={{
                     margin: "0 0 10px 0",
                     fontWeight: "600",
-                    color: "#1f2937",
+                    color: _t,
                     fontSize: "12px",
                     textTransform: "uppercase",
                     letterSpacing: "0.5px",
@@ -1648,22 +1793,22 @@ export default function DashboardNew() {
                         flex: 1,
                         padding: "7px 10px",
                         borderRadius: "6px",
-                        border: "1px solid #e5e7eb",
+                        border: `1px solid ${_border}`,
                         fontSize: "12px",
                         fontFamily: "inherit",
                         transition: "all 0.2s ease",
-                        backgroundColor: "#ffffff",
-                        color: "#1f2937",
+                        backgroundColor: _bg,
+                        color: _t,
                       }}
                       onFocus={(e) => {
                         e.currentTarget.style.borderColor = "#0284c7";
                         e.currentTarget.style.boxShadow = "0 0 12px rgba(2, 132, 199, 0.2)";
-                        e.currentTarget.style.backgroundColor = "#f0f9ff";
+                        e.currentTarget.style.backgroundColor = isDark ? "#0f172a" : "#f0f9ff";
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.borderColor = "#e5e7eb";
+                        e.currentTarget.style.borderColor = isDark ? "#334155" : "#e5e7eb";
                         e.currentTarget.style.boxShadow = "none";
-                        e.currentTarget.style.backgroundColor = "#ffffff";
+                        e.currentTarget.style.backgroundColor = _bg;
                       }}
                     />
                     <button
@@ -1711,18 +1856,13 @@ export default function DashboardNew() {
                         setLoadingMode("match");
                         setError(null);
 
-                        // Parse experience level to min/max
+                        // Build experience filter from min/max inputs
                         let experienceFilter = {};
-                        if (experienceLevel) {
-                          const expMap = {
-                            "0-1": { min: 0, max: 1 },
-                            "1-3": { min: 1, max: 3 },
-                            "3-5": { min: 3, max: 5 },
-                            "5-8": { min: 5, max: 8 },
-                            "8-10": { min: 8, max: 10 },
-                            "10+": { min: 10, max: 100 },
+                        if (expMin !== "" || expMax !== "") {
+                          experienceFilter = {
+                            ...(expMin !== "" && { min: parseInt(expMin) }),
+                            ...(expMax !== "" && { max: parseInt(expMax) }),
                           };
-                          experienceFilter = expMap[experienceLevel] || {};
                         }
 
                         // Parse jobLocation array to extract countries, states, and cities
@@ -1769,12 +1909,14 @@ export default function DashboardNew() {
 
                         console.log("Calling match endpoint with:", matchPayload);
 
+                        const token = localStorage.getItem("token");
                         const matchResponse = await fetch(
                           `${API_CONFIG.BASE_URL}/jobs/match`,
                           {
                             method: "POST",
                             headers: {
                               "Content-Type": "application/json",
+                              ...(token && { Authorization: `Bearer ${token}` }),
                             },
                             body: JSON.stringify(matchPayload),
                           }
@@ -1798,11 +1940,28 @@ export default function DashboardNew() {
                           items = matchData.data.matched_resumes;
                         }
 
-                        if (items.length > 0) {
-                          // Store job analysis ID
-                          if (matchData.data && matchData.data.job_analysis) {
-                            setJdId(matchData.data.job_analysis.jd_id);
+                        // Deep-search for jd_id in entire response
+                        const findJdId = (obj, depth = 0) => {
+                          if (!obj || typeof obj !== "object" || depth > 3) return null;
+                          if (obj.jd_id != null) return obj.jd_id;
+                          if (obj.job_id != null) return obj.job_id;
+                          for (const val of Object.values(obj)) {
+                            if (val && typeof val === "object" && !Array.isArray(val)) {
+                              const found = findJdId(val, depth + 1);
+                              if (found != null) return found;
+                            }
                           }
+                          return null;
+                        };
+                        const foundJdId = findJdId(matchData);
+                        if (foundJdId) {
+                          setJdId(foundJdId);
+                          console.log("JD ID captured from match response:", foundJdId);
+                        } else {
+                          console.warn("jd_id not found anywhere in match response:", JSON.stringify(matchData).slice(0, 1000));
+                        }
+
+                        if (items.length > 0) {
 
                           const normalized = items.map((r, idx) => {
                             return {
@@ -1916,7 +2075,7 @@ export default function DashboardNew() {
               {/* Resume Cards - Only show when not analyzing */}
               {!isAnalyzing && (
               <div className="resume-list">
-                {filteredResumes.map((resume, index) => (
+                {paginatedResumes.map((resume, index) => (
                   <div key={resume.id} className="resume-item">
                     <div className={`resume-avatar color-${((index % 3) + 1)}`}>{resume.avatar}</div>
                     <div className="resume-info">
@@ -1970,21 +2129,73 @@ export default function DashboardNew() {
                 ))}
               </div>
               )}
+
+              {/* Pagination Footer */}
+              {hasAnalyzed && filteredResumes.length > resumesPerPage && (
+                <div className="pagination-footer">
+                  <span className="pagination-info">
+                    Showing <strong>{(currentPage - 1) * resumesPerPage + 1}-{Math.min(currentPage * resumesPerPage, filteredResumes.length)}</strong> of <strong>{filteredResumes.length}</strong> results
+                  </span>
+                  <div className="pagination-controls">
+                    <button
+                      className="pagination-btn nav-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((p) => p - 1)}
+                      title="Previous"
+                    >
+                      &#8249;
+                    </button>
+                    {(() => {
+                      const items = [];
+                      if (totalPages <= 7) {
+                        for (let i = 1; i <= totalPages; i++) {
+                          items.push(
+                            <button key={i} className={`pagination-btn ${currentPage === i ? "active" : ""}`} onClick={() => setCurrentPage(i)}>{i}</button>
+                          );
+                        }
+                      } else {
+                        items.push(<button key={1} className={`pagination-btn ${currentPage === 1 ? "active" : ""}`} onClick={() => setCurrentPage(1)}>1</button>);
+                        if (currentPage > 3) items.push(<span key="start-dots" className="pagination-dots">...</span>);
+                        const start = Math.max(2, currentPage - 1);
+                        const end = Math.min(totalPages - 1, currentPage + 1);
+                        for (let i = start; i <= end; i++) {
+                          items.push(
+                            <button key={i} className={`pagination-btn ${currentPage === i ? "active" : ""}`} onClick={() => setCurrentPage(i)}>{i}</button>
+                          );
+                        }
+                        if (currentPage < totalPages - 2) items.push(<span key="end-dots" className="pagination-dots">...</span>);
+                        items.push(<button key={totalPages} className={`pagination-btn ${currentPage === totalPages ? "active" : ""}`} onClick={() => setCurrentPage(totalPages)}>{totalPages}</button>);
+                      }
+                      return items;
+                    })()}
+                    <button
+                      className="pagination-btn nav-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                      title="Next"
+                    >
+                      &#8250;
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </main>
 
       {/* AI Chat FAB */}
+      {/*
       <button
         className="ai-chat-fab"
         onClick={() => setShowAIChat(true)}
       >
         💬
       </button>
+      */}
 
       {/* AI Chat Modal */}
-      <AIChat isOpen={showAIChat} onClose={() => setShowAIChat(false)} />
+      {/* <AIChat isOpen={showAIChat} onClose={() => setShowAIChat(false)} /> */}
 
       {/* Toast Notification */}
       {toast && (

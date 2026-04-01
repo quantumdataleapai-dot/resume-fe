@@ -21,6 +21,12 @@ html {
   background-color: #ffffff;
   padding: 20px;
   color: #1f2937;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body.dark-theme .App-header {
+  background-color: #1e293b;
+  color: #e2e8f0;
 }
 
 .App-link {

@@ -1308,3 +1308,38 @@
 .resume-item-wrapper.row-odd .resume-card .resume-name {
   color: #1f2937;
 }
+
+/* ═══════════════════════════════════════════
+   DARK THEME OVERRIDES
+   ═══════════════════════════════════════════ */
+body.dark-theme .dashboard-container {
+  background: #0f172a; color: #e2e8f0;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+body.dark-theme .header {
+  background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+  border-bottom-color: #334155;
+}
+body.dark-theme .App-header { background-color: #1e293b; color: #e2e8f0; }
+body.dark-theme .notification-icon i { color: #e2e8f0; }
+body.dark-theme .menu-btn { color: #e2e8f0; }
+body.dark-theme .notification-icon:hover,
+body.dark-theme .menu-btn:hover { background: rgba(255,255,255,0.05); }
+
+body.dark-theme .resume-card {
+  background: #1e293b; border-color: #334155;
+}
+body.dark-theme .resume-card:hover {
+  background: #334155; border-color: #475569;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+body.dark-theme .resume-details .resume-name { color: #e2e8f0; }
+body.dark-theme .resume-details .resume-description { color: #94a3b8; }
+body.dark-theme .resume-avatar span { background: #334155; border-color: #475569; }
+body.dark-theme .score-badge .score-label { color: #94a3b8; }
+
+body.dark-theme .resume-item-wrapper.row-even .resume-card h3,
+body.dark-theme .resume-item-wrapper.row-even .resume-card .resume-name { color: #38bdf8; }
+body.dark-theme .resume-item-wrapper.row-odd .resume-card h3,
+body.dark-theme .resume-item-wrapper.row-odd .resume-card .resume-name { color: #e2e8f0; }

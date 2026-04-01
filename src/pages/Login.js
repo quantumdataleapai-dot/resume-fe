@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
+import { useTheme } from "../utils/ThemeContext";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import "../styles/Login.css";
 import logo from "../logo.png";
 
 /* ═══ ANIMATED LEFT PANEL ═══ */
 const AnimatedPanel = () => {
+  const { isDark } = useTheme();
   const [phase, setPhase] = useState(0);
   const [animKey, setAnimKey] = useState(0);
   const timerRef = useRef(null);
@@ -129,12 +131,12 @@ const AnimatedPanel = () => {
                     </div>
                     <div className="lp-match-score-wrap">
                       <svg width="44" height="44" viewBox="0 0 44 44">
-                        <circle cx="22" cy="22" r="18" fill="none" stroke="#e5e7eb" strokeWidth="3" />
+                        <circle cx="22" cy="22" r="18" fill="none" stroke={isDark ? "#334155" : "#e5e7eb"} strokeWidth="3" />
                         <circle cx="22" cy="22" r="18" fill="none" stroke={c.color} strokeWidth="3"
                           strokeDasharray={`${(c.score / 100) * 113} 113`} strokeLinecap="round"
                           transform="rotate(-90 22 22)" className="lp-score-ring-anim"
                           style={{ animationDelay: `${0.8 + i * 0.25}s` }} />
-                        <text x="22" y="24" textAnchor="middle" fontSize="11" fontWeight="700" fill="#1e293b">{c.score}</text>
+                        <text x="22" y="26" textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="800" fill={isDark ? "#ffffff" : "#1e293b"}>{c.score}</text>
                       </svg>
                     </div>
                   </div>
@@ -256,6 +258,31 @@ const LoginPage = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const { login, signup } = useAuth();
+  const { isDark } = useTheme();
+
+  // Theme-aware colors for inline styles
+  const t = {
+    bg: isDark ? "#0f172a" : "#fff",
+    cardBg: isDark ? "#1e293b" : "#fff",
+    text: isDark ? "#e2e8f0" : "#0f1724",
+    textSec: isDark ? "#94a3b8" : "#60708a",
+    textMuted: isDark ? "#64748b" : "#9aa6bd",
+    inputBg: isDark ? "#0f172a" : "#fff",
+    inputBorder: isDark ? "#334155" : "#e6eefc",
+    toggleBg: isDark ? "#1e293b" : "#f1f5f9",
+    infoBg: isDark ? "#1e1b4b" : "#f0f5ff",
+    infoBorder: isDark ? "#3730a3" : "#c6d8ff",
+    errorBg: isDark ? "#7f1d1d" : "#fef2f2",
+    errorBorder: isDark ? "#991b1b" : "#fecaca",
+    errorText: isDark ? "#fca5a5" : "#dc2626",
+    divider: isDark ? "#334155" : "#e6eefc",
+    labelColor: isDark ? "#e2e8f0" : "#1e293b",
+    successBg: isDark ? "rgba(15,23,42,0.85)" : "rgba(255,255,255,0.85)",
+    successHeading: isDark ? "#e2e8f0" : "#1e293b",
+    successText: isDark ? "#94a3b8" : "#64748b",
+    oauthBg: isDark ? "#1e293b" : "#fff",
+    oauthBorder: isDark ? "#334155" : "#e6eefc",
+  };
 
   useEffect(() => {
     if (location.state?.toast) {
@@ -300,126 +327,132 @@ const LoginPage = () => {
       <AnimatedPanel />
       <div className="lp-right">
         <div className="lp-form-wrap">
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <span style={{ fontSize: 20, fontWeight: 700, color: "#000" }}>Welcome Back</span>
-          </div>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f1724", marginBottom: 8 }}>Sign In</h2>
-          <p style={{ fontSize: 13, color: "#60708a", marginBottom: 24 }}>
-            {selectedRole === "user" ? (
-              <>Don't have an account yet?{" "}<button onClick={openSignup} style={{ background: "none", border: "none", color: "#0b5fff", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>Sign Up</button></>
-            ) : "Sign in with your Admin credentials"}
-          </p>
- 
-          {/* Role Toggle */}
-          <div style={{ display: "flex", background: "#f1f5f9", borderRadius: "10px", padding: "4px", marginBottom: "24px" }}>
-            <button
-              type="button"
-              onClick={() => { setSelectedRole("admin"); setErrorMessage(""); setUsername(""); setPassword(""); }}
-              style={{
-                flex: 1,
-                padding: "10px 16px",
-                borderRadius: "8px",
-                border: "none",
-                fontSize: "14px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                background: selectedRole === "admin" ? "linear-gradient(135deg, #0b5fff 0%, #0950d1 100%)" : "transparent",
-                color: selectedRole === "admin" ? "#fff" : "#60708a",
-                boxShadow: selectedRole === "admin" ? "0 2px 8px rgba(11,95,255,0.25)" : "none",
-              }}
-            >
-              Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => { setSelectedRole("user"); setErrorMessage(""); setUsername(""); setPassword(""); }}
-              style={{
-                flex: 1,
-                padding: "10px 16px",
-                borderRadius: "8px",
-                border: "none",
-                fontSize: "14px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                background: selectedRole === "user" ? "linear-gradient(135deg, #0b5fff 0%, #0950d1 100%)" : "transparent",
-                color: selectedRole === "user" ? "#fff" : "#60708a",
-                boxShadow: selectedRole === "user" ? "0 2px 8px rgba(11,95,255,0.25)" : "none",
-              }}
-            >
-              Recruiter
-            </button>
-          </div>
-          {selectedRole === "admin" && (
-            <div style={{ background: "#f0f5ff", border: "1px solid #c6d8ff", borderRadius: 8, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#0f1724", lineHeight: 1.6 }}>
-              <div style={{ fontWeight: 700, color: "#4338ca", marginBottom: 6, fontSize: 12, letterSpacing: "0.5px", textTransform: "uppercase" }}>Demo Admin Credentials</div>
-              <div><span style={{ fontWeight: 600, color: "#60708a" }}>Username:</span> gowrav@gmail.com</div>
-              <div><span style={{ fontWeight: 600, color: "#60708a" }}>Password:</span> 12345678</div>
-            </div>
-          )}
-          {errorMessage && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: 12, marginBottom: 16, color: "#dc2626", fontSize: 13 }}>{errorMessage}</div>}
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Email" disabled={isLoading}
-              style={{ width: "100%", padding: 12, height: 48, border: "1px solid #e6eefc", borderRadius: 8, fontSize: 15, background: "#fff", color: "#0f1724", boxSizing: "border-box", opacity: isLoading ? 0.6 : 1 }} />
-            <div style={{ position: "relative" }}>
-              <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" disabled={isLoading}
-                style={{ width: "100%", padding: "12px 48px 12px 12px", height: 48, border: "1px solid #e6eefc", borderRadius: 8, fontSize: 15, background: "#fff", color: "#0f1724", boxSizing: "border-box", opacity: isLoading ? 0.6 : 1 }} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} disabled={isLoading}
-                style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#60708a", padding: 0, display: "flex" }}>
-                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
-              </button>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#0f1724", cursor: "pointer" }}>
-                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} disabled={isLoading} style={{ width: 16, height: 16, accentColor: "#0b5fff" }} />Remember me
-              </label>
-              <button type="button" disabled={isLoading} onClick={() => navigate("/forgot-password")}
-                style={{ background: "none", border: "none", color: "#0b5fff", fontSize: 13, cursor: "pointer", textDecoration: "underline" }}>Forgot Password?</button>
-            </div>
-            <button type="submit" disabled={isLoading}
-              style={{ width: "100%", height: 48, background: isLoading ? "#5b8dff" : "linear-gradient(135deg, #0b5fff, #0950d1)", color: "#fff", border: "none", borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: isLoading ? "not-allowed" : "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              {isLoading ? "SIGNING IN..." : "SIGN IN"}
-            </button>
-            {selectedRole === "user" && (
-              <>
-                <div style={{ position: "relative", margin: "24px 0" }}>
-                  <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: "#e6eefc" }}></div>
-                  <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
-                    <span style={{ background: "#fff", padding: "0 16px", color: "#9aa6bd", fontSize: 13 }}>or Sign in with</span>
-                  </div>
-                </div>
-                <button type="button" disabled={isLoading} onClick={() => handleOAuthPlaceholder("google")}
-                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, background: "#fff", border: "1px solid #e6eefc", padding: 12, borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 500 }}>Sign in with Google</button>
-              </>
-            )}
-          </form>
-          {showSignupModal && (
-            <div className="modal-overlay" onClick={!showSuccessCard ? closeSignup : undefined}>
-              <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ filter: showSuccessCard ? "blur(3px)" : "none", transition: "filter 0.3s", pointerEvents: showSuccessCard ? "none" : "auto" }}>
-                <h3 style={{ margin: "0 0 8px" }}>Create an account</h3>
-                <p style={{ margin: "0 0 12px", color: "#6b7280", fontSize: 13 }}>Use the form below or sign up with Google.</p>
-                {signupMessage && <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: 12, marginBottom: 12, color: "#dc2626", fontSize: 13 }}>{signupMessage}</div>}
-                <form autoComplete="off" onSubmit={handleSignupSubmit} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <input autoComplete="name" value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="Full name" style={{ padding: 10, borderRadius: 8, border: "1px solid #e6eefc" }} />
-                  <input autoComplete="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="Email" type="email" style={{ padding: 10, borderRadius: 8, border: "1px solid #e6eefc" }} />
-                  <input autoComplete="new-password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="Password" type="password" style={{ padding: 10, borderRadius: 8, border: "1px solid #e6eefc" }} />
-                  <div className="modal-actions">
-                    <button type="submit" style={{ flex: 1, padding: 10, background: "linear-gradient(135deg, #0b5fff, #0950d1)", color: "#fff", borderRadius: 8, border: "none", cursor: "pointer" }}>Sign up</button>
-                    <button type="button" onClick={closeSignup} className="btn-ghost">Cancel</button>
-                  </div>
-                </form>
-                <div style={{ marginTop: 12 }}>
-                  <div style={{ fontSize: 13, color: "#9aa6bd" }}>Or use a form / social account</div>
-                  <div className="modal-actions" style={{ marginTop: 8 }}><button type="button" className="btn-ghost" onClick={() => handleOAuthPlaceholder("google")}>Google Account</button></div>
-                </div>
+          {/* ═══ SIGN IN VIEW ═══ */}
+          {!showSignupModal ? (
+            <>
+              <div style={{ textAlign: "center", marginBottom: 36 }}>
+                <span style={{ fontSize: 26, fontWeight: 700, color: t.text }}>Welcome Back</span>
               </div>
-              {showSuccessCard && (
-                <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", background: "#fff", borderRadius: 14, boxShadow: "0 16px 48px rgba(0,0,0,0.18)", padding: "28px 32px", maxWidth: 320, width: "90%", textAlign: "center", animation: "lp-scaleIn 0.35s ease" }}>
-                  <div style={{ fontSize: 36, marginBottom: 12 }}>&#10004;&#65039;</div>
-                  <p style={{ margin: 0, fontSize: 14, color: "#374151", lineHeight: 1.6, fontWeight: 500 }}>Signup request submitted.<br />An admin must approve your account before you can login.</p>
+              <h2 style={{ fontSize: 28, fontWeight: 700, color: t.text, marginBottom: 10 }}>Sign In</h2>
+              <p style={{ fontSize: 15, color: t.textSec, marginBottom: 28 }}>
+                {selectedRole === "user" ? (
+                  <>Don't have an account yet?{" "}<button onClick={openSignup} style={{ background: "none", border: "none", color: "#0b5fff", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>Sign Up</button></>
+                ) : "Sign in with your Admin credentials"}
+              </p>
+              <div style={{ display: "flex", background: t.toggleBg, borderRadius: 12, padding: 4, marginBottom: 28 }}>
+                {["admin", "user"].map((r) => (
+                  <button key={r} type="button" onClick={() => { setSelectedRole(r); setErrorMessage(""); setUsername(""); setPassword(""); }}
+                    style={{ flex: 1, padding: "12px 20px", borderRadius: 10, border: "none", fontSize: 16, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+                      background: selectedRole === r ? "linear-gradient(135deg, #0b5fff, #0950d1)" : "transparent",
+                      color: selectedRole === r ? "#fff" : t.textSec, boxShadow: selectedRole === r ? "0 2px 8px rgba(11,95,255,0.25)" : "none" }}>
+                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                  </button>
+                ))}
+              </div>
+              {selectedRole === "admin" && (
+                <div style={{ background: t.infoBg, border: `1px solid ${t.infoBorder}`, borderRadius: 10, padding: "14px 18px", marginBottom: 18, fontSize: 15, color: t.text, lineHeight: 1.6 }}>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: "#0b5fff", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>Demo Admin Credentials</div>
+                  <div><span style={{ fontWeight: 600, color: t.textSec }}>Username:</span> gowrav@gmail.com</div>
+                  <div><span style={{ fontWeight: 600, color: t.textSec }}>Password:</span> 12345678</div>
                 </div>
               )}
+              {errorMessage && <div style={{ background: t.errorBg, border: `1px solid ${t.errorBorder}`, borderRadius: 8, padding: 12, marginBottom: 16, color: t.errorText, fontSize: 13 }}>{errorMessage}</div>}
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Email" disabled={isLoading}
+                  style={{ width: "100%", padding: 14, height: 54, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 16, background: t.inputBg, color: t.text, boxSizing: "border-box", opacity: isLoading ? 0.6 : 1 }} />
+                <div style={{ position: "relative" }}>
+                  <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" disabled={isLoading}
+                    style={{ width: "100%", padding: "14px 52px 14px 14px", height: 54, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 16, background: t.inputBg, color: t.text, boxSizing: "border-box", opacity: isLoading ? 0.6 : 1 }} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} disabled={isLoading}
+                    style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: t.textSec, padding: 0, display: "flex" }}>
+                    {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+                  </button>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, color: t.text, cursor: "pointer" }}>
+                    <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} disabled={isLoading} style={{ width: 18, height: 18, accentColor: "#0b5fff" }} />Remember me
+                  </label>
+                  <button type="button" disabled={isLoading} onClick={() => navigate("/forgot-password")}
+                    style={{ background: "none", border: "none", color: "#0b5fff", fontSize: 15, cursor: "pointer", textDecoration: "underline" }}>Forgot Password?</button>
+                </div>
+                <button type="submit" disabled={isLoading}
+                  style={{ width: "100%", height: 54, background: isLoading ? "#5b8dff" : "linear-gradient(135deg, #0b5fff, #0950d1)", color: "#fff", border: "none", borderRadius: 10, fontSize: 17, fontWeight: 700, cursor: isLoading ? "not-allowed" : "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  {isLoading ? "SIGNING IN..." : "SIGN IN"}
+                </button>
+                {selectedRole === "user" && (
+                  <>
+                    <div style={{ position: "relative", margin: "24px 0" }}>
+                      <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: t.divider }}></div>
+                      <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+                        <span style={{ background: t.bg, padding: "0 16px", color: t.textMuted, fontSize: 13 }}>or Sign in with</span>
+                      </div>
+                    </div>
+                    <button type="button" disabled={isLoading} onClick={() => handleOAuthPlaceholder("google")}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, background: t.oauthBg, border: `1px solid ${t.oauthBorder}`, padding: 12, borderRadius: 10, cursor: "pointer", fontSize: 15, fontWeight: 500, color: t.text }}>Sign in with Google</button>
+                  </>
+                )}
+              </form>
+            </>
+          ) : (
+            /* ═══ SIGN UP VIEW (inline, replaces login form) ═══ */
+            <div style={{ position: "relative" }}>
+              {showSuccessCard && (
+                <div style={{ position: "absolute", inset: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center", background: t.successBg, borderRadius: 16, backdropFilter: "blur(6px)" }}>
+                  <div style={{ textAlign: "center", padding: "32px 24px", animation: "lp-scaleIn 0.35s ease" }}>
+                    <div style={{ width: 64, height: 64, borderRadius: "50%", background: isDark ? "#064e3b" : "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 28, color: "#059669" }}>
+                      <i className="fas fa-check"></i>
+                    </div>
+                    <h3 style={{ fontSize: 20, fontWeight: 700, color: t.successHeading, margin: "0 0 8px" }}>Request Submitted</h3>
+                    <p style={{ margin: 0, fontSize: 14, color: t.successText, lineHeight: 1.6 }}>An admin must approve your account<br />before you can sign in.</p>
+                  </div>
+                </div>
+              )}
+              <h2 style={{ fontSize: 28, fontWeight: 700, color: t.text, marginBottom: 8 }}>Create your account</h2>
+              <p style={{ fontSize: 15, color: t.textSec, marginBottom: 32 }}>Get started with AI-powered recruiting</p>
+              {signupMessage && <div style={{ background: t.errorBg, border: `1px solid ${t.errorBorder}`, borderRadius: 10, padding: 12, marginBottom: 16, color: t.errorText, fontSize: 14 }}>{signupMessage}</div>}
+              <form autoComplete="off" onSubmit={handleSignupSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: t.labelColor, marginBottom: 6 }}>Full Name</label>
+                  <div style={{ position: "relative" }}>
+                    <i className="fas fa-user" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 14 }}></i>
+                    <input autoComplete="name" value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="Your full name"
+                      style={{ width: "100%", padding: "14px 14px 14px 40px", height: 54, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 16, background: t.inputBg, color: t.text, boxSizing: "border-box" }} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: t.labelColor, marginBottom: 6 }}>Work Email</label>
+                  <div style={{ position: "relative" }}>
+                    <i className="fas fa-envelope" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 14 }}></i>
+                    <input autoComplete="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="you@company.com" type="email"
+                      style={{ width: "100%", padding: "14px 14px 14px 40px", height: 54, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 16, background: t.inputBg, color: t.text, boxSizing: "border-box" }} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 14, fontWeight: 600, color: t.labelColor, marginBottom: 6 }}>Password</label>
+                  <div style={{ position: "relative" }}>
+                    <i className="fas fa-lock" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 14 }}></i>
+                    <input autoComplete="new-password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="Create a strong password" type="password"
+                      style={{ width: "100%", padding: "14px 14px 14px 40px", height: 54, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 16, background: t.inputBg, color: t.text, boxSizing: "border-box" }} />
+                  </div>
+                </div>
+                <button type="submit"
+                  style={{ width: "100%", height: 54, background: "linear-gradient(135deg, #8b5cf6, #6366f1)", color: "#fff", border: "none", borderRadius: 10, fontSize: 17, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: "0.02em" }}>
+                  Create Account <i className="fas fa-arrow-right"></i>
+                </button>
+              </form>
+              <div style={{ textAlign: "center", marginTop: 28 }}>
+                <div style={{ position: "relative", marginBottom: 20 }}>
+                  <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: t.divider }}></div>
+                  <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
+                    <span style={{ background: t.bg, padding: "0 16px", color: t.textMuted, fontSize: 14 }}>or</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: 15, color: t.successText, margin: 0 }}>
+                  Already have an account?{" "}
+                  <button onClick={closeSignup} style={{ background: "none", border: "none", color: "#0b5fff", fontWeight: 600, cursor: "pointer", textDecoration: "underline", fontSize: 15 }}>Sign in</button>
+                </p>
+                <p style={{ fontSize: 13, color: t.textMuted, marginTop: 12 }}>Admin portal access</p>
+              </div>
             </div>
           )}
         </div>

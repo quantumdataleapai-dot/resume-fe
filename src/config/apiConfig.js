@@ -1,7 +1,7 @@
 // API Configuration for Frontend-to-Python Backend Communication
 const API_CONFIG = {
   // Python backend URL
-  BASE_URL: "https://app.abhinay.online/api", // Force to use the new URL
+  BASE_URL: "http://10.30.0.104:8010/api", // Force to use the new URL
 
   // Clean API Endpoints for Python Backend
   ENDPOINTS: {
@@ -49,6 +49,11 @@ const API_CONFIG = {
       DOWNLOADS_USER: "/admin/downloads/user/{user_id}",
     },
 
+    // Ceipal endpoints
+    CEIPAL: {
+      PREVIEW: "/connectors/ceipal/preview",
+    },
+
     // Connector endpoints
     CONNECTORS: {
       SUPPORTED_TYPES: "/connectors/supported-types",
@@ -60,6 +65,7 @@ const API_CONFIG = {
       TEST: "/connectors/{id}/test",
       SYNC: "/connectors/{id}/sync",
       SYNC_STATUS: "/connectors/{id}/sync/status",
+      UPDATE: "/connectors/{id}",
       DELETE: "/connectors/{id}",
       REDISCOVER: "/connectors/{id}/discover",
       REMAP: "/connectors/{id}/remap",
@@ -76,6 +82,7 @@ const API_CONFIG = {
       PROCESS_FILE: "/jobs/process-file",
       PROCESS_TEXT_AND_MATCH: "/jobs/process-text-and-match",
       PROCESS_FILE_AND_MATCH: "/jobs/process-file-and-match",
+      MATCH: "/jobs/match",
       LIST: "/jobs",
     },
   },

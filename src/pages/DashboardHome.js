@@ -1181,6 +1181,7 @@ function DownloadsTab() {
   if (!data) return <div className="dh-loading">No data available</div>;
 
   const { total_downloads = 0, per_user = [], top_resumes = [], daily_trend = [] } = data;
+  const trendMax = Math.max(...daily_trend.map((d) => d.downloads), 1);
   const userTotalPages = Math.ceil(userTotal / USER_LIMIT);
 
   return (
@@ -1335,7 +1336,7 @@ function DownloadsTab() {
           const chartW = W - padL - padR, chartH = H - padT - padB;
           const maxVal = Math.max(...trendData.map((d) => d.downloads), 1);
           const gridLines = 5;
-          // stepY intentionally unused - gridLines used for layout reference
+          const stepY = maxVal / gridLines;
 
           const pts = trendData.map((d, i) => ({
             x: padL + (n > 1 ? (i / (n - 1)) * chartW : chartW / 2),
@@ -1469,7 +1470,7 @@ function DownloadsTab() {
         </div>
 
         {/* Per-user leaderboard */}
-        <div className="dh-dl-section-card">
+        <div className="dh-dl-section-card dh-dl-section-card--users">
           <div className="dh-dl-section-header">
             <h3>
               <i className="fas fa-user-chart" style={{ color: "#6366f1", marginRight: 8 }}></i>

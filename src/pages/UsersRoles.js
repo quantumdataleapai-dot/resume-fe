@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import ApiService from "../services/apiService";
+import { useTheme } from "../utils/ThemeContext";
 import "../styles/UsersRoles.css";
 
 const FILTERS = ["All", "Admin", "Recruiter", "Active", "Inactive"];
@@ -43,6 +44,11 @@ function getStatus(user) {
 }
 
 export default function UsersRoles() {
+  const { isDark } = useTheme();
+  const _t = isDark ? "#e2e8f0" : "#1f2937";
+  const _bg = isDark ? "#1e293b" : "#fff";
+  const _border = isDark ? "#334155" : "#e5e7eb";
+  const _textSec = isDark ? "#94a3b8" : "#374151";
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -288,8 +294,8 @@ export default function UsersRoles() {
                 onChange={(e) => setNewEmail(e.target.value)}
                 disabled={createLoading}
                 style={{
-                  flex: 2, padding: "7px 12px", borderRadius: "7px", border: "1px solid #e5e7eb",
-                  fontSize: "13px", color: "#1f2937", background: "#fff", outline: "none",
+                  flex: 2, padding: "7px 12px", borderRadius: "7px", border: `1px solid ${_border}`,
+                  fontSize: "13px", color: _t, background: _bg, outline: "none",
                 }}
               />
               <input
@@ -299,8 +305,8 @@ export default function UsersRoles() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={createLoading}
                 style={{
-                  flex: 2, padding: "7px 12px", borderRadius: "7px", border: "1px solid #e5e7eb",
-                  fontSize: "13px", color: "#1f2937", background: "#fff", outline: "none",
+                  flex: 2, padding: "7px 12px", borderRadius: "7px", border: `1px solid ${_border}`,
+                  fontSize: "13px", color: _t, background: _bg, outline: "none",
                 }}
               />
               <select
@@ -308,8 +314,8 @@ export default function UsersRoles() {
                 onChange={(e) => setNewRole(e.target.value)}
                 disabled={createLoading}
                 style={{
-                  flex: 1, padding: "7px 12px", borderRadius: "7px", border: "1px solid #e5e7eb",
-                  fontSize: "13px", color: "#1f2937", background: "#fff", cursor: "pointer",
+                  flex: 1, padding: "7px 12px", borderRadius: "7px", border: `1px solid ${_border}`,
+                  fontSize: "13px", color: _t, background: _bg, cursor: "pointer",
                 }}
               >
                 <option value="recruiter">Recruiter</option>
@@ -502,9 +508,9 @@ export default function UsersRoles() {
         >
           <div
             style={{
-              background: "#fff", borderRadius: "16px", padding: "28px 32px",
+              background: _bg, borderRadius: "16px", padding: "28px 32px",
               width: "400px", maxWidth: "calc(100% - 32px)",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.15)", border: "1px solid #e5e7eb",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.3)", border: `1px solid ${_border}`,
               animation: "slideIn 0.2s ease-out",
             }}
             onClick={(e) => e.stopPropagation()}
@@ -523,19 +529,19 @@ export default function UsersRoles() {
                   }}
                 ></i>
               </div>
-              <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 700, color: "#0f1724" }}>
+              <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 700, color: _t }}>
                 {confirmModal.title}
               </h3>
             </div>
-            <p style={{ margin: "0 0 24px", fontSize: "14px", color: "#6b7280", lineHeight: 1.6 }}>
+            <p style={{ margin: "0 0 24px", fontSize: "14px", color: isDark ? "#94a3b8" : "#6b7280", lineHeight: 1.6 }}>
               {confirmModal.message}
             </p>
             <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
               <button
                 onClick={closeConfirm}
                 style={{
-                  padding: "10px 20px", borderRadius: "8px", border: "1px solid #e5e7eb",
-                  background: "#fff", color: "#374151", fontSize: "14px", fontWeight: 600,
+                  padding: "10px 20px", borderRadius: "8px", border: `1px solid ${_border}`,
+                  background: _bg, color: _textSec, fontSize: "14px", fontWeight: 600,
                   cursor: "pointer",
                 }}
               >

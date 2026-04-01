@@ -5,7 +5,7 @@ import mockApiService, { USE_MOCK_DATA } from "./mockApiService";
 
 // Force axios to use the hardcoded URL
 const apiClient = axios.create({
-  baseURL: "https://app.abhinay.online/api", // Explicitly set to avoid any confusion
+  baseURL: "http://10.30.0.104:8010/api", // Explicitly set to avoid any confusion
   timeout: API_CONFIG.REQUEST_CONFIG.TIMEOUT,
   headers: {
     "Content-Type": "application/json",
@@ -349,6 +349,23 @@ class ApiService {
     }
   }
 
+  async updateConnector(id, payload) {
+    try {
+      const endpoint = API_CONFIG.ENDPOINTS.CONNECTORS.UPDATE.replace("{id}", id);
+      const response = await apiClient.patch(endpoint, payload);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        const detail = error.response.data.detail || error.response.data.message;
+        if (error.response.status === 409) {
+          return { success: false, message: detail || "Cannot edit connector while sync is in progress." };
+        }
+        return { success: false, message: detail || "Failed to update connector" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
   async deleteConnector(id) {
     try {
       const endpoint = API_CONFIG.ENDPOINTS.CONNECTORS.DELETE.replace("{id}", id);
@@ -356,6 +373,22 @@ class ApiService {
       return response.data;
     } catch (error) {
       if (error.response?.data) return { success: false, message: error.response.data.detail || error.response.data.message || "Failed to delete connector" };
+      return { success: false, message: "Unable to connect to server" };
+    }
+  }
+
+  // Ceipal Preview
+  async ceipalPreview(payload) {
+    try {
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.CEIPAL.PREVIEW, payload);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.detail || error.response.data.message || "Ceipal preview failed" };
+      }
+      if (error.code === "ECONNABORTED") {
+        return { success: false, message: "Ceipal API timed out. The server took too long to respond." };
+      }
       return { success: false, message: "Unable to connect to server" };
     }
   }
@@ -600,6 +633,36 @@ class ApiService {
       payload
     );
     return response.data;
+  }
+
+  // Advanced matching with filters (POST /api/jobs/match)
+  async matchJobCandidates(params) {
+    try {
+      const payload = {
+        job_description: params.job_description,
+        title: params.title || "",
+      };
+      if (params.confirmed_skills?.length) payload.confirmed_skills = params.confirmed_skills;
+      if (params.min_match_score != null) payload.min_match_score = params.min_match_score;
+      if (params.filter_visas?.length) payload.filter_visas = params.filter_visas;
+      if (params.filter_cities?.length) payload.filter_cities = params.filter_cities;
+      if (params.filter_states?.length) payload.filter_states = params.filter_states;
+      if (params.filter_countries?.length) payload.filter_countries = params.filter_countries;
+      if (params.filter_experience) payload.filter_experience = params.filter_experience;
+      if (params.filter_relocation) payload.filter_relocation = params.filter_relocation;
+      if (params.filter_tax_term) payload.filter_tax_term = params.filter_tax_term;
+      if (params.filter_recency_days) payload.filter_recency_days = params.filter_recency_days;
+      if (params.center_pincode) payload.center_pincode = params.center_pincode;
+      if (params.radius_miles) payload.radius_miles = params.radius_miles;
+
+      const response = await apiClient.post(API_CONFIG.ENDPOINTS.JOBS.MATCH, payload);
+      return response.data;
+    } catch (error) {
+      if (error.response?.data) {
+        return { success: false, message: error.response.data.detail || error.response.data.message || "Matching failed" };
+      }
+      return { success: false, message: "Unable to connect to server" };
+    }
   }
 
   // New unified method: Process Job Description (text or file) and match resumes

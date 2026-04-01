@@ -14,6 +14,8 @@ import UsersRoles from "./pages/UsersRoles";
 import PendingUsers from "./pages/PendingUsers";
 import DataConnectors from "./pages/DataConnectors";
 import { AuthProvider, useAuth } from "./utils/AuthContext";
+import { ThemeProvider } from "./utils/ThemeContext";
+import ThemeToggle from "./components/ThemeToggle";
 import "./styles/App.css";
 
 function ProtectedRoute({ children }) {
@@ -30,65 +32,68 @@ function AdminRoute({ children }) {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardHome />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/resume-matcher"
-              element={
-                <ProtectedRoute>
-                  <DashboardNew />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/resume-database"
-              element={
-                <ProtectedRoute>
-                  <ResumeDatabase />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/users"
-              element={
-                <AdminRoute>
-                  <UsersRoles />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/pending-users"
-              element={
-                <AdminRoute>
-                  <PendingUsers />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/data-connectors"
-              element={
-                <AdminRoute>
-                  <DataConnectors />
-                </AdminRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/login" />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <ThemeToggle />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardHome />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/resume-matcher"
+                element={
+                  <ProtectedRoute>
+                    <DashboardNew />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/resume-database"
+                element={
+                  <ProtectedRoute>
+                    <ResumeDatabase />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/users"
+                element={
+                  <AdminRoute>
+                    <UsersRoles />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/pending-users"
+                element={
+                  <AdminRoute>
+                    <PendingUsers />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/data-connectors"
+                element={
+                  <AdminRoute>
+                    <DataConnectors />
+                  </AdminRoute>
+                }
+              />
+              <Route path="/" element={<Navigate to="/login" />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

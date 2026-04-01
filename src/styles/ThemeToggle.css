@@ -1,0 +1,174 @@
+/* ═══════════════════════════════════════════
+   THEME TOGGLE — Sun / Crescent Moon
+   ═══════════════════════════════════════════ */
+
+.theme-toggle {
+  position: fixed;
+  top: 18px;
+  right: 28px;
+  z-index: 9999;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  --tg-moon-mask: #f5f5f5;
+}
+
+.theme-toggle--dark {
+  --tg-moon-mask: #0f172a;
+}
+
+/* ── Wrapper ── */
+.tg-wrapper {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  transition: background 0.4s ease,
+              border-color 0.4s ease,
+              box-shadow 0.4s ease,
+              transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.theme-toggle:hover .tg-wrapper {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.25);
+}
+
+.theme-toggle:active .tg-wrapper {
+  transform: scale(0.9);
+}
+
+/* Dark wrapper */
+.theme-toggle--dark .tg-wrapper {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle--dark:hover .tg-wrapper {
+  background: rgba(30, 41, 59, 0.8);
+  box-shadow: 0 4px 20px rgba(148, 163, 184, 0.2);
+}
+
+/* ── SVG icon ── */
+.tg-svg {
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle:hover .tg-svg {
+  transform: rotate(20deg);
+}
+
+.theme-toggle--dark:hover .tg-svg {
+  transform: rotate(-15deg);
+}
+
+/* ── Sun group ── */
+.tg-sun {
+  transform-origin: 12px 12px;
+  transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle--dark .tg-sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+
+/* Sun rays pulse */
+.tg-sun-ray {
+  transition: stroke-width 0.3s ease, opacity 0.3s ease;
+  animation: tg-ray-pulse 3s ease-in-out infinite;
+}
+
+.tg-sun-ray:nth-child(2) { animation-delay: 0.15s; }
+.tg-sun-ray:nth-child(3) { animation-delay: 0.3s; }
+.tg-sun-ray:nth-child(4) { animation-delay: 0.45s; }
+.tg-sun-ray:nth-child(5) { animation-delay: 0.6s; }
+.tg-sun-ray:nth-child(6) { animation-delay: 0.75s; }
+.tg-sun-ray:nth-child(7) { animation-delay: 0.9s; }
+.tg-sun-ray:nth-child(8) { animation-delay: 1.05s; }
+.tg-sun-ray:nth-child(9) { animation-delay: 1.2s; }
+
+@keyframes tg-ray-pulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+/* ── Moon group (crescent) ── */
+.tg-moon {
+  transform-origin: 12px 12px;
+  transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transform: rotate(-60deg) scale(0.5);
+}
+
+.theme-toggle--dark .tg-moon {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* ── Twinkling stars ── */
+.tg-star {
+  position: absolute;
+  border-radius: 50%;
+  background: #ffffff;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.tg-star--1 {
+  width: 3px; height: 3px;
+  top: 1px; right: 2px;
+  animation: tg-twinkle 2s ease-in-out infinite;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
+}
+.tg-star--2 {
+  width: 2px; height: 2px;
+  bottom: 3px; right: -1px;
+  animation: tg-twinkle 2s ease-in-out infinite 0.7s;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
+}
+.tg-star--3 {
+  width: 2px; height: 2px;
+  top: 10px; left: -2px;
+  animation: tg-twinkle 2s ease-in-out infinite 1.3s;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
+}
+
+.theme-toggle--dark .tg-star {
+  opacity: 1;
+}
+
+@keyframes tg-twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .theme-toggle {
+    top: 14px;
+    right: 14px;
+  }
+  .tg-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+  .tg-svg {
+    width: 22px;
+    height: 22px;
+  }
+}

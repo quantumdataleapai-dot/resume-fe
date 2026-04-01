@@ -1,3 +1,4 @@
+import API_CONFIG from "../config/apiConfig";
 import ModalPortal from "./ModalPortal";
 import { IoIosClose } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
@@ -6,12 +7,15 @@ import {
   FaBullseye,
   FaTimesCircle,
   FaLinkedin,
+  FaGithub,
 } from "react-icons/fa";
 import {
   MdOutlineSummarize,
   MdOutlineInsertDriveFile,
   MdDateRange,
   MdOutlineEmail,
+  MdCheck,
+  MdOutlineClose,
   MdHelpOutline,
   MdPictureAsPdf,
   MdDownload,
@@ -20,19 +24,26 @@ import {
 } from "react-icons/md";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../utils/AuthContext";
+import { useTheme } from "../utils/ThemeContext";
 import apiService from "../services/apiService";
 import axios from "axios";
 import * as mammoth from "mammoth";
 
 const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, jdId }) => {
-  const { isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const { isDark } = useTheme();
+  const _t = isDark ? "#e2e8f0" : "#1f2937";
+  const _bg = isDark ? "#1e293b" : "#ffffff";
+  const _bgSec = isDark ? "#0f172a" : "#f9fafb";
+  const _border = isDark ? "#334155" : "#e5e7eb";
+  const _textSec = isDark ? "#94a3b8" : "#4b5563";
   const [showQuestions, setShowQuestions] = useState(false);
   const [showResumeViewer, setShowResumeViewer] = useState(false);
   const [resumeUrl, setResumeUrl] = useState(null);
   const [loadingResume, setLoadingResume] = useState(false);
   const [resumeBlob, setResumeBlob] = useState(null);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
-  const [, setQuestionsError] = useState(null);
+  const [questionsError, setQuestionsError] = useState(null);
   const [generatedQuestions, setGeneratedQuestions] = useState(null);
   const [resumeFileType, setResumeFileType] = useState(null);
   const [wordDocHtml, setWordDocHtml] = useState(null);
@@ -103,7 +114,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
     setShowDeleteConfirm(false);
     try {
       const response = await axios.delete(
-        `https://app.abhinay.online/api/resumes/${resume.id}/delete`
+        `http://10.30.0.104:8010/api/resumes/${resume.id}/delete`
       );
       if (response.data?.success) {
         if (onDelete) {
@@ -126,7 +137,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
       
       // Fetch the resume file from the backend using axios
       const response = await axios.get(
-        `https://app.abhinay.online/api/resumes/download/${resume.id}`,
+        `http://10.30.0.104:8010/api/resumes/download/${resume.id}`,
         {
           responseType: "blob",
           headers: {
@@ -209,28 +220,28 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
   };
 
   const handleGenerateQuestions = async () => {
-    // Always call API to get fresh questions for this specific candidate
-    if (!jdId || !resume?.id) {
-      setQuestionsError("Missing required information to generate questions");
-      alert("Missing JD ID or Resume ID. Please ensure job description is processed first.");
+    if (!resume?.id) {
+      setQuestionsError("No resume selected.");
       return;
     }
 
     setLoadingQuestions(true);
     setQuestionsError(null);
 
+    // Build request body — include jd_id if available, always include resume_id
+    const requestBody = { resume_id: String(resume.id) };
+    if (jdId) requestBody.jd_id = jdId;
+    console.log("Generate questions request:", requestBody);
+
     try {
       const response = await fetch(
-        "https://app.abhinay.online/api/jobs/generate-questions",
+        `${API_CONFIG.BASE_URL}/jobs/generate-questions`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            jd_id: jdId,
-            resume_id: resume.id,
-          }),
+          body: JSON.stringify(requestBody),
         }
       );
 
@@ -285,14 +296,14 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
   };
 
   const modalStyles = {
-    background: "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
+    background: isDark ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" : "linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)",
     borderRadius: "16px",
     width: "800px",
     maxWidth: "90vw",
     maxHeight: "90vh",
     overflow: "hidden",
-    boxShadow: "0 25px 50px rgba(0, 0, 0, 0.15)",
-    border: "1px solid #e5e7eb",
+    boxShadow: isDark ? "0 25px 50px rgba(0, 0, 0, 0.5)" : "0 25px 50px rgba(0, 0, 0, 0.15)",
+    border: `1px solid ${_border}`,
     position: "relative",
     opacity: 1,
     transform: "none",
@@ -305,11 +316,11 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
   const headerStyles = {
     padding: "20px 30px",
-    borderBottom: "1px solid #e5e7eb",
+    borderBottom: `1px solid ${_border}`,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    background: "linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)",
+    background: isDark ? "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)" : "linear-gradient(135deg, #f9fafb 0%, #ffffff 100%)",
     transform: "none",
     transition: "none",
   };
@@ -318,7 +329,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
     padding: "30px",
     maxHeight: "calc(90vh - 200px)",
     overflowY: "auto",
-    background: "#ffffff",
+    background: _bg,
     transform: "none",
     transition: "none",
     flex: 1,
@@ -328,19 +339,38 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
   };
 
   const sectionStyles = {
-    background: "#f9fafb",
+    background: isDark ? "#0f172a" : "#f9fafb",
     borderRadius: "12px",
     padding: "20px",
-    border: "1px solid #e5e7eb",
+    border: `1px solid ${_border}`,
     margin: "15px 0",
     transition: "none",
     transform: "none",
   };
 
+  const closeButtonStyles = {
+    position: "absolute",
+    top: "15px",
+    right: "20px",
+    background: isDark ? "#7f1d1d" : "#fee2e2",
+    border: isDark ? "1px solid #991b1b" : "1px solid #fca5a5",
+    borderRadius: "50%",
+    width: "40px",
+    height: "40px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    color: "#dc2626",
+    fontSize: "16px",
+    transition: "all 0.3s ease",
+    transform: "none",
+  };
+
   const footerStyles = {
     padding: "16px 24px",
-    borderTop: "1px solid #e5e7eb",
-    background: "#f9fafb",
+    borderTop: `1px solid ${_border}`,
+    background: isDark ? "#0f172a" : "#f9fafb",
     display: "flex",
     justifyContent: "flex-end",
     gap: "8px",
@@ -376,9 +406,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
 
   const secondaryButtonStyles = {
     ...buttonStyles,
-    background: "#ffffff",
-    color: "#4b5563",
-    border: "1px solid #d1d5db",
+    background: _bg,
+    color: _textSec,
+    border: `1px solid ${_border}`,
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
   };
 
@@ -409,26 +439,32 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
     transition: "none",
   };
 
+  const matchingSkillStyles = {
+    ...skillTagStyles,
+    background: isDark ? "#052e16" : "#f0fdf4",
+    color: "#16a34a",
+    border: isDark ? "1px solid #065f46" : "1px solid #bbf7d0",
+  };
+
+  const missingSkillStyles = {
+    ...skillTagStyles,
+    background: "#fee2e2",
+    color: "#dc2626",
+    border: "1px solid #fca5a5",
+  };
+
   // Helper function to get section background color (alternating)
   const getSectionBackground = (index) => {
-    const colors = [
-      "#eff6ff", // Blue
-      "#f0f9ff", // Light Blue
-      "#fffbeb", // Orange
-      "#f0fdf4", // Green
-      "#fee2e2", // Red
-    ];
+    const colors = isDark
+      ? ["#0f1a2e", "#0f172a", "#1a1a0f", "#0f1a16", "#1a0f0f"]
+      : ["#eff6ff", "#f0f9ff", "#fffbeb", "#f0fdf4", "#fee2e2"];
     return colors[index % colors.length];
   };
 
   const getSectionBorderColor = (index) => {
-    const colors = [
-      "#bfdbfe", // Blue
-      "#bfdbfe", // Light Blue
-      "#fde68a", // Orange
-      "#bbf7d0", // Green
-      "#fca5a5", // Red
-    ];
+    const colors = isDark
+      ? ["#1e3a5f", "#1e3a5f", "#3d3400", "#065f46", "#5c1a1a"]
+      : ["#bfdbfe", "#bfdbfe", "#fde68a", "#bbf7d0", "#fca5a5"];
     return colors[index % colors.length];
   };
 
@@ -572,7 +608,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
               <div>
                 <h2
                   style={{
-                    color: "#1f2937",
+                    color: _t,
                     fontSize: "24px",
                     fontWeight: "600",
                     margin: "0 0 8px 0",
@@ -584,7 +620,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   <div
                     style={{
                       fontSize: "14px",
-                      color: "#6b7280",
+                      color: _textSec,
                       margin: "0 0 6px 0",
                       display: "flex",
                       alignItems: "center",
@@ -601,7 +637,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   <div
                     style={{
                       fontSize: "13px",
-                      color: "#9ca3af",
+                      color: isDark ? "#64748b" : "#9ca3af",
                       marginBottom: "6px",
                     }}
                   >
@@ -627,7 +663,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     </span>
                     <span
                       style={{
-                        color: "#6b7280",
+                        color: _textSec,
                         fontSize: "14px",
                       }}
                     >
@@ -653,7 +689,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
               >
                 <h3
                   style={{
-                    color: "#0284c7",
+                    color: isDark ? "#7dd3fc" : "#0284c7",
                     fontSize: "18px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -667,7 +703,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                 </h3>
                 <p
                   style={{
-                    color: "#4b5563",
+                    color: _textSec,
                     fontSize: "15px",
                     lineHeight: "1.6",
                     margin: 0,
@@ -686,8 +722,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
             <div
               style={{
                 ...sectionStyles,
-                background: "#f0f9ff",
-                border: "1px solid #bfdbfe",
+                background: isDark ? "#0c1a2e" : "#f0f9ff",
+                border: isDark ? "1px solid #1e3a5f" : "1px solid #bfdbfe",
               }}
             >
               <h3
@@ -725,7 +761,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     </div>
                     <div
                       style={{
-                        color: "#1f2937",
+                        color: _t,
                         fontSize: "15px",
                       }}
                     >
@@ -748,7 +784,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     </div>
                     <div
                       style={{
-                        color: "#1f2937",
+                        color: _t,
                         fontSize: "15px",
                       }}
                     >
@@ -771,7 +807,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     </div>
                     <div
                       style={{
-                        color: "#1f2937",
+                        color: _t,
                         fontSize: "15px",
                       }}
                     >
@@ -794,7 +830,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     </div>
                     <div
                       style={{
-                        color: "#1f2937",
+                        color: _t,
                         fontSize: "15px",
                       }}
                     >
@@ -833,7 +869,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     </div>
                     <div
                       style={{
-                        color: "#1f2937",
+                        color: _t,
                         fontSize: "15px",
                       }}
                     >
@@ -849,14 +885,14 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
               <div
                 style={{
                   ...sectionStyles,
-                  background: "#f9fafb",
-                  border: "1px solid #e5e7eb",
+                  background: _bgSec,
+                  border: `1px solid ${_border}`,
                   padding: "25px",
                 }}
               >
                 <h3
                   style={{
-                    color: "#667eea",
+                    color: isDark ? "#a5b4fc" : "#667eea",
                     fontSize: "20px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -869,7 +905,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                 </h3>
                 <p
                   style={{
-                    color: "#1f2937",
+                    color: _t,
                     fontSize: "16px",
                     lineHeight: "1.6",
                     margin: 0,
@@ -890,13 +926,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
               <div
                 style={{
                   ...sectionStyles,
-                  background: "#fffbeb",
-                  border: "1px solid #fde68a",
+                  background: isDark ? "#0f172a" : "#fffbeb",
+                  border: isDark ? "1px solid #334155" : "1px solid #fde68a",
                 }}
               >
                 <h3
                   style={{
-                    color: "#d97706",
+                    color: isDark ? "#a5b4fc" : "#d97706",
                     fontSize: "18px",
                     fontWeight: "600",
                     margin: "0 0 15px 0",
@@ -913,9 +949,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       key={index}
                       style={{
                         ...skillTagStyles,
-                        background: "#fef3c7",
-                        color: "#d97706",
-                        border: "1px solid #fde68a",
+                        background: isDark ? "#1e293b" : "#fef3c7",
+                        color: isDark ? "#c4b5fd" : "#d97706",
+                        border: isDark ? "1px solid #475569" : "1px solid #fde68a",
                       }}
                     >
                       {skill}
@@ -930,8 +966,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
               <div
                 style={{
                   ...sectionStyles,
-                  background: "#f0fdf4",
-                  border: "1px solid #bbf7d0",
+                  background: isDark ? "#052e16" : "#f0fdf4",
+                  border: isDark ? "1px solid #065f46" : "1px solid #bbf7d0",
                 }}
               >
                 <h3
@@ -1021,9 +1057,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       style={{
                         padding: "12px",
                         borderRadius: "8px",
-                        background: "#fecaca",
+                        background: isDark ? "#7f1d1d" : "#fecaca",
                         border: "1px solid #fca5a5",
-                        color: "#1f2937",
+                        color: _t,
                         fontSize: "14px",
                         lineHeight: "1.5",
                       }}
@@ -1075,18 +1111,20 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                 Call Candidate
               </button>
             )}
-            <button
-              style={{
-                ...buttonStyles,
-                background: "linear-gradient(135deg, #e0a7edff, #7b09b4b8)",
-                color: "white",
-                opacity: loadingQuestions ? 0.7 : 1,
-              }}
-              onClick={handleGenerateQuestions}
-              disabled={loadingQuestions}
-            >
-              <MdHelpOutline /> {loadingQuestions ? "Generating..." : "Questions"}
-            </button>
+            {jdId && (
+              <button
+                style={{
+                  ...buttonStyles,
+                  background: "linear-gradient(135deg, #e0a7edff, #7b09b4b8)",
+                  color: "white",
+                  opacity: loadingQuestions ? 0.7 : 1,
+                }}
+                onClick={handleGenerateQuestions}
+                disabled={loadingQuestions}
+              >
+                <MdHelpOutline /> {loadingQuestions ? "Generating..." : "Questions"}
+              </button>
+            )}
             <button style={successButtonStyles}>Schedule Interview</button>
           </div>
         </div>
@@ -1097,8 +1135,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
             <div
               style={{
                 ...modalStyles,
-                maxHeight: "85vh",
-                width: "900px",
+                maxHeight: "99vh",
+                width: "990px",
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -1108,7 +1146,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   <MdHelpOutline style={{ fontSize: "24px", color: "#d97706" }} />
                   <h2
                     style={{
-                      color: "#1f2937",
+                      color: _t,
                       fontSize: "24px",
                       fontWeight: "600",
                       margin: 0,
@@ -1126,7 +1164,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   <div style={{ marginBottom: "30px" }}>
                     <h3
                       style={{
-                        color: "#1f2937",
+                        color: _t,
                         fontSize: "18px",
                         fontWeight: "700",
                         marginBottom: "20px",
@@ -1142,7 +1180,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       <div style={{ marginBottom: "25px" }}>
                         <h4
                           style={{
-                            color: "#0284c7",
+                            color: isDark ? "#7dd3fc" : "#0284c7",
                             fontSize: "15px",
                             fontWeight: "600",
                             marginBottom: "15px",
@@ -1155,8 +1193,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                           <div key={projectIdx} style={{ marginBottom: "20px", marginLeft: "20px" }}>
                             <div
                               style={{
-                                background: "#eff6ff",
-                                border: "2px solid #0284c7",
+                                background: isDark ? "#0c1a2e" : "#eff6ff",
+                                border: isDark ? "2px solid #1e3a5f" : "2px solid #0284c7",
                                 borderRadius: "8px",
                                 padding: "12px 15px",
                                 marginBottom: "12px",
@@ -1164,7 +1202,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                             >
                               <p
                                 style={{
-                                  color: "#0284c7",
+                                  color: isDark ? "#7dd3fc" : "#0284c7",
                                   fontSize: "14px",
                                   fontWeight: "600",
                                   margin: 0,
@@ -1178,8 +1216,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                                 key={`project-${projectIdx}-${qIdx}`}
                                 style={{
                                   ...sectionStyles,
-                                  background: "#f0f9ff",
-                                  border: "1px solid #bfdbfe",
+                                  background: isDark ? "#0f172a" : "#f0f9ff",
+                                  border: isDark ? "1px solid #1e3a5f" : "1px solid #bfdbfe",
                                   marginBottom: "12px",
                                   marginLeft: "10px",
                                 }}
@@ -1211,7 +1249,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                                   <div style={{ flex: 1 }}>
                                     <p
                                       style={{
-                                        color: "#1f2937",
+                                        color: _t,
                                         fontSize: "14px",
                                         lineHeight: "1.6",
                                         margin: 0,
@@ -1233,7 +1271,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       <div>
                         <h4
                           style={{
-                            color: "#0284c7",
+                            color: isDark ? "#7dd3fc" : "#0284c7",
                             fontSize: "15px",
                             fontWeight: "600",
                             marginBottom: "15px",
@@ -1246,8 +1284,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                           <div key={expIdx} style={{ marginBottom: "20px", marginLeft: "20px" }}>
                             <div
                               style={{
-                                background: "#eff6ff",
-                                border: "2px solid #0284c7",
+                                background: isDark ? "#0c1a2e" : "#eff6ff",
+                                border: isDark ? "2px solid #1e3a5f" : "2px solid #0284c7",
                                 borderRadius: "8px",
                                 padding: "12px 15px",
                                 marginBottom: "12px",
@@ -1255,7 +1293,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                             >
                               <p
                                 style={{
-                                  color: "#0284c7",
+                                  color: isDark ? "#7dd3fc" : "#0284c7",
                                   fontSize: "14px",
                                   fontWeight: "600",
                                   margin: 0,
@@ -1269,8 +1307,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                                 key={`exp-${expIdx}-${qIdx}`}
                                 style={{
                                   ...sectionStyles,
-                                  background: "#f0f9ff",
-                                  border: "1px solid #bfdbfe",
+                                  background: isDark ? "#0f172a" : "#f0f9ff",
+                                  border: isDark ? "1px solid #1e3a5f" : "1px solid #bfdbfe",
                                   marginBottom: "12px",
                                   marginLeft: "10px",
                                 }}
@@ -1302,7 +1340,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                                   <div style={{ flex: 1 }}>
                                     <p
                                       style={{
-                                        color: "#1f2937",
+                                        color: _t,
                                         fontSize: "14px",
                                         lineHeight: "1.6",
                                         margin: 0,
@@ -1326,7 +1364,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   <div>
                     <h3
                       style={{
-                        color: "#1f2937",
+                        color: _t,
                         fontSize: "18px",
                         fontWeight: "700",
                         marginBottom: "20px",
@@ -1342,22 +1380,22 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       <div style={{ marginBottom: "20px" }}>
                         <h4
                           style={{
-                            color: "#16a34a",
+                            color: isDark ? "#4ade80" : "#16a34a",
                             fontSize: "14px",
                             fontWeight: "600",
                             marginBottom: "12px",
                             marginLeft: "10px",
                           }}
                         >
-                          📋 Visa & Work Authorization
+                          📋 Work Authorization
                         </h4>
                         {generatedQuestions.general_questions.visa_and_work_authorization.map((question, idx) => (
                           <div
                             key={`visa-${idx}`}
                             style={{
                               ...sectionStyles,
-                              background: "#f0fdf4",
-                              border: "1px solid #bbf7d0",
+                              background: isDark ? "#052e16" : "#f0fdf4",
+                              border: isDark ? "1px solid #065f46" : "1px solid #bbf7d0",
                               marginBottom: "12px",
                               marginLeft: "10px",
                             }}
@@ -1380,7 +1418,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                               >
                                 {idx + 1}
                               </div>
-                              <p style={{ color: "#1f2937", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
+                              <p style={{ color: _t, fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
                                 {question}
                               </p>
                             </div>
@@ -1394,7 +1432,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       <div style={{ marginBottom: "20px" }}>
                         <h4
                           style={{
-                            color: "#16a34a",
+                            color: isDark ? "#4ade80" : "#16a34a",
                             fontSize: "14px",
                             fontWeight: "600",
                             marginBottom: "12px",
@@ -1408,8 +1446,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                             key={`location-${idx}`}
                             style={{
                               ...sectionStyles,
-                              background: "#f0fdf4",
-                              border: "1px solid #bbf7d0",
+                              background: isDark ? "#052e16" : "#f0fdf4",
+                              border: isDark ? "1px solid #065f46" : "1px solid #bbf7d0",
                               marginBottom: "12px",
                               marginLeft: "10px",
                             }}
@@ -1432,7 +1470,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                               >
                                 {idx + 1}
                               </div>
-                              <p style={{ color: "#1f2937", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
+                              <p style={{ color: _t, fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
                                 {question}
                               </p>
                             </div>
@@ -1446,7 +1484,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       <div style={{ marginBottom: "20px" }}>
                         <h4
                           style={{
-                            color: "#16a34a",
+                            color: isDark ? "#4ade80" : "#16a34a",
                             fontSize: "14px",
                             fontWeight: "600",
                             marginBottom: "12px",
@@ -1460,8 +1498,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                             key={`salary-${idx}`}
                             style={{
                               ...sectionStyles,
-                              background: "#f0fdf4",
-                              border: "1px solid #bbf7d0",
+                              background: isDark ? "#052e16" : "#f0fdf4",
+                              border: isDark ? "1px solid #065f46" : "1px solid #bbf7d0",
                               marginBottom: "12px",
                               marginLeft: "10px",
                             }}
@@ -1484,7 +1522,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                               >
                                 {idx + 1}
                               </div>
-                              <p style={{ color: "#1f2937", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
+                              <p style={{ color: _t, fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
                                 {question}
                               </p>
                             </div>
@@ -1498,7 +1536,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                       <div>
                         <h4
                           style={{
-                            color: "#16a34a",
+                            color: isDark ? "#4ade80" : "#16a34a",
                             fontSize: "14px",
                             fontWeight: "600",
                             marginBottom: "12px",
@@ -1512,8 +1550,8 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                             key={`notice-${idx}`}
                             style={{
                               ...sectionStyles,
-                              background: "#f0fdf4",
-                              border: "1px solid #bbf7d0",
+                              background: isDark ? "#052e16" : "#f0fdf4",
+                              border: isDark ? "1px solid #065f46" : "1px solid #bbf7d0",
                               marginBottom: "12px",
                               marginLeft: "10px",
                             }}
@@ -1536,7 +1574,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                               >
                                 {idx + 1}
                               </div>
-                              <p style={{ color: "#1f2937", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
+                              <p style={{ color: _t, fontSize: "14px", lineHeight: "1.6", margin: 0 }}>
                                 {question}
                               </p>
                             </div>
@@ -1580,7 +1618,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   <MdPictureAsPdf style={{ fontSize: "24px", color: "#0284c7" }} />
                   <h2
                     style={{
-                      color: "#1f2937",
+                      color: _t,
                       fontSize: "24px",
                       fontWeight: "600",
                       margin: 0,
@@ -1592,13 +1630,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
               </div>
 
               {/* Resume Viewer Body */}
-              <div style={bodyStyles}>
+              <div style={{ ...bodyStyles, maxHeight: "none" }}>
                 {loadingResume ? (
                   <div
                     style={{
                       textAlign: "center",
                       padding: "60px 20px",
-                      color: "#6b7280",
+                      color: _textSec,
                       fontSize: "16px",
                       display: "flex",
                       flexDirection: "column",
@@ -1650,12 +1688,12 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                           overflowY: "auto",
                           padding: "30px",
                           boxSizing: "border-box",
-                          background: "#ffffff",
+                          background: _bg,
                           borderRadius: "8px",
                           flex: 1,
                           fontSize: "14px",
                           lineHeight: "1.6",
-                          color: "#1f2937",
+                          color: _t,
                         }}
                         dangerouslySetInnerHTML={{ __html: wordDocHtml }}
                       />
@@ -1668,7 +1706,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                           flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "center",
-                          background: "#f9fafb",
+                          background: _bgSec,
                           borderRadius: "8px",
                           padding: "20px",
                           boxSizing: "border-box",
@@ -1694,7 +1732,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                           flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "center",
-                          background: "#f9fafb",
+                          background: _bgSec,
                           borderRadius: "8px",
                           padding: "20px",
                           boxSizing: "border-box",
@@ -1704,13 +1742,13 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                           style={{
                             fontSize: "64px",
                             marginBottom: "15px",
-                            color: "#9ca3af",
+                            color: isDark ? "#64748b" : "#9ca3af",
                           }}
                         />
                         <p style={{ fontSize: "16px", fontWeight: "600", margin: "0 0 10px 0" }}>
                           Unsupported Format
                         </p>
-                        <p style={{ fontSize: "14px", color: "#6b7280", margin: "0 0 20px 0", textAlign: "center" }}>
+                        <p style={{ fontSize: "14px", color: _textSec, margin: "0 0 20px 0", textAlign: "center" }}>
                           This resume format cannot be previewed in the browser.
                         </p>
                         <button
@@ -1739,7 +1777,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                     style={{
                       textAlign: "center",
                       padding: "60px 20px",
-                      color: "#6b7280",
+                      color: _textSec,
                       fontSize: "16px",
                       display: "flex",
                       flexDirection: "column",
@@ -1750,7 +1788,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   >
                     <MdPictureAsPdf style={{ fontSize: "48px", marginBottom: "15px", color: "#0284c7" }} />
                     <p>Resume could not be loaded</p>
-                    <small style={{ marginTop: "10px", color: "#9ca3af" }}>
+                    <small style={{ marginTop: "10px", color: isDark ? "#64748b" : "#9ca3af" }}>
                       Check your internet connection and try again
                     </small>
                   </div>
@@ -1846,7 +1884,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
           >
             <div
               style={{
-                background: "#ffffff",
+                background: _bg,
                 borderRadius: "12px",
                 padding: "30px",
                 width: "400px",
@@ -1874,12 +1912,12 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   <MdLock size={24} style={{ color: "#4f46e5" }} />
                 )}
               </div>
-              <h3 style={{ margin: "0 0 8px", fontSize: "18px", color: "#1f2937" }}>
+              <h3 style={{ margin: "0 0 8px", fontSize: "18px", color: _t }}>
                 {isLocked
                   ? (isAdmin() ? "Force Unlock Resume?" : "Unlock Resume?")
                   : "Lock Resume?"}
               </h3>
-              <p style={{ margin: "0 0 24px", fontSize: "14px", color: "#6b7280", lineHeight: "1.5" }}>
+              <p style={{ margin: "0 0 24px", fontSize: "14px", color: _textSec, lineHeight: "1.5" }}>
                 {isLocked
                   ? (isAdmin()
                     ? `Are you sure you want to force-unlock the resume for ${resume.name}? It will be visible in match results for all users.`
@@ -1891,9 +1929,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   style={{
                     padding: "8px 20px",
                     borderRadius: "8px",
-                    border: "1px solid #d1d5db",
-                    background: "#ffffff",
-                    color: "#4b5563",
+                    border: `1px solid ${_border}`,
+                    background: _bg,
+                    color: _textSec,
                     fontSize: "14px",
                     fontWeight: "500",
                     cursor: "pointer",
@@ -1973,7 +2011,7 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
           >
             <div
               style={{
-                background: "#ffffff",
+                background: _bg,
                 borderRadius: "12px",
                 padding: "30px",
                 width: "400px",
@@ -1997,10 +2035,10 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
               >
                 <MdDelete size={24} style={{ color: "#dc2626" }} />
               </div>
-              <h3 style={{ margin: "0 0 8px", fontSize: "18px", color: "#1f2937" }}>
+              <h3 style={{ margin: "0 0 8px", fontSize: "18px", color: _t }}>
                 Delete Resume?
               </h3>
-              <p style={{ margin: "0 0 24px", fontSize: "14px", color: "#6b7280", lineHeight: "1.5" }}>
+              <p style={{ margin: "0 0 24px", fontSize: "14px", color: _textSec, lineHeight: "1.5" }}>
                 Are you sure you want to delete the resume for <strong>{resume.name}</strong>? This action cannot be undone.
               </p>
               <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
@@ -2008,9 +2046,9 @@ const ResumeDetailModal = ({ resume, isOpen, onClose, handleDownload, onDelete, 
                   style={{
                     padding: "8px 20px",
                     borderRadius: "8px",
-                    border: "1px solid #d1d5db",
-                    background: "#ffffff",
-                    color: "#4b5563",
+                    border: `1px solid ${_border}`,
+                    background: _bg,
+                    color: _textSec,
                     fontSize: "14px",
                     fontWeight: "500",
                     cursor: "pointer",
