@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
       // API returns: { access_token, token_type, role }
       if (response.access_token) {
         // Use the role from API response, fallback to selectedRole
-        const role = response.role === "admin" ? "admin" : "user";
+        const role = response.role === "admin" ? "admin" : "recruiter";
         const loggedInUser = {
           name: email.split("@")[0],
           email,

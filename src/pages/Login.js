@@ -335,12 +335,12 @@ const LoginPage = () => {
               </div>
               <h2 style={{ fontSize: 28, fontWeight: 700, color: t.text, marginBottom: 10 }}>Sign In</h2>
               <p style={{ fontSize: 15, color: t.textSec, marginBottom: 28 }}>
-                {selectedRole === "user" ? (
+                {selectedRole === "recruiter" ? (
                   <>Don't have an account yet?{" "}<button onClick={openSignup} style={{ background: "none", border: "none", color: "#0b5fff", fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}>Sign Up</button></>
                 ) : "Sign in with your Admin credentials"}
               </p>
               <div style={{ display: "flex", background: t.toggleBg, borderRadius: 12, padding: 4, marginBottom: 28 }}>
-                {["admin", "user"].map((r) => (
+                {["admin", "recruiter"].map((r) => (
                   <button key={r} type="button" onClick={() => { setSelectedRole(r); setErrorMessage(""); setUsername(""); setPassword(""); }}
                     style={{ flex: 1, padding: "12px 20px", borderRadius: 10, border: "none", fontSize: 16, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
                       background: selectedRole === r ? "linear-gradient(135deg, #0b5fff, #0950d1)" : "transparent",
@@ -379,7 +379,7 @@ const LoginPage = () => {
                   style={{ width: "100%", height: 54, background: isLoading ? "#5b8dff" : "linear-gradient(135deg, #0b5fff, #0950d1)", color: "#fff", border: "none", borderRadius: 10, fontSize: 17, fontWeight: 700, cursor: isLoading ? "not-allowed" : "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   {isLoading ? "SIGNING IN..." : "SIGN IN"}
                 </button>
-                {selectedRole === "user" && (
+                {selectedRole === "recruiter" && (
                   <>
                     <div style={{ position: "relative", margin: "24px 0" }}>
                       <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: t.divider }}></div>

@@ -20,7 +20,7 @@ No linter CLI command is configured separately — ESLint runs through `react-ap
 
 - All backend calls go through `src/services/apiService.js` (Axios client with interceptors for JWT auth)
 - Endpoint paths are centralized in `src/config/apiConfig.js`
-- **The base URL is hardcoded** in both `apiService.js` and `apiConfig.js` to `http://10.30.0.104:8010/api`, overriding `.env` values
+- **The base URL is hardcoded** in both `apiService.js` and `apiConfig.js` to `https://app.abhinay.online/api`, overriding `.env` values
 - A mock data layer exists via `src/services/mockApiService.js` controlled by `REACT_APP_USE_MOCK_DATA`
 
 ### Authentication & Routing
